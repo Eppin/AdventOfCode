@@ -11,4 +11,11 @@
       <PackageReference Include="Sharprompt" Version="2.4.5" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="2015\Input\Day1.txt" />
+      <EmbeddedResource Include="2015\Input\Day1.txt" />
+      <None Remove="2015\Input\Day2.txt" />
+      <EmbeddedResource Include="2015\Input\Day2.txt" />
+    </ItemGroup>
+
 </Project>
