@@ -5,6 +5,11 @@ using AdventOfCode;
 using Sharprompt;
 using static System.Int32;
 
+Console.CancelKeyPress += delegate
+{
+    Console.WriteLine("Closing...");
+};
+
 Console.WriteLine("Hello, World!");
 
 var puzzles = new List<Puzzle>();
@@ -36,24 +41,27 @@ var years = puzzles
     .OrderDescending()
     .ToList();
 
-var chosenYear = Prompt.Select("Choose year", years, defaultValue: years.First());
+while (true)
+{
+    var chosenYear = Prompt.Select("Choose year", years, defaultValue: years.First());
 
-var days = puzzles
-    .Where(p => p.Year == chosenYear)
-    .Select(p => p.Day)
-    .Distinct()
-    .Order()
-    .ToList();
+    var days = puzzles
+        .Where(p => p.Year == chosenYear)
+        .Select(p => p.Day)
+        .Distinct()
+        .Order()
+        .ToList();
 
-var chosenDay = Prompt.Select("Choose day", days, defaultValue: days.First());
+    var chosenDay = Prompt.Select("Choose day", days, defaultValue: days.First());
 
-var puzzle = puzzles.Single(p => p.Year == chosenYear && p.Day == chosenDay);
+    var puzzle = puzzles.Single(p => p.Year == chosenYear && p.Day == chosenDay);
 
-var chosenSolve = Prompt.Select<Solve>("Choose which to run", defaultValue: global::Solve.A);
+    var chosenSolve = Prompt.Select<Solve>("Choose which to run", defaultValue: global::Solve.A);
 
-Solve(puzzle.Type, chosenSolve);
+    Solve(puzzle.Type, chosenSolve);
 
-Console.Read();
+    Console.Read();
+}
 
 static int ParseString(string value)
 {
@@ -68,14 +76,14 @@ static void Solve(Type type, Solve solve)
     var day = Activator.CreateInstance(type) as Day;
     if (day == null)
         throw new EvaluateException($"Can't create instance of [{type.Name}]");
-    
+
     Console.WriteLine($"-- {type.Name} --");
     var sw = Stopwatch.StartNew();
 
     var result = solve == global::Solve.A
         ? day.SolveA()
         : day.SolveB();
-    
+
     Console.WriteLine($"{type.Name} is {result} in {sw.ElapsedMilliseconds} msec");
 }
 

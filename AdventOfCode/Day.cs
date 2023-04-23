@@ -29,7 +29,7 @@ public abstract partial class Day
     public abstract string SolveA();
     public abstract string SolveB();
     protected string Input => GetInput();
-    protected string[] SplitInput => GetSplitInput();
+    protected IEnumerable<string> SplitInput => GetSplitInput();
 
     private string GetInput()
     {
