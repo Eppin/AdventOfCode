@@ -18,7 +18,7 @@ public abstract partial class Day
 
         if (!matches.Success)
             throw new DataMisalignedException($"Caller file path needs to contain year and day, current value [{filePath}]");
-        
+
         var year = matches.Groups[1].Value;
         var day = matches.Groups[2].Value;
 
@@ -33,10 +33,18 @@ public abstract partial class Day
 
     private string GetInput()
     {
-        using var stream = typeof(Day).Assembly.GetManifestResourceStream($"{nameof(AdventOfCode)}._{_year}.Input.Day{_day}.txt");
+        var assembly = typeof(Day).Assembly.Location;
+        var folder = Path.GetDirectoryName(assembly);
 
-        using var reader = new StreamReader(stream ?? throw new InvalidOperationException());
-        return reader.ReadToEnd();
+        if (string.IsNullOrWhiteSpace(folder))
+            throw new InvalidOperationException();
+
+        var file = Path.Combine(folder, $"{_year}", "Input", $"Day{_day}.txt");
+
+        if (!File.Exists(file))
+            throw new FileNotFoundException();
+
+        return File.ReadAllText(file);
     }
 
     private string[] GetSplitInput()
