@@ -31,6 +31,15 @@ public abstract partial class Day
     protected string Input => GetInput();
     protected IEnumerable<string> SplitInput => GetSplitInput();
 
+    public string[] GetSplitInput(bool removeEmptyEntries = true)
+    {
+        var options = removeEmptyEntries
+            ? StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries
+            : StringSplitOptions.TrimEntries;
+
+        return GetInput().Split(Environment.NewLine, options);
+    }
+    
     private string GetInput()
     {
         var assembly = typeof(Day).Assembly.Location;
@@ -45,11 +54,6 @@ public abstract partial class Day
             throw new FileNotFoundException();
 
         return File.ReadAllText(file);
-    }
-
-    private string[] GetSplitInput()
-    {
-        return GetInput().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
     }
 
     [GeneratedRegex("AdventOfCode\\/(\\d{4})\\/Day(\\d{1,2})\\.")]

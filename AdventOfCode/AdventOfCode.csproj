@@ -8,11 +8,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Sharprompt" Version="2.4.5"/>
+        <PackageReference Include="Sharprompt" Version="2.4.5" />
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="20*\Input\*.*" CopyToOutputDirectory="Always"/>
+        <None Include="20*\Input\*.*" CopyToOutputDirectory="Always" />
     </ItemGroup>
     
 </Project>
