@@ -1,7 +1,5 @@
 namespace AdventOfCode._2015;
 
-using System.Collections.ObjectModel;
-
 public class Day9 : Day
 {
     public Day9() : base()
@@ -33,35 +31,23 @@ public class Day9 : Day
             .SelectMany(route => new[] { route.From, route.To })
             .ToHashSet();
 
-        return FindMin(routes, places, partB);
+        return FindRoutes(routes, places, partB);
     }
 
-    private List<Node> _nodes = new();
-
-    private int FindMin(Dictionary<(string from, string to), int> routes, HashSet<string> places, bool partB)
+    private static int FindRoutes(Dictionary<(string from, string to), int> routes, IReadOnlyCollection<string> places, bool partB)
     {
-        var numbers = new List<int>();
+        var numbers = (from place in places
+            let toGo = places.Except(new[] { place })
+            select FindRoutes(place, routes, toGo)
+            into possibleRoutes
+            select Calculate(possibleRoutes, 0, partB)).ToList();
 
-        foreach (var place in places)
-        {
-            var toGo = places.Except(new[] { place });
-            // Console.WriteLine($"Start: {place} -> {string.Join(',', toGo)}");
-            var node = new Node { Place = place };
-            var x = FindMin(place, routes, toGo, node);
-            
-            var j = partB 
-                ? CalculateMax(x,0) 
-                : CalculateMin(x, 0);
-            
-            numbers.Add(j);
-        }
-
-        return partB 
-            ? numbers.Max() 
+        return partB
+            ? numbers.Max()
             : numbers.Min();
     }
 
-    private static List<Node> FindMin(string current, Dictionary<(string from, string to), int> routes, IEnumerable<string> places, Node node)
+    private static List<Node> FindRoutes(string current, Dictionary<(string from, string to), int> routes, IEnumerable<string> places)
     {
         var results = new List<Node>();
 
@@ -69,37 +55,26 @@ public class Day9 : Day
         foreach (var ((from, to), cost) in possibleRoutes)
         {
             var toGo = places.Except(new[] { from });
-            // Console.WriteLine($"{current} -> {string.Join(',', toGo)}");
 
             results.Add(new Node
             {
                 Place = to,
                 Cost = cost,
-                Nodes = FindMin(to, routes, toGo, node)
+                Nodes = FindRoutes(to, routes, toGo)
             });
         }
 
         return results;
     }
 
-    private int CalculateMin(List<Node> nodes, int costs)
+    private static int Calculate(IEnumerable<Node> nodes, int costs, bool partB)
     {
-        var node = nodes.MinBy(n => n.Cost);
-        // Console.WriteLine($"N: {node?.Place}");
-        
-        if (node != null)
-            costs += CalculateMin(node.Nodes, node.Cost);
+        var node = !partB
+            ? nodes.MinBy(n => n.Cost)
+            : nodes.MaxBy(n => n.Cost);
 
-        return costs;
-    }
-    
-    private int CalculateMax(List<Node> nodes, int costs)
-    {
-        var node = nodes.MaxBy(n => n.Cost);
-        // Console.WriteLine($"N: {node?.Place}");
-        
         if (node != null)
-            costs += CalculateMax(node.Nodes, node.Cost);
+            costs += Calculate(node.Nodes, node.Cost, partB);
 
         return costs;
     }
