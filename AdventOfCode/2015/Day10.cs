@@ -1,5 +1,6 @@
 namespace AdventOfCode._2015;
 
+using System.Collections.Concurrent;
 using System.Diagnostics;
 
 public class Day10 : Day
@@ -20,25 +21,17 @@ public class Day10 : Day
 
     private static int Solve(string input, int processTimes)
     {
+        var dict = new ConcurrentDictionary<long, string>();
         for (var i = 0; i < processTimes; i++)
         {
-            var sw = Stopwatch.StartNew();
             var groups = Parse(input);
-            Console.WriteLine($"{i}: {sw.Elapsed}");
-            sw.Restart();
-            
-            
-            // var newInput = groups.Aggregate(string.Empty, (current, group) => $"{current}{group.Length}{group[0]}");
 
-            var newInput = string.Empty;
-            foreach (var group in groups)
-            {
-                newInput = $"{newInput}{group.Length}{group[0]}";
-            }
-            
-            sw.Stop();
-            Console.WriteLine($"{i}: {newInput.Length}, {sw.Elapsed}");
-            input = newInput;
+            Parallel.ForEach(
+                groups.AsParallel().AsOrdered(),
+                (group, _, index) => { dict[index] = $"{group.Length}{group[0]}"; });
+
+            input = string.Join("", dict.Select(d => d.Value));
+            dict.Clear();
         }
 
         return input.Length;
