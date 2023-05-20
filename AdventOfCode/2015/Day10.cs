@@ -1,7 +1,6 @@
 namespace AdventOfCode._2015;
 
 using System.Collections.Concurrent;
-using System.Diagnostics;
 
 public class Day10 : Day
 {
@@ -27,7 +26,7 @@ public class Day10 : Day
             var groups = Parse(input);
 
             Parallel.ForEach(
-                groups.AsParallel().AsOrdered(),
+                groups.AsParallel(),
                 (group, _, index) => { dict[index] = $"{group.Length}{group[0]}"; });
 
             input = string.Join("", dict.Select(d => d.Value));
