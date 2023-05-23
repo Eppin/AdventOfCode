@@ -1,9 +1,8 @@
 namespace AdventOfCode._2015;
 
 using System.Text.Json;
-using System.Text.RegularExpressions;
 
-public partial class Day12 : Day
+public class Day12 : Day
 {
     public Day12() : base()
     {
@@ -11,96 +10,52 @@ public partial class Day12 : Day
 
     public override string SolveA()
     {
-        var sum = SolveARegex().Matches(Input)
-            .Select(r => r.Groups[1])
-            .Where(r => r.Success)
-            .Select(r => int.Parse(r.Value))
-            .Sum();
-
-        var sum2 = X(JsonSerializer.Deserialize<JsonElement>(Input), false);
-
-        return $"{sum}/{sum2}";
+        return Solve(JsonSerializer.Deserialize<JsonElement>(Input), false).ToString();
     }
 
     public override string SolveB()
     {
-        return $"{X(JsonSerializer.Deserialize<JsonElement>(Input), true)}";
+        return Solve(JsonSerializer.Deserialize<JsonElement>(Input), true).ToString();
     }
 
-    private static int X(JsonElement json, bool isPartB)
+    private static int Solve(JsonElement json, bool isPartB)
     {
-        // Console.WriteLine(json);
-
-        if (json.ValueKind == JsonValueKind.Array)
+        switch (json.ValueKind)
         {
-            var sum = 0;
-            // var enumerate2 = json.EnumerateArray().ToList();
-            //
-            // if (enumerate2.Any(vk => vk.ValueKind == JsonValueKind.String && vk.GetString() == "red"))
-            // {
-            //     return 0;
-            // }
-
-            foreach (var element in json.EnumerateArray())
+            case JsonValueKind.Array:
             {
-                // if (element.ValueKind == JsonValueKind.String && element.GetString() == "red")
-                // {
-                //     
-                // }
-                if (element.ValueKind == JsonValueKind.Object)
-                {
-                    var x2 = element.EnumerateObject().ToList();
-                    var and = x2.Any(vk => vk.Value.ValueKind == JsonValueKind.String && vk.Value.GetString() == "red");
-
-                    if (!and)
-                        sum += X(element, isPartB);
-                }
-                // Console.WriteLine($"RED {element.GetType()}");
-                else
-                    sum += X(element, isPartB);
+                return json.EnumerateArray().Aggregate(0, (current, element) => Sum(isPartB, element, current));
             }
 
-            return sum;
-        }
-
-        if (json.ValueKind == JsonValueKind.Object)
-        {
-            var sum = 0;
-            var enumerate = json.EnumerateObject().ToList();
-
-            if (enumerate.Any(vk => vk.Value.ValueKind == JsonValueKind.String && vk.Value.GetString() == "red"))
+            case JsonValueKind.Object:
             {
-                return 0;
+                var enumerate = json.EnumerateObject();
+
+                if (isPartB && enumerate.Any(vk => vk.Value.ValueKind == JsonValueKind.String && vk.Value.GetString() == "red"))
+                    return 0;
+
+                return enumerate.Aggregate(0, (current, element) => Sum(isPartB, element.Value, current));
             }
 
-            foreach (var element in enumerate)
-            {
-                if (element.Value.ValueKind == JsonValueKind.Object)
-                {
-                    var x2 = element.Value.EnumerateObject().ToList();
-                    var and = x2.Any(vk => vk.Value.ValueKind == JsonValueKind.String && vk.Value.GetString() == "red");
-
-                    if (!and)
-                        sum += X(element.Value, isPartB);
-                }
-                // Console.WriteLine($"RED {element.GetType()}");
-                else
-                    sum += X(element.Value, isPartB);
-            }
-
-            return sum;
+            default:
+                return json.ValueKind == JsonValueKind.Number
+                    ? json.GetInt32()
+                    : 0;
         }
-
-        if (json.ValueKind == JsonValueKind.Number)
-        {
-            var value = json.GetInt32();
-            Console.WriteLine(value);
-            return value;
-        }
-
-        return 0;
     }
 
-    [GeneratedRegex("(-\\d+|\\d+)")]
-    private static partial Regex SolveARegex();
+    private static int Sum(bool isPartB, JsonElement element, int sum)
+    {
+        if (element.ValueKind == JsonValueKind.Object)
+        {
+            var properties = element.EnumerateObject().ToList();
+
+            if (!(isPartB && properties.Any(vk => vk.Value.ValueKind == JsonValueKind.String && vk.Value.GetString() == "red")))
+                sum += Solve(element, isPartB);
+        }
+        else
+            sum += Solve(element, isPartB);
+
+        return sum;
+    }
 }
