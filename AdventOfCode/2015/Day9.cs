@@ -1,5 +1,7 @@
 namespace AdventOfCode._2015;
 
+using Utils;
+
 public class Day9 : Day
 {
     public Day9() : base()
@@ -31,52 +33,33 @@ public class Day9 : Day
             .SelectMany(route => new[] { route.From, route.To })
             .ToHashSet();
 
-        return FindRoutes(routes, places, partB);
-    }
+        var minOrMaxCosts = !partB
+            ? int.MaxValue
+            : int.MinValue;
 
-    private static int FindRoutes(Dictionary<(string from, string to), int> routes, IReadOnlyCollection<string> places, bool partB)
-    {
-        var numbers = (from place in places
-            let toGo = places.Except(new[] { place })
-            select FindRoutes(place, routes, toGo)
-            into possibleRoutes
-            select Calculate(possibleRoutes, 0, partB)).ToList();
-
-        return partB
-            ? numbers.Max()
-            : numbers.Min();
-    }
-
-    private static List<Node> FindRoutes(string current, Dictionary<(string from, string to), int> routes, IEnumerable<string> places)
-    {
-        var results = new List<Node>();
-
-        var possibleRoutes = routes.Where(r => r.Key.from.Equals(current) && places.Contains(r.Key.to));
-        foreach (var ((from, to), cost) in possibleRoutes)
+        var permutations = places.ToArray().Permutations();
+        foreach (var permutation in permutations)
         {
-            var toGo = places.Except(new[] { from });
+            var totalCosts = 0;
 
-            results.Add(new Node
+            for (var i = 0; i < permutation.Length - 1; i++)
             {
-                Place = to,
-                Cost = cost,
-                Nodes = FindRoutes(to, routes, toGo)
-            });
+                if (i > permutation.Length - 1)
+                    break;
+
+                var current = permutation[i];
+                var next = permutation[i + 1];
+
+                if (routes.TryGetValue((current, next), out var cost))
+                    totalCosts += cost;
+            }
+
+            minOrMaxCosts = !partB
+                ? Math.Min(totalCosts, minOrMaxCosts)
+                : Math.Max(totalCosts, minOrMaxCosts);
         }
 
-        return results;
-    }
-
-    private static int Calculate(IEnumerable<Node> nodes, int costs, bool partB)
-    {
-        var node = !partB
-            ? nodes.MinBy(n => n.Cost)
-            : nodes.MaxBy(n => n.Cost);
-
-        if (node != null)
-            costs += Calculate(node.Nodes, node.Cost, partB);
-
-        return costs;
+        return minOrMaxCosts;
     }
 
     private List<Route> ParseLines()
@@ -97,11 +80,4 @@ public class Day9 : Day
     }
 
     private record struct Route(string From, string To, int Cost);
-
-    private class Node
-    {
-        public string Place { get; set; }
-        public int Cost { get; set; }
-        public List<Node> Nodes { get; set; } = new();
-    }
 }

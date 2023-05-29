@@ -7,6 +7,7 @@ public static class ArrayExtensions
         return Permutations(values, 0).Select(v => (T[])v.Clone());
     }
 
+    // Source: https://stackoverflow.com/a/13022090/4067690
     private static IEnumerable<T[]> Permutations<T>(this T[] values, int fromInd)
     {
         if (fromInd + 1 == values.Length)
