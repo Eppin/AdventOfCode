@@ -16,15 +16,15 @@ public partial class Day14 : Day
 
     public override string SolveB()
     {
-        throw new NotImplementedException();
+        return Solve(true).ToString();
     }
 
-    private int Solve()
+    private int Solve(bool partB = false)
     {
         var reindeers = Parse().ToList();
 
-        // Total distance passed
         var distance = reindeers.ToDictionary(r => r.Deer, _ => 0);
+        var lead = reindeers.ToDictionary(r => r.Deer, _ => 0);
 
         // True -> running, false -> resting
         var status = reindeers.ToDictionary(r => r.Deer, r => (true, r.Seconds));
@@ -47,43 +47,33 @@ public partial class Day14 : Day
                 {
                     status[reindeer.Deer] = (false, secondsLeft - 1);
                 }
-                
+
                 // Reset to resting
                 if (status[reindeer.Deer].Seconds == 0 && isRunning)
-                {
-                    Console.WriteLine($"{reindeer.Deer} starting to rest");
                     status[reindeer.Deer] = (false, reindeer.Rest);
-                }
+
                 // Reset to running
                 if (status[reindeer.Deer].Seconds == 0 && !isRunning)
                     status[reindeer.Deer] = (true, reindeer.Seconds);
-
-                // if (seconds[reindeer.Deer] > 0)
-                // {
-                //     seconds[reindeer.Deer] -= 1;
-                //     distance[reindeer.Deer] += reindeer.Distance;
-                // }
-                // else if (resting[reindeer.Deer] > 0)
-                // {
-                //     resting[reindeer.Deer] -= 1;
-                //
-                // }
-                // else if (resting[reindeer.Deer] == 0)
-                // {
-                //     seconds[reindeer.Deer] = reindeer.Seconds;
-                //     resting[reindeer.Deer] = reindeer.Rest;
-                // }
             }
 
-            Console.WriteLine(i + 1);
-            foreach (var (key, value) in distance)
-            {
-                var state = status[key];
-                Console.WriteLine($"{key}: {value} -> {state.Item1}, {state.Seconds}");
-            }
+            if (!partB)
+                continue;
+
+            var leads = distance
+                .GroupBy(x => x.Value)
+                .MaxBy(x => x.Key);
+
+            if (leads == null)
+                continue;
+
+            foreach (var a in leads)
+                lead[a.Key] += 1;
         }
 
-        return distance.Max(x => x.Value);
+        return !partB
+            ? distance.Max(x => x.Value)
+            : lead.Max(x => x.Value);
     }
 
     private IEnumerable<Reindeer> Parse()
