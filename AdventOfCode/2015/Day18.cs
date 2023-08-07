@@ -26,43 +26,21 @@ public class Day18 : Day
 
         _gridSize = grid.Length;
 
-        Console.WriteLine("Original");
-        for (var y = 0; y < _gridSize; y++)
-        {
-            for (var x = 0; x < _gridSize; x++)
-                Console.Write(grid[y][x]);
-
-            Console.WriteLine();
-        }
-
-        for (int i = 0; i < 100; i++)
-        {
+        for (var i = 0; i < 100; i++)
             grid = Next(grid, isPartB);
 
-            // Console.WriteLine($"Advance: {i + 1}");
-            // for (var y = 0; y < _gridSize; y++)
-            // {
-            //     for (var x = 0; x < _gridSize; x++)
-            //         Console.Write(grid[y][x]);
-            //
-            //     Console.WriteLine();
-            // }
-        }
-
-        var lightsOn = grid.SelectMany(g => g).Count(g => g == '#');
-
-        return lightsOn;
+        return grid.SelectMany(g => g).Count(g => g == '#');
     }
 
-    private char[][] Next(char[][] current, bool isPartB)
+    private char[][] Next(IReadOnlyList<char[]> current, bool isPartB)
     {
         var next = new char[_gridSize][];
         for (var i = 0; i < _gridSize; i++)
             next[i] = new char[_gridSize];
-        
+
         if (isPartB)
             ForceCornersOn(current);
-        
+
         for (var y = 0; y < _gridSize; y++)
         {
             for (var x = 0; x < _gridSize; x++)
@@ -77,22 +55,22 @@ public class Day18 : Day
                     next[y][x] = grid is 3 ? '#' : '.';
             }
         }
-        
+
         if (isPartB)
             ForceCornersOn(next);
 
         return next;
     }
 
-    private void ForceCornersOn(char[][] grid)
+    private void ForceCornersOn(IReadOnlyList<char[]> grid)
     {
-            grid[0][0] = '#'; // lt
-            grid[0][_gridSize - 1] = '#'; // rt
-            grid[_gridSize - 1][_gridSize - 1] = '#'; // rb
-            grid[_gridSize - 1][0] = '#'; // lb
+        grid[0][0] = '#'; // Left top
+        grid[0][_gridSize - 1] = '#'; // Right top
+        grid[_gridSize - 1][_gridSize - 1] = '#'; // Right bottom
+        grid[_gridSize - 1][0] = '#'; // Left bottom
     }
 
-    private int GetNeighbours(char[][] current, int x, int y)
+    private int GetNeighbours(IReadOnlyList<char[]> current, int x, int y)
     {
         var lt = GetGridValue(current, y - 1, x - 1);
         var l = GetGridValue(current, y, x - 1);
@@ -106,16 +84,13 @@ public class Day18 : Day
         var b = GetGridValue(current, y + 1, x);
 
         return lt + l + lb + rt + r + rb + t + b;
-        // return new Grid(lt, l, lb, rt, r, rb, t, b);
     }
 
-    private int GetGridValue(char[][] current, int y, int x)
+    private int GetGridValue(IReadOnlyList<char[]> current, int y, int x)
     {
         if (x >= 0 && x < _gridSize && y >= 0 && y < _gridSize)
             return current[y][x] == '#' ? 1 : 0;
 
         return 0;
     }
-
-    private record struct Grid(bool LeftTop, bool Left, bool LeftBottom, bool RightTop, bool Right, bool RightBottom, bool Top, bool Bottom);
 }
