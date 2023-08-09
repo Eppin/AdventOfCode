@@ -38,7 +38,7 @@ public class Day19 : Day
         var original = result;
         var steps = 0;
 
-        Shuffle(replacements);
+        replacements.Shuffle();
 
         do
         {
@@ -48,11 +48,10 @@ public class Day19 : Day
             {
                 steps = 0;
                 result = original;
-                Shuffle(replacements);
+                replacements.Shuffle();
             }
             else
                 steps++;
-
         } while (result != "e");
 
         return steps.ToString();
@@ -71,19 +70,6 @@ public class Day19 : Day
         }
 
         return string.Empty;
-    }
-
-    private static readonly Random Random = new();
-
-    private static void Shuffle<T>(IList<T> list)
-    {
-        var n = list.Count;
-        while (n > 1)
-        {
-            n--;
-            var k = Random.Next(n + 1);
-            (list[k], list[n]) = (list[n], list[k]);
-        }
     }
 
     private (List<Replacement> Replacements, string Starting) Parse()
