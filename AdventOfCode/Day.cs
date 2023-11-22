@@ -56,6 +56,6 @@ public abstract partial class Day
         return File.ReadAllText(file);
     }
 
-    [GeneratedRegex("AdventOfCode\\/(\\d{4})\\/Day(\\d{1,2})\\.")]
+    [GeneratedRegex(@"AdventOfCode.(\d{4}).Day(\d{1,2})\.")]
     private static partial Regex AdventOfCodeRegex();
 }
