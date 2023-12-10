@@ -37,31 +37,30 @@ public partial class Day1 : Day
 
         foreach (var line in SplitInput)
         {
-            if (isPartB)
-            {
-                var t2 =PartBRegex().Matches(line).Select(m => m.Groups.);
-            }
-            
             var regex = isPartB ? PartBRegex() : PartARegex();
-            var matches = regex.Matches(line);
+            var matches = regex
+                .Matches(line)
+                // Skip the first group because it always contains the entire match
+                .SelectMany(m => m.Groups.Cast<Group>().Skip(1))
+                .ToList();
 
-            if (!matches.Any())
+            if (matches.Count == 0)
                 continue;
 
             var first = "";
             var last = "";
 
-            if (matches.Count == 1)
+            switch (matches.Count)
             {
-                first = last = matches.First().Value;
-            }
-            else if (matches.Count >= 2)
-            {
-                first = matches.First().Value;
-                last = matches.Last().Value;
-            }
+                case 1:
+                    first = last = matches.First().Value;
+                    break;
 
-            // sum += int.Parse($"{first}{last}");
+                case >= 2:
+                    first = matches.First().Value;
+                    last = matches.Last().Value;
+                    break;
+            }
 
             if (!int.TryParse(first, out var firstNr))
                 _numbers.TryGetValue(first, out firstNr);
@@ -69,8 +68,7 @@ public partial class Day1 : Day
             if (!int.TryParse(last, out var lastNr))
                 _numbers.TryGetValue(last, out lastNr);
 
-            Console.WriteLine($"{first} - {last} => {firstNr} {lastNr}");
-            sum += (firstNr * 10) + lastNr;
+            sum += firstNr * 10 + lastNr;
         }
 
         return sum;
