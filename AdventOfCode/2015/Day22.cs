@@ -1,9 +1,13 @@
 namespace AdventOfCode._2015;
 
+using System.Net;
+using System.Numerics;
 using Utils;
 
 public class Day22 : Day
 {
+    private readonly List<State> _beatableStates = [];
+    
     public Day22() : base()
     {
     }
@@ -20,162 +24,185 @@ public class Day22 : Day
 
     private int Solve(bool isPartB)
     {
-        var maxTries = 100_000;
-        var tries = 0;
-        var won = false;
-
-        var spend = int.MaxValue;
-
-        while (tries <= maxTries)
+        var state = new State
         {
-            var boss = Parse();
-            var player = new Player(50, 0, 0, 500, new List<Spell>());
+            Player = new(50, 0, 0, 500), //new(10, 0, 0, 250),
+            Boss = Parse() // new(14, 8, 0, 0)
+        };
 
-            (won, var s) = Battle(boss, player);
+        Battle(state);
 
-            if (won && s < spend)
-                spend = s;
-            
-            Console.WriteLine($"{won}, {spend}");
-            tries++;
+        var winned = _beatableStates.Count;
+
+
+        return _beatableStates.Min(s => s.ManaSpend);
+    }
+
+    private void Battle(State state)
+    {
+        //Console.WriteLine($"-- Player turn: {state.Turn} --");
+        //Console.WriteLine($"- Player has {state.Player.HitPoints} hit point{(state.Player.HitPoints == 1 ? "" : "s")}, {state.Player.Armor} armor, {state.Player.Mana} mana");
+        //Console.WriteLine($"- Boss has {state.Boss.HitPoints} hit point{(state.Boss.HitPoints == 1 ? "" : "s")}");
+        // . My turn
+        // 1. Cast + Reduce spell effects
+        // 1.1 Cast active spells
+        CastSpells(state);
+        // 1.2 Reduce turn active spells
+        ReduceSpells(state);
+
+        // 2. Cast spell
+        var possibleSpells = CanCastSpell(state);
+        if (possibleSpells == null || possibleSpells.Count == 0)
+        {
+            //Console.WriteLine("Player lost! Can't cast..");
+            //Console.WriteLine("--");
+            //Console.WriteLine();
+            return;
         }
 
-        //
-        //
-        // foreach (var (costs, damage, armor) in items)
-        // {
-        //     var player = new Player(10, damage, 250);
-        //     // var won = Battle(boss, player);
-        //     //
-        //     // if (won)
-        //     //     cheapest = Math.Min(cheapest, costs);
-        //     // else
-        //     //     expensive = Math.Max(expensive, costs);
-        // }
-        //
-        // // return isPartB ? expensive : cheapest;
-        // return 0;
-        return tries;
-    }
-
-    private static (bool, int) Battle(Player boss, Player player)
-    {
-        var turn = 1;
-        var won = false;
-        var spend = 0;
-        do
+        foreach (var possibleSpell in possibleSpells)
         {
-            // Console.WriteLine($"-- Turn: {turn} --");
-            // Console.WriteLine($"{player.HitPoints}, {player.Attack}, {player.Armor}, {player.Mana}");
-            // Console.WriteLine($"{boss.HitPoints}");
-            // Console.WriteLine("--");
-            //
-            // Console.WriteLine("- Cast any effect + reduce (player turn)");
-            ReduceSpells(player, boss);
+            //Console.WriteLine($"Spell attempt: {possibleSpell.Type}, T:{state.Turn}");
+            var copied = (State)state.Clone();
 
-            // Console.WriteLine("- Cast a random spell (player turn)");
-            var spell = CanCastSpell(player);
-            if (spell == null)
-                break;
+            CastSpell(copied, possibleSpell);
 
-            spend += CastSpell(player, boss, spell);
+            //Console.WriteLine();
+            //Console.WriteLine($"-- Boss turn: {copied.Turn} --");
+            //Console.WriteLine($"- Player has {copied.Player.HitPoints} hit point{(copied.Player.HitPoints == 1 ? "" : "s")}, {copied.Player.Armor} armor, {copied.Player.Mana} mana");
+            //Console.WriteLine($"- Boss has {copied.Boss.HitPoints} hit point{(copied.Boss.HitPoints == 1 ? "" : "s")}");
 
-            if (boss.HitPoints <= 0)
+            if (copied.Boss.HitPoints <= 0)
             {
-                won = true;
-                break;
+                _beatableStates.Add(copied);
+                //Console.WriteLine("Player WON! T:{copied.Turn}");
+                //Console.WriteLine("--");
+                //Console.WriteLine();
+                continue;
             }
 
-            // Console.WriteLine("- Cast any effect + reduce (boss turn starts)");
-            ReduceSpells(player, boss);
-            player.HitPoints -= Math.Max(boss.Attack - player.Armor, 1);
-            turn++;
-        } while (boss.HitPoints > 0 && player.HitPoints > 0);
+            // . Boss turn
+            // 1. Cast + Reduce spell effects
+            // 1.1 Cast active spells
+            CastSpells(copied);
+            // 1.2 Reduce turn active spells
+            ReduceSpells(copied);
 
-        // Console.WriteLine($"{won}: {spend}");
-        return (won, spend);
+            if (copied.Boss.HitPoints <= 0)
+            {
+                _beatableStates.Add(copied);
+                //Console.WriteLine("Player WON (in boss' turn! T:{copied.Turn}");
+                //Console.WriteLine("--");
+                //Console.WriteLine();
+                continue;
+            }
+
+            // 2. Boss Attack
+            copied.Player.HitPoints -= Math.Max(copied.Boss.Attack - copied.Player.Armor, 1);
+
+            // Can we do another round?
+            if (copied.Player.HitPoints <= 0)
+            {
+                //Console.WriteLine($"Player lost! No hit points. T:{copied.Turn}");
+                //Console.WriteLine("--");
+                //Console.WriteLine();
+                continue;
+            }
+
+            // Call Battle()
+            //Console.WriteLine();
+            copied.Turn++;
+            Battle(copied);
+        }
     }
 
-    private static void ReduceSpells(Player player, Player boss)
+    private static void CastSpells(State state)
     {
-        var spell = player.Spells;
+        foreach (var spell in state.Spells)
+        {
+            CastSpell(state, spell, true);
+        }
+    }
 
-        if (spell?.Any() == false)
+    private static void CastSpell(State state, Spell spell, bool isEffect = false)
+    {
+        //Console.WriteLine($"Cast: {spell.Type}");
+
+        if (!isEffect)
+        {
+            state.Player.Mana -= spell.Cost;
+            state.ManaSpend += spell.Cost;
+        }
+
+        switch (spell.Type)
+        {
+            case SpellType.MagicMissile:
+                state.Boss.HitPoints -= spell.Damage;
+                break;
+
+            case SpellType.Drain:
+                state.Player.HitPoints += spell.Heal;
+                state.Boss.HitPoints -= spell.Damage;
+                break;
+
+            case SpellType.Shield:
+                state.Player.Armor = spell.Armor;
+                break;
+
+            case SpellType.Poison when isEffect:
+                state.Boss.HitPoints -= spell.Damage;
+                break;
+
+            case SpellType.Recharge when isEffect:
+                state.Player.Mana += spell.Mana;
+                break;
+        }
+
+        if (spell.Turns > 0 && state.Spells.TrueForAll(p => p.Type != spell.Type))
+        {
+            state.Spells.Add(spell);
+        }
+    }
+
+    private static void ReduceSpells(State state)
+    {
+        var spell = state.Spells;
+
+        if (spell.Count == 0)
             return;
 
         for (var i = spell.Count - 1; i >= 0; i--)
         {
             spell[i].Turns -= 1;
-            CastSpell(player, boss, spell[i]);
-            // Console.WriteLine($"Spell {spell[i].Type} effect went to {spell[i].Turns}");
+
+            //Console.WriteLine($"Reduced: {spell[i].Type}, timer {spell[i].Turns}");
 
             if (spell[i].Turns <= 0)
             {
+                // Special case
                 if (spell[i].Type == SpellType.Shield)
-                    player.Armor -= spell[i].Armor;
+                    state.Player.Armor -= spell[i].Armor;
 
-                player.Spells.Remove(spell[i]);
+                spell.Remove(spell[i]);
             }
         }
     }
 
-    private static Spell? CanCastSpell(Player player)
+    private static List<Spell>? CanCastSpell(State state)
     {
-        var spells = new List<Spell>();
-        foreach (var spell in GetSpells())
-        {
-            if (player.Spells?.All(s => !s.Type.Equals(spell.Type)) == true)
-            {
-                // Console.WriteLine($"Can cast {spell.Type}");
-                spells.Add(spell);
-            }
-        }
+        //var spells = new List<Spell>();
 
-        if (!spells.Any())
-            return null;
+        var active = state.Spells.Select(s => s.Type);
+        var manaAvailable = state.Player.Mana;
 
-        spells.Shuffle();
-        return spells.First();
-    }
+        var availableSpells = Spells.Where(s => !active.Contains(s.Type) && manaAvailable >= s.Cost).ToList();
 
-    private static int CastSpell(Player player, Player boss, Spell spell)
-    {
-        // Console.WriteLine($"Cast spell {spell.Type}");
+        //Console.WriteLine($"Available spells: {string.Join(',', availableSpells.Select(s => s.Type))}");
+        
 
-        switch (spell.Type)
-        {
-            case SpellType.MagicMissile:
-                boss.HitPoints -= spell.Damage;
-                break;
-
-            case SpellType.Drain:
-                player.HitPoints += spell.Heal;
-                boss.HitPoints -= spell.Damage;
-                break;
-
-            case SpellType.Shield:
-                player.Armor = spell.Armor;
-                break;
-
-            case SpellType.Poison:
-                boss.HitPoints -= spell.Damage;
-                break;
-
-            case SpellType.Recharge:
-                player.Mana += spell.Mana;
-                break;
-
-            default:
-                throw new ArgumentOutOfRangeException(nameof(spell.Type), spell.Type, null);
-        }
-
-        if (spell.Turns > 0 && player.Spells?.All(p => p.Type != spell.Type) == true)
-        {
-            player.Spells.Add(spell);
-            return spell.Cost;
-        }
-
-        return 0;
+        return availableSpells.Count == 0
+            ? null
+            : availableSpells;
     }
 
     private Player Parse()
@@ -185,58 +212,69 @@ public class Day22 : Day
         var hp = int.Parse(input[0].Replace("Hit Points:", ""));
         var attack = int.Parse(input[1].Replace("Damage:", ""));
 
-        return new Player(hp, attack, 0, 0, new List<Spell>());
+        return new Player(hp, attack, 0, 0);
     }
 
-    private static IEnumerable<Spell> GetSpells()
-    {
-        return new Spell[]
+    private static IEnumerable<Spell> Spells =>
+        new Spell[]
         {
             new(SpellType.MagicMissile, 53, 4, 0, 0, 0, 0),
-            new(SpellType.Drain, 73, 2, 0, 0, 0, 2),
+            new(SpellType.Drain, 73, 2, 0, 2, 0, 0),
             new(SpellType.Shield, 113, 0, 7, 0, 0, 6),
             new(SpellType.Poison, 173, 3, 0, 0, 0, 6),
             new(SpellType.Recharge, 229, 0, 0, 0, 101, 5)
         };
+
+    private sealed class Player(int hitPoints, int attack, int armor, int mana)
+    {
+        public int HitPoints { get; set; } = hitPoints;
+        public int Attack { get; set; } = attack;
+        public int Armor { get; set; } = armor;
+        public int Mana { get; set; } = mana;
     }
 
-    private class Player
+    private sealed class Spell(SpellType type, int cost, int damage, int armor, int heal, int mana, int turns) : ICloneable
     {
-        public int HitPoints { get; set; }
-        public int Attack { get; set; }
-        public int Armor { get; set; }
-        public int Mana { get; set; }
-        public List<Spell>? Spells { get; set; }
+        public SpellType Type { get; set; } = type;
+        public int Cost { get; set; } = cost;
+        public int Damage { get; set; } = damage;
+        public int Armor { get; set; } = armor;
+        public int Heal { get; set; } = heal;
+        public int Mana { get; set; } = mana;
+        public int Turns { get; set; } = turns;
 
-        public Player(int hitPoints, int attack, int armor, int mana, List<Spell>? spells = null)
+        public object Clone()
         {
-            HitPoints = hitPoints;
-            Attack = attack;
-            Armor = armor;
-            Mana = mana;
-            Spells = spells;
+            return (Spell)MemberwiseClone();
         }
     }
 
-    private class Spell
+    private sealed class State : ICloneable
     {
-        public SpellType Type { get; set; }
-        public int Cost { get; set; }
-        public int Damage { get; set; }
-        public int Armor { get; set; }
-        public int Heal { get; set; }
-        public int Mana { get; set; }
-        public int Turns { get; set; }
+        public int Turn { get; set; }
+        public int ManaSpend { get; set; }
+        
+        public Player Player { get; set; }
+        public Player Boss { get; set; }
 
-        public Spell(SpellType type, int cost, int damage, int armor, int heal, int mana, int turns)
+        public List<Spell> Spells { get; set; } = [];
+
+        public object Clone()
         {
-            Type = type;
-            Cost = cost;
-            Damage = damage;
-            Armor = armor;
-            Heal = heal;
-            Mana = mana;
-            Turns = turns;
+            var state = (State)MemberwiseClone();
+
+            state.Player = new Player(Player.HitPoints, Player.Attack, Player.Armor, Player.Mana);
+            state.Boss = new Player(Boss.HitPoints, Boss.Attack, Boss.Armor, Boss.Mana);
+
+            state.Spells = [];
+            foreach (var address in this.Spells)
+            {
+                var clonedAddress = (Spell)address.Clone();
+
+                state.Spells.Add(clonedAddress);
+            }
+
+            return state;
         }
     }
 
