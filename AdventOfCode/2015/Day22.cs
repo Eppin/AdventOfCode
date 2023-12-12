@@ -1,9 +1,12 @@
 namespace AdventOfCode._2015;
 
+using Utils;
+
 public class Day22 : Day
 {
     private int _minimumSpend = int.MaxValue;
-    
+    private static Player? _boss;
+
     public Day22() : base()
     {
     }
@@ -15,110 +18,101 @@ public class Day22 : Day
 
     public override string SolveB()
     {
-        throw new NotImplementedException();
+        return Solve(true).ToString();
     }
 
-    private int Solve(bool isPartB)
+    public int Solve(bool isPartB)
     {
-        //var state = new State
-        //{
-        //    Player = new(50, 0, 0, 500), // new(10, 0, 0, 250),
-        //    Boss = Parse() //new(14, 8, 0, 0)
-        //};
+        _boss ??= Parse();
 
-        var state = new State
-        {
-            Player = new(10, 0, 0, 250),
-            Boss = new(14, 8, 0, 0)
-        };
-
-        Battle(state);
+        for (var i = 0; i < 500_000; i++)
+            Battle(isPartB);
 
         return _minimumSpend;
     }
 
-    private void Battle(State state)
+    private void Battle(bool isPartB)
     {
-        //Console.WriteLine($"-- Player turn: {state.Turn} --");
-        //Console.WriteLine($"- Player has {state.Player.HitPoints} hit point{(state.Player.HitPoints == 1 ? "" : "s")}, {state.Player.Armor} armor, {state.Player.Mana} mana");
-        //Console.WriteLine($"- Boss has {state.Boss.HitPoints} hit point{(state.Boss.HitPoints == 1 ? "" : "s")}");
-        // . My turn
-        // 1. Cast + Reduce spell effects
-        // 1.1 Cast active spells
+        var queue = new Queue<State>();
+
+        var state = new State
+        {
+            MyTurn = true,
+            Player = new(50, 0, 500),
+            Boss = _boss!.Clone()
+        };
+
+        queue.Enqueue(state);
+
+        while (queue.TryDequeue(out state))
+        {
+            if (!HandleTurn(state, isPartB))
+                break;
+
+            var newState = (State)state.Clone();
+
+            if (newState.Player.HitPoints > 0)
+                queue.Enqueue(newState);
+        }
+    }
+
+    private bool HandleTurn(State state, bool isPartB)
+    {
+        if (isPartB && state.MyTurn)
+        {
+            state.Player.HitPoints -= 1;
+
+            if (!ContinueGame(state))
+                return false;
+        }
+
         CastSpells(state);
-        // 1.2 Reduce turn active spells
         ReduceSpells(state);
 
-        // 2. Cast spell
-        var possibleSpells = CanCastSpell(state);
-        if (!possibleSpells.Any())
+        if (!ContinueGame(state))
+            return false;
+
+        if (state.MyTurn)
         {
-            //Console.WriteLine("Player lost! Can't cast..");
-            //Console.WriteLine("--");
-            //Console.WriteLine();
-            return;
+            var possibleSpell = CanCastSpell(state);
+            if (possibleSpell == null)
+                return false;
+
+            CastSpell(state, possibleSpell);
+        }
+        else
+        {
+            var hasArmor = state.ActiveSpells.ContainsKey(SpellType.Shield);
+            var armor = hasArmor
+                ? Spells.Single(s => s.Type == SpellType.Shield).Armor
+                : 0;
+
+            state.Player.HitPoints -= Math.Max(state.Boss.Attack - armor, 1);
         }
 
-        foreach (var possibleSpell in possibleSpells)
+        // Switch turns
+        state.MyTurn = !state.MyTurn;
+
+        return ContinueGame(state);
+    }
+
+    private bool ContinueGame(State state)
+    {
+        if (state.Boss.HitPoints <= 0)
         {
-            //Console.WriteLine($"Spell attempt: {possibleSpell.Type}, T:{state.Turn}");
-            var copied = (State)state.Clone();
-
-            CastSpell(copied, possibleSpell);
-
-            //Console.WriteLine();
-            //Console.WriteLine($"-- Boss turn: {copied.Turn} --");
-            //Console.WriteLine($"- Player has {copied.Player.HitPoints} hit point{(copied.Player.HitPoints == 1 ? "" : "s")}, {copied.Player.Armor} armor, {copied.Player.Mana} mana");
-            //Console.WriteLine($"- Boss has {copied.Boss.HitPoints} hit point{(copied.Boss.HitPoints == 1 ? "" : "s")}");
-
-            if (copied.Boss.HitPoints <= 0)
-            {
-                _minimumSpend = Math.Min(_minimumSpend, copied.ManaSpend);
-                //_beatableStates.Add(copied);
-                //Console.WriteLine("Player WON! T:{copied.Turn}");
-                //Console.WriteLine("--");
-                //Console.WriteLine();
-                continue;
-            }
-
-            // . Boss turn
-            // 1. Cast + Reduce spell effects
-            // 1.1 Cast active spells
-            CastSpells(copied);
-            // 1.2 Reduce turn active spells
-            ReduceSpells(copied);
-
-            if (copied.Boss.HitPoints <= 0)
-            {
-                _minimumSpend = Math.Min(_minimumSpend, copied.ManaSpend);
-                //Console.WriteLine("Player WON (in boss' turn! T:{copied.Turn}");
-                //Console.WriteLine("--");
-                //Console.WriteLine();
-                continue;
-            }
-
-            // 2. Boss Attack
-            copied.Player.HitPoints -= Math.Max(copied.Boss.Attack - copied.Player.Armor, 1);
-
-            // Can we do another round?
-            if (copied.Player.HitPoints <= 0)
-            {
-                //Console.WriteLine($"Player lost! No hit points. T:{copied.Turn}");
-                //Console.WriteLine("--");
-                //Console.WriteLine();
-                continue;
-            }
-
-            // Call Battle()
-            //Console.WriteLine();
-            //copied.Turn++;
-            Battle(copied);
+            _minimumSpend = Math.Min(_minimumSpend, state.ManaSpend);
+            return false;
         }
+
+        if (state.Player.HitPoints <= 0)
+            return false;
+
+        return true;
     }
 
     private static void CastSpells(State state)
     {
-        foreach (var spellType in state.ActiveSpells)
+        foreach (var (spellType, _) in state.ActiveSpells)
         {
             var spell = Spells.Single(s => s.Type == spellType);
             CastSpell(state, spell, true);
@@ -127,8 +121,6 @@ public class Day22 : Day
 
     private static void CastSpell(State state, Spell spell, bool isEffect = false)
     {
-        //Console.WriteLine($"Cast: {spell.Type}");
-
         if (!isEffect)
         {
             state.Player.Mana -= spell.Cost;
@@ -146,10 +138,6 @@ public class Day22 : Day
                 state.Boss.HitPoints -= spell.Damage;
                 break;
 
-            case SpellType.Shield:
-                state.Player.Armor = spell.Armor;
-                break;
-
             case SpellType.Poison when isEffect:
                 state.Boss.HitPoints -= spell.Damage;
                 break;
@@ -159,45 +147,33 @@ public class Day22 : Day
                 break;
         }
 
-        if (spell.Turns > 0 && !state.ActiveSpells.Contains(spell.Type))
+        if (spell.Turns > 0 && !state.ActiveSpells.ContainsKey(spell.Type))
         {
-            state.ActiveSpells.Add(spell.Type);
+            state.ActiveSpells.Add(spell.Type, spell.Turns);
         }
     }
 
     private static void ReduceSpells(State state)
     {
-        foreach (var spellType in state.ActiveSpells)
+        foreach (var (spellType, _) in state.ActiveSpells)
         {
             var spell = Spells.Single(s => s.Type == spellType);
+            state.ActiveSpells[spellType] -= 1;
 
-            spell.Turns -= 1;
-
-            if (spell.Turns <= 0)
-            {
-                if (spell.Type == SpellType.Shield)
-                    state.Player.Armor -= spell.Armor;
-
+            if (state.ActiveSpells[spellType] <= 0)
                 state.ActiveSpells.Remove(spell.Type);
-            }
         }
     }
-    
-    private static IEnumerable<Spell> CanCastSpell(State state)
-    {
-        //var spells = new List<Spell>();
 
+    private static Spell? CanCastSpell(State state)
+    {
         var active = state.ActiveSpells;
         var manaAvailable = state.Player.Mana;
 
-        return Spells.Where(s => !active.Contains(s.Type) && manaAvailable >= s.Cost);
+        var spells = Spells.Where(s => !active.ContainsKey(s.Type) && manaAvailable >= s.Cost).ToList();
+        spells.Shuffle();
 
-        //Console.WriteLine($"Available spells: {string.Join(',', availableSpells.Select(s => s.Type))}");
-        
-
-        //return availableSpells.Count == 0
-        //    ? null
-        //    : availableSpells;
+        return spells.FirstOrDefault();
     }
 
     private Player Parse()
@@ -207,7 +183,7 @@ public class Day22 : Day
         var hp = int.Parse(input[0].Replace("Hit Points:", ""));
         var attack = int.Parse(input[1].Replace("Damage:", ""));
 
-        return new Player(hp, attack, 0, 0);
+        return new Player(hp, attack, 0);
     }
 
     private static IEnumerable<Spell> Spells =>
@@ -220,28 +196,27 @@ public class Day22 : Day
             new(SpellType.Recharge, 229, 0, 0, 0, 101, 5)
         };
 
-    private sealed class Player(int hitPoints, int attack, int armor, int mana)
+    private sealed class Player(int hitPoints, int attack, int mana)
     {
         public int HitPoints { get; set; } = hitPoints;
-        public int Attack { get; set; } = attack;
-        public int Armor { get; set; } = armor;
+        public int Attack { get; } = attack;
         public int Mana { get; set; } = mana;
 
         public Player Clone()
         {
-            return new Player(HitPoints, Attack, Armor, Mana);
+            return new Player(HitPoints, Attack, Mana);
         }
     }
 
     private sealed class Spell(SpellType type, int cost, int damage, int armor, int heal, int mana, int turns) : ICloneable
     {
-        public SpellType Type { get; set; } = type;
-        public int Cost { get; set; } = cost;
-        public int Damage { get; set; } = damage;
-        public int Armor { get; set; } = armor;
-        public int Heal { get; set; } = heal;
-        public int Mana { get; set; } = mana;
-        public int Turns { get; set; } = turns;
+        public SpellType Type { get; } = type;
+        public int Cost { get; } = cost;
+        public int Damage { get; } = damage;
+        public int Armor { get; } = armor;
+        public int Heal { get; } = heal;
+        public int Mana { get; } = mana;
+        public int Turns { get; } = turns;
 
         public object Clone()
         {
@@ -251,24 +226,23 @@ public class Day22 : Day
 
     private sealed class State : ICloneable
     {
-        //public int Turn { get; set; }
+        public bool MyTurn { get; set; }
         public int ManaSpend { get; set; }
 
-        public Player Player { get; set; }
-        public Player Boss { get; set; }
+        public Player Player { get; init; }
+        public Player Boss { get; init; }
 
-        // Use a HashSet for faster lookups
-        public HashSet<SpellType> ActiveSpells { get; set; } = [];
+        public Dictionary<SpellType, int> ActiveSpells { get; private init; } = [];
 
         public object Clone()
         {
             return new State
             {
-                //Turn = Turn,
+                MyTurn = MyTurn,
                 ManaSpend = ManaSpend,
                 Player = Player.Clone(),
                 Boss = Boss.Clone(),
-                ActiveSpells = [..ActiveSpells]
+                ActiveSpells = ActiveSpells
             };
         }
     }
