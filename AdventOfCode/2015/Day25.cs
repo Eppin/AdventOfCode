@@ -18,8 +18,10 @@ public partial class Day25 : Day
         var rows = new List<int>();
         var columns = new List<int>();
 
-        // Sort of brute forced while loop..
-        while (maxY <= 10_000 && maxX <= 10_000)
+        var (searchRow, searchColumn) = Parse();
+        var maxValue = searchRow + searchColumn;
+
+        while (maxY <= maxValue && maxX <= maxValue)
         {
             for (var y = maxY - 1; y > 0; y--)
                 rows.Add(y);
@@ -30,11 +32,9 @@ public partial class Day25 : Day
             maxY++;
             maxX++;
         }
-
-        var (searchRow, searchColumn) = Parse();
-
+        
         var found = false;
-        var zip = columns.Zip(rows, (c, r) => (c, r));
+        var zip = columns.Zip(rows);
         foreach (var (c, r) in zip)
         {
             if (r == searchRow && c == searchColumn)
