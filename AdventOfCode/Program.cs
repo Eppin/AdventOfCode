@@ -32,7 +32,7 @@ foreach (var dayType in dayTypes)
     var puzzleYear = ParseString(split[1]);
     var puzzleDay = ParseString(split[2]);
 
-    puzzles.Add(new(puzzleYear, puzzleDay, dayType));
+    puzzles.Add(new Puzzle(puzzleYear, puzzleDay, dayType));
 }
 
 var years = puzzles
@@ -73,8 +73,7 @@ static int ParseString(string value)
 
 static void Solve(Type type, Solve solve)
 {
-    var day = Activator.CreateInstance(type) as Day;
-    if (day == null)
+    if (Activator.CreateInstance(type) is not Day day)
         throw new EvaluateException($"Can't create instance of [{type.Name}]");
 
     Console.WriteLine($"-- {type.Name} --");

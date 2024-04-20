@@ -229,8 +229,8 @@ public class Day22 : Day
         public bool MyTurn { get; set; }
         public int ManaSpend { get; set; }
 
-        public Player Player { get; init; }
-        public Player Boss { get; init; }
+        public Player Player { get; init; } = null!;
+        public Player Boss { get; init; } = null!;
 
         public Dictionary<SpellType, int> ActiveSpells { get; private init; } = [];
 

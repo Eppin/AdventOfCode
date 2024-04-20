@@ -56,17 +56,17 @@ public partial class Day23 : Day
                     break;
 
                 case InstructionType.Jump:
-                    i += offset.Value - 1;
+                    i += offset!.Value - 1;
                     break;
 
                 case InstructionType.JumpEven:
                     if ((register == RegisterType.A && registerA % 2 == 0) || (register == RegisterType.B && registerB % 2 == 0))
-                        i += offset.Value - 1;
+                        i += offset!.Value - 1;
                     break;
 
                 case InstructionType.JumpOne:
                     if ((register == RegisterType.A && registerA == 1) || (register == RegisterType.B && registerB == 1))
-                        i += offset.Value - 1;
+                        i += offset!.Value - 1;
                     break;
 
                 default:
