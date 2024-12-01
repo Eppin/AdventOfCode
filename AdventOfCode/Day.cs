@@ -33,13 +33,12 @@ public abstract partial class Day
 
     protected string[] GetSplitInput(bool removeEmptyEntries = true)
     {
-        var options = removeEmptyEntries
-            ? StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries
-            : StringSplitOptions.TrimEntries;
+        var splitOptions = StringSplitOptions.TrimEntries;
+        if (removeEmptyEntries) splitOptions |= StringSplitOptions.RemoveEmptyEntries;
 
-        return GetInput().Split(Environment.NewLine, options);
+        return GetInput().Split(Environment.NewLine, splitOptions);
     }
-    
+
     private string GetInput()
     {
         var assembly = typeof(Day).Assembly.Location;
