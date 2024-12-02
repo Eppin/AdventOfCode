@@ -76,32 +76,33 @@ static void Solve(Type type, Solve solve)
     if (Activator.CreateInstance(type) is not Day day)
         throw new EvaluateException($"Can't create instance of [{type.Name}]");
 
-    var chosenAnswer = ChosenAnswer(day, solve);
+    var chosenInput = ChosenInput(day, solve);
 
     Console.WriteLine($"-- {type.Name} --");
     var sw = Stopwatch.StartNew();
 
-    var (result, expected) = day.Solve(solve, chosenAnswer);
+    var (result, expected) = day.Solve(solve, chosenInput);
 
     if (result == expected)
         Console.WriteLine($"{type.Name} is {result} in {sw.ElapsedMilliseconds} msec");
     else if (string.IsNullOrWhiteSpace(expected))
-        Console.WriteLine($"{type.Name} is {result}, but expected is not given (for {chosenAnswer} puzzle) in {sw.ElapsedMilliseconds} msec");
+        Console.WriteLine($"{type.Name} is {result}, but expected is not given (for {chosenInput} puzzle) in {sw.ElapsedMilliseconds} msec");
     else
         Console.WriteLine($"{type.Name} is {result}, but expected {expected} in {sw.ElapsedMilliseconds} msec");
 }
 
-static Input ChosenAnswer(Day day, Solve solve)
+static Input ChosenInput(Day day, Solve solve)
 {
-    Collection<Input> availableAnswers = [];
+    Collection<Input> inputs = [];
     if (day.AvailableInputs(solve).Contains(Example))
-        availableAnswers.Add(Example);
+        inputs.Add(Example);
 
     if (day.AvailableInputs(solve).Contains(Regular))
-        availableAnswers.Add(Regular);
+        inputs.Add(Regular);
 
-    var chosenAnswer = Regular;
-    if (availableAnswers.Any())
-        chosenAnswer = Prompt.Select("Choose input to run", availableAnswers, defaultValue: availableAnswers.Last());
-    return chosenAnswer;
+    var chosenInput = Regular;
+    if (inputs.Any())
+        chosenInput = Prompt.Select("Choose input to run", inputs, defaultValue: inputs.Last());
+
+    return chosenInput;
 }
