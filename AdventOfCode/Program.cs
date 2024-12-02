@@ -1,4 +1,4 @@
-﻿using System.Data;
+﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Reflection;
 using AdventOfCode;
@@ -56,7 +56,7 @@ while (true)
 
     var puzzle = puzzles.Single(p => p.Year == chosenYear && p.Day == chosenDay);
 
-    var chosenSolve = Prompt.Select<Solve>("Choose which to run", defaultValue: global::Solve.A);
+    var chosenSolve = Prompt.Select<Solve>("Choose which to run", defaultValue: AdventOfCode.Models.Solve.A);
 
     Solve(puzzle.Type, chosenSolve);
 
@@ -76,18 +76,32 @@ static void Solve(Type type, Solve solve)
     if (Activator.CreateInstance(type) is not Day day)
         throw new EvaluateException($"Can't create instance of [{type.Name}]");
 
+    var chosenAnswer = ChosenAnswer(day, solve);
+
     Console.WriteLine($"-- {type.Name} --");
     var sw = Stopwatch.StartNew();
 
-    var result = solve == global::Solve.A
-        ? day.SolveA()
-        : day.SolveB();
+    var (result, expected) = day.Solve(solve, chosenAnswer);
 
-    Console.WriteLine($"{type.Name} is {result} in {sw.ElapsedMilliseconds} msec");
+    if (result == expected)
+        Console.WriteLine($"{type.Name} is {result} in {sw.ElapsedMilliseconds} msec");
+    else if (string.IsNullOrWhiteSpace(expected))
+        Console.WriteLine($"{type.Name} is {result}, but expected is not given (for {chosenAnswer} puzzle) in {sw.ElapsedMilliseconds} msec");
+    else
+        Console.WriteLine($"{type.Name} is {result}, but expected {expected} in {sw.ElapsedMilliseconds} msec");
 }
 
-internal enum Solve
+static Input ChosenAnswer(Day day, Solve solve)
 {
-    A,
-    B
+    Collection<Input> availableAnswers = [];
+    if (day.AvailableInputs(solve).Contains(Example))
+        availableAnswers.Add(Example);
+
+    if (day.AvailableInputs(solve).Contains(Regular))
+        availableAnswers.Add(Regular);
+
+    var chosenAnswer = Regular;
+    if (availableAnswers.Any())
+        chosenAnswer = Prompt.Select("Choose input to run", availableAnswers, defaultValue: availableAnswers.Last());
+    return chosenAnswer;
 }

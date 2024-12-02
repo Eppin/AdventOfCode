@@ -1,7 +1,5 @@
 namespace AdventOfCode._2022;
 
-using System.Data;
-
 public class Day1 : Day
 {
     public Day1() : base()

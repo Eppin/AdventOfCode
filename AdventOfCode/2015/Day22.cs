@@ -1,7 +1,5 @@
 namespace AdventOfCode._2015;
 
-using Utils;
-
 public class Day22 : Day
 {
     private int _minimumSpend = int.MaxValue;

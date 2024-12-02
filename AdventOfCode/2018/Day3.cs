@@ -1,7 +1,5 @@
 namespace AdventOfCode._2018;
 
-using System.Text.RegularExpressions;
-
 public partial class Day3 : Day
 {
     private List<int>?[,] _grid = null!;

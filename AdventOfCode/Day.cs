@@ -1,12 +1,16 @@
 namespace AdventOfCode;
 
+using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
+using static Solve;
 
 public abstract partial class Day
 {
     private readonly int _year;
     private readonly int _day;
+
+    private Input _input = Regular;
+    private Solve _solve = A;
 
     protected Day([CallerFilePath] string? filePath = null)
     {
@@ -28,6 +32,28 @@ public abstract partial class Day
 
     public abstract string SolveA();
     public abstract string SolveB();
+
+    public (string Answer, string? Expected) Solve(Solve solve, Input input)
+    {
+        _solve = solve;
+        _input = input;
+
+        var result = solve == A
+            ? SolveA()
+            : SolveB();
+
+        return (result, AnswerAttribute(solve)?.Answer);
+    }
+
+    public IEnumerable<Input> AvailableInputs(Solve solve)
+    {
+        return GetType()
+            .GetMethod($"Solve{solve}")
+            ?.GetCustomAttributes<AnswerAttribute>()
+            .Select(a => a.Input)
+            .Distinct() ?? [];
+    }
+
     protected string Input => GetInput();
     protected IEnumerable<string> SplitInput => GetSplitInput();
 
@@ -47,12 +73,29 @@ public abstract partial class Day
         if (string.IsNullOrWhiteSpace(folder))
             throw new InvalidOperationException();
 
-        var file = Path.Combine(folder, $"{_year}", "Input", $"Day{_day}.txt");
+        var answer = AnswerAttribute(_solve);
+        if (!string.IsNullOrWhiteSpace(answer?.Data))
+            return answer.Data.Replace("{nl}", Environment.NewLine);
 
-        if (!File.Exists(file))
-            throw new FileNotFoundException();
+        var path = Path.Combine(folder, $"{_year}", "Input", $"Day{_day}.txt");
 
-        return File.ReadAllText(file);
+        if (!File.Exists(path))
+            throw new FileNotFoundException("Puzzle input file not found", path);
+
+        return File.ReadAllText(path);
+    }
+
+    private AnswerAttribute? AnswerAttribute(Solve solve)
+    {
+        var answers = GetType()
+            .GetMethod($"Solve{solve}")
+            ?.GetCustomAttributes<AnswerAttribute>()
+            .ToList();
+
+        if (answers == null || !answers.Any())
+            return null;
+
+        return answers.SingleOrDefault(a => a.Input == _input);
     }
 
     [GeneratedRegex(@"AdventOfCode.(\d{4}).Day(\d{1,2})\.")]

@@ -1,7 +1,6 @@
 namespace AdventOfCode._2018;
 
 using System.Globalization;
-using System.Text.RegularExpressions;
 
 public class Day4 : Day
 {

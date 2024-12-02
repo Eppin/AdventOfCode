@@ -1,7 +1,5 @@
 namespace AdventOfCode._2015;
 
-using System.Text.RegularExpressions;
-
 public partial class Day7 : Day
 {
     private static List<Parsed> _parsedLines = new();

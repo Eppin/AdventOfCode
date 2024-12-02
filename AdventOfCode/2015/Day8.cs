@@ -1,7 +1,5 @@
 namespace AdventOfCode._2015;
 
-using System.Text.RegularExpressions;
-
 public class Day8 : Day
 {
     public Day8() : base()

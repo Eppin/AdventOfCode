@@ -1,7 +1,5 @@
 namespace AdventOfCode._2015;
 
-using Utils;
-
 public class Day9 : Day
 {
     public Day9() : base()

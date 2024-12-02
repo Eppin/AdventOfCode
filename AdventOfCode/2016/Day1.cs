@@ -1,6 +1,5 @@
 namespace AdventOfCode._2016;
 
-using System.Data;
 using static Int32;
 
 public class Day1 : Day

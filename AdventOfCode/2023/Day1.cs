@@ -1,5 +1,3 @@
-using System.Text.RegularExpressions;
-
 namespace AdventOfCode._2023;
 
 public partial class Day1 : Day
