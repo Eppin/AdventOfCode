@@ -10,66 +10,101 @@ public class Day2 : Day
     [Answer("680", Regular)]
     public override string SolveA()
     {
+        return Solve(false).ToString();
+    }
+
+    [Answer("4", Example, Data = "7 6 4 2 1{nl}1 2 7 8 9{nl}9 7 6 2 1{nl}1 3 2 4 5{nl}8 6 4 4 1{nl}1 3 6 7 9{nl}")]
+    [Answer("710", Regular)]
+    public override string SolveB()
+    {
+        return Solve(true).ToString();
+    }
+
+    private int Solve(bool isPartB)
+    {
         var result = 0;
 
-        foreach (var line in Parse())
+        foreach (var line1 in Parse())
         {
-            var safe = false;
-            bool? trend = null;
+            var lines = new List<List<long>> { line1 };
 
-            for (var i = 0; i < line.Length; i++)
+            if (isPartB)
             {
-                if (i + 1 >= line.Length) continue;
-
-                var current = line[i];
-                var next = line[i + 1];
-                var diff = current - next;
-
-                if (Math.Abs(diff) is < 1 or > 3)
+                // Create combinations of items without a single digit
+                for (var i = 0; i < line1.Count; i++)
                 {
-                    safe = false;
-                    break;
+                    var newLine = new List<long>(line1);
+                    newLine.RemoveAt(i);
+                    lines.Add(newLine);
                 }
+            }
 
-                trend ??= trend switch
-                {
-                    null when diff >= 0 => true,
-                    null when true => false,
-                    _ => trend
-                };
+            var safe = false;
+            foreach (var line2 in lines)
+            {
+                safe = CalculateSafe(line2);
 
-                if (trend == true && diff < 0) // up
-                {
-                    safe = false;
+                if (safe)
                     break;
-                }
-
-                if (trend == false && diff > 0) // down
-                {
-                    safe = false;
-                    break;
-                }
-
-                safe = true;
             }
 
             result += safe ? 1 : 0;
         }
 
-        return result.ToString();
+        return result;
     }
 
-    public override string SolveB()
+    private static bool CalculateSafe(List<long> line)
     {
-        throw new NotImplementedException();
+        var safe = false;
+        bool? trend = null;
+
+        for (var i = 0; i < line.Count; i++)
+        {
+            if (i + 1 >= line.Count) continue;
+
+            var current = line[i];
+            var next = line[i + 1];
+            var diff = current - next;
+
+            if (Math.Abs(diff) is < 1 or > 3)
+            {
+                safe = false;
+                break;
+            }
+
+            trend ??= trend switch
+            {
+                null when diff >= 0 => true,
+                null when true => false,
+                _ => trend
+            };
+
+            if (trend == true && diff < 0) // up
+            {
+                safe = false;
+                break;
+            }
+
+            if (trend == false && diff > 0) // down
+            {
+                safe = false;
+                break;
+            }
+
+            safe = true;
+        }
+
+        return safe;
     }
 
-    private IEnumerable<long[]> Parse()
+    private List<List<long>> Parse()
     {
         return SplitInput
             .Select(s => s
                 .Split(' ', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
                 .Select(long.Parse)
-                .ToArray());
+                .ToList())
+            .ToList();
     }
 }
