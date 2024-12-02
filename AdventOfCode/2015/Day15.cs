@@ -1,8 +1,5 @@
 namespace AdventOfCode._2015;
 
-using System.Data;
-using System.Text.RegularExpressions;
-
 public partial class Day15 : Day
 {
     private int _totalIngredients;
