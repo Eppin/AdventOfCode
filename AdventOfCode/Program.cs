@@ -59,8 +59,7 @@ while (true)
     var chosenSolve = Prompt.Select<Solve>("Choose which to run", defaultValue: AdventOfCode.Models.Solve.A);
 
     Solve(puzzle.Type, chosenSolve);
-
-    Console.Read();
+    Console.ReadLine();
 }
 
 static int ParseString(string value)

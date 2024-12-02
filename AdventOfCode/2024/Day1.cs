@@ -2,9 +2,6 @@ namespace AdventOfCode._2024;
 
 public class Day1 : Day
 {
-    private readonly List<long> _first = [];
-    private readonly List<long> _second = [];
-
     public Day1() : base()
     {
     }
@@ -13,10 +10,10 @@ public class Day1 : Day
     [Answer("2769675", Regular)]
     public override string SolveA()
     {
-        Parse();
+        var (first, second) = Parse();
 
-        return _first
-            .Select((t, i) => Math.Abs(t - _second[i]))
+        return first
+            .Select((t, i) => Math.Abs(t - second[i]))
             .Sum()
             .ToString();
     }
@@ -25,15 +22,15 @@ public class Day1 : Day
     [Answer("24643097", Regular)]
     public override string SolveB()
     {
-        Parse();
+        var (first, second) = Parse();
 
         long similarity = 0;
 
-        var dict = _second
+        var dict = second
             .GroupBy(s => s)
             .ToDictionary(g => g.Key, g => g.Count());
 
-        foreach (var f in _first)
+        foreach (var f in first)
         {
             if (!dict.TryGetValue(f, out var count))
                 continue;
@@ -44,7 +41,7 @@ public class Day1 : Day
         return similarity.ToString();
     }
 
-    private void Parse()
+    private (long[] First, long[] Second) Parse()
     {
         List<long> list1 = [];
         List<long> list2 = [];
@@ -62,7 +59,6 @@ public class Day1 : Day
         }
 
         // Ordering is only needed for Part A...
-        _first.AddRange(list1.OrderBy(f => f));
-        _second.AddRange(list2.OrderBy(f => f));
+        return (list1.OrderBy(f => f).ToArray(), list2.OrderBy(f => f).ToArray());
     }
 }
