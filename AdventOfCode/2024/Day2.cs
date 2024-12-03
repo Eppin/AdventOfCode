@@ -32,11 +32,7 @@ public class Day2 : Day
             {
                 // Create combinations of items without a single digit
                 for (var i = 0; i < line1.Count; i++)
-                {
-                    var newLine = new List<long>(line1);
-                    newLine.RemoveAt(i);
-                    lines.Add(newLine);
-                }
+                    lines.Add([.. line1[..i], .. line1[(i + 1)..]]);
             }
 
             var safe = false;
