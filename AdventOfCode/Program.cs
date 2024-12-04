@@ -49,7 +49,7 @@ while (true)
         .Where(p => p.Year == chosenYear)
         .Select(p => p.Day)
         .Distinct()
-        .Order()
+        .OrderDescending()
         .ToList();
 
     var chosenDay = Prompt.Select("Choose day", days, defaultValue: days.First());
