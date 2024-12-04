@@ -6,11 +6,13 @@ public partial class Day13 : Day
     {
     }
 
+    [Answer("664", Regular)]
     public override string SolveA()
     {
         return Solve(false).ToString();
     }
 
+    [Answer("640", Regular)]
     public override string SolveB()
     {
         return Solve(true).ToString();

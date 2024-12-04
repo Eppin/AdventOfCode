@@ -6,6 +6,7 @@ public partial class Day16 : Day
     {
     }
 
+    [Answer("213", Regular)]
     public override string SolveA()
     {
         var tickerTapeA = new Dictionary<string, int>
@@ -30,6 +31,7 @@ public partial class Day16 : Day
         return parsed.Single().Sue.ToString();
     }
 
+    [Answer("323", Regular)]
     public override string SolveB()
     {
         var tickerTapeB = new Dictionary<string, Func<int, bool>>

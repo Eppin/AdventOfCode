@@ -9,11 +9,13 @@ public partial class Day7 : Day
         _parsedLines = ParseInput().ToList();
     }
 
+    [Answer("16076", Regular)]
     public override string SolveA()
     {
         return Solve("a").ToString();
     }
 
+    [Answer("2797", Regular)]
     public override string SolveB()
     {
         // Find A

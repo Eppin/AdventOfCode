@@ -6,6 +6,7 @@ public class Day2 : Day
     {
     }
 
+    [Answer("6370", Regular)]
     public override string SolveA()
     {
         int found2Times = 0, found3Times = 0;
@@ -27,6 +28,7 @@ public class Day2 : Day
         return $"{found2Times * found3Times}";
     }
 
+    [Answer("rmyxgdlihczskunpfijqcebtv", Regular)]
     public override string SolveB()
     {
         foreach (var s in SplitInput)

@@ -6,6 +6,7 @@ public class Day5 : Day
     {
     }
 
+    [Answer("255", Regular)]
     public override string SolveA()
     {
         var disallowed = new[] { "ab", "cd", "pq", "xy" };
@@ -36,6 +37,7 @@ public class Day5 : Day
         return nice.ToString();
     }
 
+    [Answer("55", Regular)]
     public override string SolveB()
     {
         var nice = 0;

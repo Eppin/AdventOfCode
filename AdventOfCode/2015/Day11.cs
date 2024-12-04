@@ -6,6 +6,7 @@ public class Day11 : Day
     {
     }
 
+    [Answer("hxbxxyzz", Regular)]
     public override string SolveA()
     {
         IList<char> input = Input.ToList();
@@ -13,6 +14,7 @@ public class Day11 : Day
         return string.Join("", Solve(input));
     }
 
+    [Answer("hxcaabcc", Regular)]
     public override string SolveB()
     {
         IList<char> input = Input.ToList();

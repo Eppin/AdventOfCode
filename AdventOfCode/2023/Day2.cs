@@ -6,6 +6,7 @@ public class Day2 : Day
     {
     }
 
+    [Answer("2545", Regular)]
     public override string SolveA()
     {
         const int redPossible = 12;
@@ -62,6 +63,7 @@ public class Day2 : Day
         return total.ToString();
     }
 
+    [Answer("78111", Regular)]
     public override string SolveB()
     {
         return Parse()

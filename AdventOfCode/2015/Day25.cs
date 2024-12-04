@@ -1,4 +1,4 @@
-namespace AdventOfCode._2015;
+﻿namespace AdventOfCode._2015;
 
 public partial class Day25 : Day
 {
@@ -6,6 +6,7 @@ public partial class Day25 : Day
     {
     }
 
+    [Answer("2650453", Regular)]
     public override string SolveA()
     {
         long start = 20151125;
@@ -48,6 +49,8 @@ public partial class Day25 : Day
             ? start.ToString()
             : int.MinValue.ToString();
     }
+
+    [Answer("christmas \ud83c\udf84", Regular)]
 
     public override string SolveB()
     {

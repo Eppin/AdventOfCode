@@ -6,6 +6,7 @@ public class Day8 : Day
     {
     }
 
+    [Answer("1333", Regular)]
     public override string SolveA()
     {
         int codeL = 0, charactersL = 0;
@@ -29,6 +30,7 @@ public class Day8 : Day
         return $"{codeL - charactersL}";
     }
 
+    [Answer("2046", Regular)]
     public override string SolveB()
     {
         int codeL = 0, charactersL = 0;

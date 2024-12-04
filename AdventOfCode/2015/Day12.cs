@@ -8,11 +8,13 @@ public class Day12 : Day
     {
     }
 
+    [Answer("111754", Regular)]
     public override string SolveA()
     {
         return Solve(JsonSerializer.Deserialize<JsonElement>(Input), false).ToString();
     }
 
+    [Answer("65402", Regular)]
     public override string SolveB()
     {
         return Solve(JsonSerializer.Deserialize<JsonElement>(Input), true).ToString();

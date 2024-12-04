@@ -13,11 +13,13 @@ public class Day24 : Day
             .ToList();
     }
 
+    [Answer("11846773891", Regular)]
     public override string SolveA()
     {
         return Solve(false).ToString();
     }
 
+    [Answer("80393059", Regular)]
     public override string SolveB()
     {
         return Solve(true).ToString();

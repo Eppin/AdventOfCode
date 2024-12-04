@@ -83,11 +83,14 @@ static void Solve(Type type, Solve solve)
     var (result, expected) = day.Solve(solve, chosenInput);
 
     if (result == expected)
+    {
         Console.WriteLine($"{type.Name} is {result} in {sw.ElapsedMilliseconds} msec");
-    else if (string.IsNullOrWhiteSpace(expected))
-        Console.WriteLine($"{type.Name} is {result}, but expected is not given (for {chosenInput} puzzle) in {sw.ElapsedMilliseconds} msec");
-    else
-        Console.WriteLine($"{type.Name} is {result}, but expected {expected} in {sw.ElapsedMilliseconds} msec");
+        return;
+    }
+
+    Console.WriteLine(string.IsNullOrWhiteSpace(expected)
+        ? $"{type.Name} is {result}, but expected is not given (for {chosenInput} puzzle) in {sw.ElapsedMilliseconds} msec"
+        : $"{type.Name} is {result}, but expected {expected} in {sw.ElapsedMilliseconds} msec");
 }
 
 static Input ChosenInput(Day day, Solve solve)

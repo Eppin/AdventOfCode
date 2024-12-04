@@ -7,7 +7,8 @@ public class Day4 : Day
     public Day4() : base()
     {
     }
-    
+
+    [Answer("101262", Regular)]
     public override string SolveA()
     {
         var guards = GenerateLogbook();
@@ -18,6 +19,7 @@ public class Day4 : Day
         return $"{guardAsleep.Key * minuteAsleep}";
     }
 
+    [Answer("71976", Regular)]
     public override string SolveB()
     {
             var guards = GenerateLogbook();

@@ -9,11 +9,13 @@ public partial class Day23 : Day
         _instructions = Parse().ToList();
     }
 
+    [Answer("307", Regular)]
     public override string SolveA()
     {
         return Solve(false);
     }
 
+    [Answer("160", Regular)]
     public override string SolveB()
     {
         return Solve(true);
@@ -72,7 +74,7 @@ public partial class Day23 : Day
             }
         }
 
-        return $"Register A: {registerA}, register B: {registerB}";
+        return registerB.ToString();
     }
 
     private IEnumerable<Computer> Parse()
@@ -109,17 +111,17 @@ public partial class Day23 : Day
                     break;
 
                 default:
-                {
-                    if (regex.Groups[0].Value.StartsWith("jmp"))
                     {
-                        var offsetJmp = int.Parse(regex.Groups[5].Value);
-                        yield return new Computer(InstructionType.Jump, register, offsetJmp);
-                    }
-                    else
-                        throw new ArgumentOutOfRangeException();
+                        if (regex.Groups[0].Value.StartsWith("jmp"))
+                        {
+                            var offsetJmp = int.Parse(regex.Groups[5].Value);
+                            yield return new Computer(InstructionType.Jump, register, offsetJmp);
+                        }
+                        else
+                            throw new ArgumentOutOfRangeException();
 
-                    break;
-                }
+                        break;
+                    }
             }
         }
     }

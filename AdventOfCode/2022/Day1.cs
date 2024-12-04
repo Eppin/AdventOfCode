@@ -6,11 +6,13 @@ public class Day1 : Day
     {
     }
 
+    [Answer("68787", Regular)]
     public override string SolveA()
     {
         return Solve(1).ToString();
     }
 
+    [Answer("198041", Regular)]
     public override string SolveB()
     {
         return Solve(3).ToString();

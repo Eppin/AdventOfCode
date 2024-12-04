@@ -9,11 +9,15 @@ public class Day4 : Day
     {
     }
 
+    [Answer("609043", Example, Data = "abcdef")]
+    [Answer("254575", Regular)]
     public override string SolveA()
     {
         return FindMatch(5, Input);
     }
 
+    [Answer("", Example, Data = "")]
+    [Answer("1038736", Regular)]
     public override string SolveB()
     {
         return FindMatch(6, Input);

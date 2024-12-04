@@ -9,11 +9,13 @@ public class Day22 : Day
     {
     }
 
+    [Answer("1269", Regular)]
     public override string SolveA()
     {
         return Solve(false).ToString();
     }
 
+    [Answer("1309", Regular)]
     public override string SolveB()
     {
         return Solve(true).ToString();

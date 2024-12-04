@@ -19,11 +19,13 @@ public partial class Day1 : Day
     {
     }
 
+    [Answer("54644", Regular)]
     public override string SolveA()
     {
         return Solve(false).ToString();
     }
 
+    [Answer("53348", Regular)]
     public override string SolveB()
     {
         return Solve(true).ToString();

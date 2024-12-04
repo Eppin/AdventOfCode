@@ -6,6 +6,7 @@ public class Day19 : Day
     {
     }
 
+    [Answer("576", Regular)]
     public override string SolveA()
     {
         var (replacements, starting) = Parse();
@@ -28,6 +29,7 @@ public class Day19 : Day
         return results.Distinct().Count().ToString();
     }
 
+    [Answer("207", Regular)]
     public override string SolveB()
     {
         var (replacements, result) = Parse();

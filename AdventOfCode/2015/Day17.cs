@@ -6,6 +6,7 @@ public class Day17 : Day
     {
     }
 
+    [Answer("1638", Regular)]
     public override string SolveA()
     {
         return new Combinations<int>(GetSplitInput().Select(int.Parse))
@@ -13,6 +14,7 @@ public class Day17 : Day
             .ToString();
     }
 
+    [Answer("17", Regular)]
     public override string SolveB()
     {
         return new Combinations<int>(GetSplitInput().Select(int.Parse))

@@ -6,6 +6,8 @@ public class Day3 : Day
     {
     }
 
+    [Answer("2", Example, Data = "^v^v^v^v^v")]
+    [Answer("2081", Regular)]
     public override string SolveA()
     {
         int x = 0, y = 0;
@@ -25,6 +27,8 @@ public class Day3 : Day
         return results.Count.ToString();
     }
 
+    [Answer("11", Example, Data = "^v^v^v^v^v")]
+    [Answer("2341", Regular)]
     public override string SolveB()
     {
         int xSanta = 0, ySanta = 0;

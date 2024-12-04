@@ -6,15 +6,17 @@ public class Day25 : Day
     {
     }
 
+    [Answer("2=-0=01----22-0-1-10", Regular)]
     public override string SolveA()
     {
         var sum = SplitInput
             .Select(FromSnafu)
             .Sum();
-        
+
         return ToSnafu(sum);
     }
 
+    [Answer("christmas \ud83c\udf84", Regular)]
     public override string SolveB()
     {
         throw new NotImplementedException();
@@ -64,10 +66,10 @@ public class Day25 : Day
 
             if (mod is 3 or 4)
                 input += 5;
-            
+
             input /= 5;
         }
-        
+
         return result;
     }
 }

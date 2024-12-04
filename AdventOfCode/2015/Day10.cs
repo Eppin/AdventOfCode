@@ -8,11 +8,13 @@ public class Day10 : Day
     {
     }
 
+    [Answer("492982", Regular)]
     public override string SolveA()
     {
         return $"{Solve(Input, 40)}";
     }
 
+    [Answer("6989950", Regular)]
     public override string SolveB()
     {
         return $"{Solve(Input, 50)}";

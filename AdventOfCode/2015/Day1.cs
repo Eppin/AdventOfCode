@@ -6,6 +6,7 @@ public class Day1 : Day
     {
     }
 
+    [Answer("280", Regular)]
     public override string SolveA()
     {
         var result = 0;
@@ -20,6 +21,7 @@ public class Day1 : Day
         return $"{result}";
     }
 
+    [Answer("1797", Regular)]
     public override string SolveB()
     {
         var result = 0;

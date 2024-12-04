@@ -6,6 +6,7 @@ public partial class Day6 : Day
     {
     }
 
+    [Answer("569999", Regular)]
     public override string SolveA()
     {
         var lights = new Dictionary<(int, int), int>();
@@ -29,6 +30,7 @@ public partial class Day6 : Day
         return lights.Count(l => l.Value == 1).ToString();
     }
 
+    [Answer("17836115", Regular)]
     public override string SolveB()
     {
         var lights = new Dictionary<(int, int), int>();

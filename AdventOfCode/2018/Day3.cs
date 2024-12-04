@@ -8,6 +8,7 @@ public partial class Day3 : Day
     {
     }
 
+    [Answer("116140", Regular)]
     public override string SolveA()
     {
         var splittedInput = SplitInput
@@ -44,6 +45,7 @@ public partial class Day3 : Day
         return $"{overlappingSquare}";
     }
 
+    [Answer("574", Regular)]
     public override string SolveB()
     {
         // This generates a list with overlapping Ids and the grid

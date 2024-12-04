@@ -6,11 +6,13 @@ public class Day1 : Day
     {
     }
 
+    [Answer("479", Regular)]
     public override string SolveA()
     {
         return SplitInput.Sum(Calculate).ToString();
     }
 
+    [Answer("66105", Regular)]
     public override string SolveB()
     {
         var total = 0;
