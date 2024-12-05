@@ -1,6 +1,4 @@
-﻿using AdventOfCode.Models;
-
-namespace AdventOfCode._2024;
+﻿namespace AdventOfCode._2024;
 
 public class Day5 : Day
 {
@@ -22,68 +20,31 @@ public class Day5 : Day
     }
 
     [Answer("123", Example, Data = "47|53{nl}97|13{nl}97|61{nl}97|47{nl}75|29{nl}61|13{nl}75|53{nl}29|13{nl}97|29{nl}53|29{nl}61|53{nl}97|53{nl}61|29{nl}47|13{nl}75|47{nl}97|75{nl}47|61{nl}75|61{nl}47|29{nl}75|13{nl}53|13{nl}{nl}75,47,61,53,29{nl}97,61,53,29,13{nl}75,29,13{nl}75,97,47,61,53{nl}61,13,29{nl}97,13,75,29,47")]
+    [Answer("3062", Regular)]
     public override string SolveB()
     {
         var total = 0;
 
         var (rules, updates) = Parse();
-        var falseUpdates = Solve(rules, updates).Where(s => !s.Correct);
+        var incorrects = Solve(rules, updates).Where(s => !s.Correct);
 
-
-
-        foreach (var result in falseUpdates.Skip(2))
+        foreach (var incorrect in incorrects)
         {
-            Console.WriteLine();
-            var k = Solve(rules, [result.Update]);
-
-            foreach (var j in k)
+            do
             {
-                Console.WriteLine($"-\t{j.Correct}, {j.Index}, {string.Join(',', j.Update)}");
-            }
+                var result = Solve(rules, [incorrect.Update]).First();
 
-            //Result? result1;
-            //do
-            //{
-            //    var y = result.Update.ToArray().Permutations().ToList();
+                if (result.Correct)
+                {
+                    total += result.Update[result.Update.Count / 2];
+                    break;
+                }
 
-            //    var x = result.Update.ToArray().Permutations().Select(y => y.ToList()).ToList();
+                var iRule0 = incorrect.Update.IndexOf(result.Rule![0]);
+                var iRule1 = incorrect.Update.IndexOf(result.Rule[1]);
 
-            //    result1 = Solve(rules, x).FirstOrDefault(s => s.Correct);
-            //} while (result1 == null);
-
-            //total += result1.Update[result1.Update.Count / 2];
-
-            ////////////////
-
-            //List<int> tmp = [.. update[..index], .. update[(index + 1)..]];
-            //tmp.Insert(0, update[index]);
-
-            //var solved1 = Solve(rules, [tmp]);
-            //var solved = solved1.FirstOrDefault(s => s.Correct);
-
-            //var update = new List<int> { 97, 75, 29, 13, 47 };// result.Update;
-            //var index = 2;
-            //var lastIndex = result.Index;
-
-            //for (var i = 0; i < update.Count; i++)
-            //{
-            //    List<int> tmp = [.. update[..index], .. update[(index + 1)..]];
-            //    tmp.Insert(i, update[index]);
-
-            //    var solved = Solve(rules, [tmp]).First();
-            //    //lastIndex = solved.Index
-
-
-            //    //var solved = solved1.FirstOrDefault(s => s.Correct);
-
-            //    Console.WriteLine($"{string.Join(',', tmp)} -> {solved.Correct}={solved.Index}");
-
-            //    //if (solved != null)
-            //    //{
-            //    //    total += solved.Update[solved.Update.Count / 2];
-            //    //    break;
-            //    //}
-            //}
+                (incorrect.Update[iRule0], incorrect.Update[iRule1]) = (incorrect.Update[iRule1], incorrect.Update[iRule0]);
+            } while (true);
         }
 
         return total.ToString();
@@ -93,8 +54,8 @@ public class Day5 : Day
     {
         foreach (var update in updates)
         {
-            var good1 = true;
-            var index = 0;
+            var correct = true;
+            List<int>? ruleHit = null;
 
             for (var i = 0; i < update.Count; i++)
             {
@@ -116,18 +77,17 @@ public class Day5 : Day
                     else
                     {
                         state.Add(false);
-                        Console.WriteLine($"{rule[0]}/{rule[1]} => {value}");
+                        ruleHit ??= rule;
                     }
                 }
 
                 if (!state.Contains(false)) continue;
 
-                good1 = false;
-                index = i;
+                correct = false;
                 break;
             }
 
-            yield return new(good1, index, update);
+            yield return new(correct, ruleHit, update);
         }
     }
 
@@ -156,5 +116,5 @@ public class Day5 : Day
         return (rules, updates);
     }
 
-    private record Result(bool Correct, int Index, List<int> Update);
+    private record Result(bool Correct, List<int>? Rule, List<int> Update);
 }
