@@ -90,7 +90,7 @@ public class Day6 : Day
 
     private static bool Direction(char[][] grid, ref char direction, ref Point position, ref int steps)
     {
-        if (steps > grid.Length * grid[0].Length)
+        if (steps > 4 * grid.Length * grid[0].Length)
         {
             steps = int.MaxValue;
             return false;
