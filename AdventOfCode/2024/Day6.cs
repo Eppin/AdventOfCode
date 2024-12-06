@@ -4,6 +4,8 @@ namespace AdventOfCode._2024;
 
 public class Day6 : Day
 {
+    private long _blocking;
+
     public Day6() : base()
     {
     }
@@ -22,7 +24,6 @@ public class Day6 : Day
     [Answer("1575", Regular)]
     public override string SolveB()
     {
-        //var oGrid = Parse();
         var nGrid = Solve();
 
         for (var y = 0; y < nGrid[0].Length; y++)
@@ -34,17 +35,12 @@ public class Day6 : Day
                     var grid = Parse();
                     grid[y][x] = 'O';
 
-                    _steps = 0;
                     Solve(grid);
-
-                    //break;
                 }
             }
         }
 
-
-
-        return string.Empty;
+        return _blocking.ToString();
     }
 
     private char[][] Solve(char[][]? grid = null)
@@ -73,19 +69,14 @@ public class Day6 : Day
         }
 
         bool exit;
+        var steps = 0;
 
         do
         {
-            exit = !Direction(grid, ref direction, ref position);
+            exit = !Direction(grid, ref direction, ref position, ref steps);
         } while (!exit);
 
-        //foreach (var chars in grid)
-        //{
-        //    Console.WriteLine(string.Join("", chars));
-        //}
-
-        _steps2 += (_steps >= maxY * maxX) ? 1 : 0;
-        Console.WriteLine($"Steps:{_steps} => {_steps2}");
+        _blocking += steps == int.MaxValue ? 1 : 0;
 
         return grid;
     }
@@ -97,19 +88,19 @@ public class Day6 : Day
             .ToArray();
     }
 
-    private long _steps = 0;
-    private long _steps2 = 0;
-
-    private bool Direction(char[][] grid, ref char direction, ref Point position)
+    private static bool Direction(char[][] grid, ref char direction, ref Point position, ref int steps)
     {
-        if (_steps > grid.Length * grid[0].Length)
+        if (steps > grid.Length * grid[0].Length)
+        {
+            steps = int.MaxValue;
             return false;
+        }
 
         if (direction is '^')
         {
             for (var i = position.Y; i >= 0; i--)
             {
-                _steps++;
+                steps++;
 
                 if (grid[i][position.X] is '#' or 'O')
                 {
@@ -129,7 +120,7 @@ public class Day6 : Day
 
             for (var i = position.X; i < maxX; i++)
             {
-                _steps++;
+                steps++;
 
                 if (grid[position.Y][i] is '#' or 'O')
                 {
@@ -149,7 +140,7 @@ public class Day6 : Day
 
             for (var i = position.Y; i < maxY; i++)
             {
-                _steps++;
+                steps++;
 
                 if (grid[i][position.X] is '#' or 'O')
                 {
@@ -167,7 +158,7 @@ public class Day6 : Day
         {
             for (var i = position.X; i >= 0; i--)
             {
-                _steps++;
+                steps++;
 
                 if (grid[position.Y][i] is '#' or 'O')
                 {
@@ -180,8 +171,6 @@ public class Day6 : Day
                     grid[position.Y][i] = 'H';
             }
         }
-
-        
 
         return false;
     }
