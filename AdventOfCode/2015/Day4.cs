@@ -1,6 +1,5 @@
 namespace AdventOfCode._2015;
 
-using System.Collections.Concurrent;
 using System.Security.Cryptography;
 
 public class Day4 : Day

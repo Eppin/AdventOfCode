@@ -1,7 +1,5 @@
 namespace AdventOfCode._2015;
 
-using System.Diagnostics;
-
 public class Day20 : Day
 {
     public Day20() : base()
