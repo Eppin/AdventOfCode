@@ -1,4 +1,4 @@
-# Advent Of Code
+# Advent of Code
 
 Advent of Code solutions, containing multiple years 🎄✨
 
