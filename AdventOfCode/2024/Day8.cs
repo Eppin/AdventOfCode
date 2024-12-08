@@ -12,22 +12,23 @@ public class Day8 : Day
     [Answer("379", Regular)]
     public override string SolveA()
     {
-        return Solve().ToString();
+        return Solve(false).ToString();
     }
 
     [Answer("9", Example, Data = "T.........{nl}...T......{nl}.T........{nl}..........{nl}..........{nl}..........{nl}..........{nl}..........{nl}..........{nl}..........")]
-    [Answer("", Regular)]
+    [Answer("1339", Regular)]
     public override string SolveB()
     {
-        return Solve().ToString();
+        return Solve(true).ToString();
     }
 
-    private int Solve()
+    private int Solve(bool isPartB)
     {
         var input = Parse();
 
         var coordinates = new List<Coordinate>();
 
+        // Determine coordinates of antennas
         for (var y = 0; y < input.Length; y++)
         {
             for (var x = 0; x < input[0].Length; x++)
@@ -38,106 +39,58 @@ public class Day8 : Day
             }
         }
 
-        //
+        // Determine anti-nodes
+        var result = new List<Coordinate>();
+
         var groups = coordinates
             .GroupBy(c => c.Char)
             .Select(g => new { g.Key, Coordinates = g.Select(c => c.Point) });
 
-        var result = new List<Coordinate>();
-
         foreach (var group in groups)
         {
-            foreach (var c1 in group.Coordinates)
+            foreach (var coordinate1 in group.Coordinates)
             {
-                foreach (var c2 in group.Coordinates.Where(c => c != c1))
+                foreach (var coordinate2 in group.Coordinates.Where(c => c != coordinate1))
                 {
-                    var diffX = c2.X - c1.X;
-                    var diffY = c2.Y - c1.Y;
-
-                    var plus1 = true;
-                    var point1 = new Point(c1.X + diffX, c1.Y + diffY);
-
-                    if (point1 == c2)
-                    {
-                        point1 = new Point(c1.X - diffX, c1.Y - diffY);
-                        plus1 = false;
-                    }
-
-                    result.Add(new Coordinate(c1, group.Key));
-                    result.Add(new Coordinate(point1, group.Key));
-
-                    while (point1.Y < input.Length && point1.X < input[0].Length && point1.Y >= 0 && point1.X >= 0)
-                    {
-                        if (plus1)
-                        {
-                            point1 = new Point(point1.X + diffX, point1.Y + diffY);
-                        }
-                        else
-                            point1 = new Point(point1.X - diffX, point1.Y - diffY);
-
-                        result.Add(new Coordinate(point1, group.Key));
-                    }
-
-                    ////
-
-
-                    var point2 = new Point(c2.X + diffX, c2.Y + diffY);
-                    if (point2 == c1)
-                        point2 = new Point(c2.X - diffX, c2.Y - diffY);
-
-
-                    result.Add(new Coordinate(point2, group.Key));
-
-                    Console.WriteLine($"{group.Key}: {c1.X},{c1.Y} vs {c2.X},{c2.Y} = {point1.X},{point1.Y} / {point2.X},{point2.Y}");
+                    result.AddRange(AntiNodes(group.Key, coordinate1, coordinate2, input[0].Length, input.Length, isPartB));
                 }
             }
         }
 
-        // Draw initial
-        for (var y = 0; y < input.Length; y++)
-        {
-            for (var x = 0; x < input[0].Length; x++)
-            {
-                var c = input[y][x];
-                Console.Write(c);
-            }
-        
-            Console.WriteLine();
-        }
-
-        Console.WriteLine();
-        Console.WriteLine();
-
-        // Draw new
-        for (var y = 0; y < input.Length; y++)
-        {
-            for (var x = 0; x < input[0].Length; x++)
-            {
-                var c = input[y][x];
-                if (result.Any(r => r.Point == new Point(x, y)))
-                    c = '#';
-        
-                Console.Write(c);
-            }
-        
-            Console.WriteLine();
-        }
-
-        var xy = result
+        return result
             .DistinctBy(c => c.Point)
-            .Where(r => r.Point.Y < input.Length && r.Point.X < input[0].Length && r.Point.Y >= 0 && r.Point.X >= 0)
-            .ToList();
+            .Count(r => r.Point.Y < input.Length && r.Point.X < input[0].Length && r.Point is { Y: >= 0, X: >= 0 });
+    }
 
-        // foreach (var c in xy)
-        // {
-        //     Console.WriteLine(c);
-        // }
+    private static IEnumerable<Coordinate> AntiNodes(char key, Point coordinate1, Point coordinate2, int maxX, int maxY, bool isPartB)
+    {
+        var diffX = coordinate2.X - coordinate1.X;
+        var diffY = coordinate2.Y - coordinate1.Y;
 
-        // Console.WriteLine();
-        // Console.WriteLine($"{input.Length}/{input[0].Length}");
-        // Console.WriteLine(xy.Count);
+        var isPlus = true;
+        var point = new Point(coordinate1.X + diffX, coordinate1.Y + diffY);
 
-        return xy.Count;
+        if (point == coordinate2)
+        {
+            point = new Point(coordinate1.X - diffX, coordinate1.Y - diffY);
+            isPlus = false;
+        }
+
+        yield return new Coordinate(point, key);
+
+        if (!isPartB)
+            yield break;
+
+        yield return new Coordinate(coordinate1, key);
+
+        while (point.Y < maxY && point.X < maxX && point.Y >= 0 && point.X >= 0)
+        {
+            point = isPlus
+                ? new Point(point.X + diffX, point.Y + diffY)
+                : new Point(point.X - diffX, point.Y - diffY);
+
+            yield return new Coordinate(point, key);
+        }
     }
 
     private char[][] Parse()
@@ -148,6 +101,4 @@ public class Day8 : Day
     }
 
     private record struct Coordinate(Point Point, char Char);
-
-    // private record struct Coordinate(Point Point1, Point Point2, char Char);
 }
