@@ -15,6 +15,7 @@ public class Day9 : Day
         return Solve().ToString();
     }
 
+    [Answer("2858", Example, Data = "2333133121414131402")]
     public override string SolveB()
     {
         throw new NotImplementedException();
