@@ -28,14 +28,11 @@ public class Day10 : Day
     {
         var grid = Parse();
 
-        var yAxis = grid.Length;
-        var xAxis = grid[0].Length;
-
-        for (var y = 0; y < yAxis; y++)
+        for (var y = 0; y < grid.MaxY; y++)
         {
-            for (var x = 0; x < xAxis; x++)
+            for (var x = 0; x < grid.MaxX; x++)
             {
-                var c = grid[y][x];
+                var c = grid[x, y];
 
                 if (c is not 0) continue;
 
@@ -48,9 +45,9 @@ public class Day10 : Day
     private int _total;
     private readonly List<Point> _reached = [];
 
-    private void Find(int[][] grid, int x, int y, bool isPartB)
+    private void Find(Grid<int> grid, int x, int y, bool isPartB)
     {
-        var current = grid[y][x];
+        var current = grid[x, y];
 
         if (current == 9 && (isPartB || !_reached.Any(p => p.X == x && p.Y == y)))
         {
@@ -61,41 +58,23 @@ public class Day10 : Day
             return;
         }
 
-        var nexts = Next(grid, x, y);
-
-        foreach (var point in nexts)
+        foreach (var neighbour in grid.Neighbours(x, y))
         {
-            var next = grid[point.Y][point.X];
+            var next = grid[neighbour];
             if (next == current + 1)
-                Find(grid, point.X, point.Y, isPartB);
+                Find(grid, neighbour.X, neighbour.Y, isPartB);
         }
     }
 
-    private static IEnumerable<Point> Next(int[][] grid, int x, int y)
+    private Grid<int> Parse()
     {
-        var yAxis = grid.Length;
-        var xAxis = grid[0].Length;
-
-        var left = new Point(x - 1, y);
-        if (left.X >= 0) yield return left;
-
-        var right = new Point(x + 1, y);
-        if (right.X < xAxis) yield return right;
-
-        var up = new Point(x, y - 1);
-        if (up.Y >= 0) yield return up;
-
-        var down = new Point(x, y + 1);
-        if (down.Y < yAxis) yield return down;
-    }
-
-    private int[][] Parse()
-    {
-        return GetSplitInput()
+        var grid = GetSplitInput()
             .Select(l => l
                 .ToCharArray()
                 .Select(c => int.Parse($"{c}"))
                 .ToArray()
             ).ToArray();
+
+        return new Grid<int>(grid);
     }
 }
