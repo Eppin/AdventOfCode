@@ -63,7 +63,7 @@ public class Day7 : Day
         {
             Action.Plus => current + next,
             Action.Multiply => current * next,
-            Action.Concatenate => long.Parse($"{current}{next}"), // TODO replace by a faster method
+            Action.Concatenate => long.Parse($"{current}{next}"),
             _ => throw new ArgumentOutOfRangeException()
         };
     }
