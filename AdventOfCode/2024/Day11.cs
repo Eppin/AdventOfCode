@@ -27,7 +27,7 @@ public class Day11 : Day
 
         for (var i = 0; i < times; i++)
         {
-            var dict = new Dictionary<long, long>(); // Number, count/amount
+            var dict = new Dictionary<long, long>();
 
             foreach (var (key, amount) in input)
             {
