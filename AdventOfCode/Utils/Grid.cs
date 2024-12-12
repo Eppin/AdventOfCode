@@ -51,6 +51,41 @@ public class Grid<T>(T[][] grid)
         if (sw != null) yield return sw.Value;
     }
 
+    public Dictionary<Direction, Point> Directions(Point point, bool includeDiagonal = false) => Directions(point.X, point.Y, includeDiagonal);
+    
+    public Dictionary<Direction, Point> Directions(int x, int y, bool includeDiagonal = false)
+    {
+        var directions = new Dictionary<Direction, Point>();
+
+        var n = North(x, y);
+        if (n != null) directions.Add(Direction.North, n.Value);
+
+        var e = East(x, y);
+        if (e != null) directions.Add(Direction.East, e.Value);
+
+        var s = South(x, y);
+        if (s != null) directions.Add(Direction.South, s.Value);
+
+        var w = West(x, y);
+        if (w != null) directions.Add(Direction.West, w.Value);
+
+        if (!includeDiagonal) return directions;
+
+        var ne = NorthEast(x, y);
+        if (ne != null) directions.Add(Direction.NorthEast, ne.Value);
+
+        var nw = NorthWest(x, y);
+        if (nw != null) directions.Add(Direction.NorthWest, nw.Value);
+
+        var se = SouthEast(x, y);
+        if (se != null) directions.Add(Direction.SouthEast, se.Value);
+
+        var sw = SouthWest(x, y);
+        if (sw != null) directions.Add(Direction.SouthWest, sw.Value);
+
+        return directions;
+    }
+
     private Point? Validate(Direction direction, int x, int y, int dx, int dy)
     {
         var point = new Point(x + dx, y + dy);
