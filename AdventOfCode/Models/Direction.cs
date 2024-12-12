@@ -5,5 +5,9 @@ public enum Direction
     North,
     East,
     South,
-    West
+    West,
+    NorthEast,
+    NorthWest,
+    SouthEast,
+    SouthWest,
 }
