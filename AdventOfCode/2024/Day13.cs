@@ -12,40 +12,79 @@ public partial class Day13 : Day
     [Answer("29187", Regular)]
     public override string SolveA()
     {
+        return Solve().ToString();
+    }
+
+    [Answer("875318608908", Example, Data = "Button A: X+94, Y+34{nl}Button B: X+22, Y+67{nl}Prize: X=8400, Y=5400{nl}{nl}Button A: X+26, Y+66{nl}Button B: X+67, Y+21{nl}Prize: X=12748, Y=12176{nl}{nl}Button A: X+17, Y+86{nl}Button B: X+84, Y+37{nl}Prize: X=7870, Y=6450{nl}{nl}Button A: X+69, Y+23{nl}Button B: X+27, Y+71{nl}Prize: X=18641, Y=10279")]
+    [Answer("99968222587852", Regular)]
+    public override string SolveB()
+    {
+        return Solve(10_000_000_000_000).ToString();
+    }
+
+    // Solve by 'simple elimination'
+    // a*ax + b*bx = px is a*ay +b*by = py
+    // now only 'a' and 'b' are unknown
+    private long Solve(long extra = 0)
+    {
         var games = Parse();
-        var costs = 0;
+        var costs = 0L;
 
         foreach (var game in games)
         {
-            var cost = 0;
+            var ax = game.ButtonA.X;
+            var bx = game.ButtonB.X;
 
-            for (var a = 1; a <= 100; a++)
-            {
-                for (var b = 1; b <= 100; b++)
-                {
-                    var prizeX = game.ButtonA.X * a + game.ButtonB.X * b;
-                    var prizeY = game.ButtonA.Y * a + game.ButtonB.Y * b;
+            var ay = game.ButtonA.Y;
+            var by = game.ButtonB.Y;
 
-                    if (prizeX != game.Prize.X || prizeY != game.Prize.Y)
-                        continue;
+            var px = game.Prize.X + extra;
+            var py = game.Prize.Y + extra;
 
-                    var total = a * 3 + b * 1;
+            // Step 1: Calculate the determinant of the coefficient matrix
+            var determinant = ax * by - ay * bx;
 
-                    if (cost == 0) cost = total;
-                    else if (total < cost) cost = total;
-                }
-            }
+            if (determinant == 0)
+                continue;
 
+            // Step 2: Solve the system
+            var _1 = ax * by;
+            var _2 = bx * ay;
+
+            var _3 = px * by;
+            var _4 = py * bx;
+
+            // Step 3: Subtract the equations
+            var _5 = _1 - _2;
+            var _6 = _3 - _4;
+
+            // Needs to be an int after division, since we're talking about button presses!
+            if (_6 % _5 != 0)
+                continue;
+
+            var a = _6 / _5;
+
+            if (a <= 0)
+                continue;
+
+            // Step 4: Substitute 'a' into one of the original equations
+            var _7 = a * ax;
+            var _8 = px - _7;
+
+            // Needs to be an int after division, since we're talking about button presses!
+            if (_8 % bx != 0)
+                continue;
+
+            var b = _8 / bx;
+
+            if (b <= 0)
+                continue;
+
+            var cost = a * 3 + b * 1;
             costs += cost;
         }
 
-        return costs.ToString();
-    }
-
-    [Answer("", Example, Data = "Button A: X+94, Y+34{nl}Button B: X+22, Y+67{nl}Prize: X=8400, Y=5400{nl}{nl}Button A: X+26, Y+66{nl}Button B: X+67, Y+21{nl}Prize: X=12748, Y=12176{nl}{nl}Button A: X+17, Y+86{nl}Button B: X+84, Y+37{nl}Prize: X=7870, Y=6450{nl}{nl}Button A: X+69, Y+23{nl}Button B: X+27, Y+71{nl}Prize: X=18641, Y=10279")]
-    public override string SolveB()
-    {
-        throw new NotImplementedException();
+        return costs;
     }
 
     private List<Game> Parse()
