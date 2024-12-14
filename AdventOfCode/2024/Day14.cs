@@ -1,6 +1,7 @@
 namespace AdventOfCode._2024;
 
 using System.Drawing;
+using System.Text;
 
 public partial class Day14 : Day
 {
@@ -13,12 +14,12 @@ public partial class Day14 : Day
     }
 
     [Answer("", Example, Data = "p=0,4 v=3,-3{nl}p=6,3 v=-1,-3{nl}p=10,3 v=-1,2{nl}p=2,0 v=2,-1{nl}p=0,0 v=1,3{nl}p=3,0 v=-2,-2{nl}p=7,6 v=-1,-3{nl}p=3,0 v=-1,-2{nl}p=9,3 v=2,3{nl}p=7,3 v=-1,2{nl}p=2,4 v=2,-3{nl}p=9,5 v=-3,-3")]
-    [Answer("", Regular)]
+    [Answer("218619324", Regular)]
     public override string SolveA()
     {
         var robots = Parse();
 
-        for (int i = 0; i < 100; i++)
+        for (var i = 0; i < 100; i++)
         {
             Console.WriteLine($"After {i + 1} second(s)");
 
@@ -32,7 +33,7 @@ public partial class Day14 : Day
         }
 
         // State
-        Draw(robots, Width, Height);
+        Console.WriteLine(Draw(robots, Width, Height));
         Console.WriteLine();
 
         // Quadrant
@@ -75,24 +76,32 @@ public partial class Day14 : Day
                 q4++;
         }
 
-        Console.WriteLine($"{q1}, {q2}, {q3}, {q4}");
-
-
-        /*
-q1  0,0 -> 4,2
-q2  0,4  -> 4,5
-
-q3  5,0 -> 9,2
-q4  5,3   -> 9,5
-         */
-
-
         return (q1 * q2 * q3 * q4).ToString();
     }
 
+    [Answer("", Example, Data = "p=0,4 v=3,-3{nl}p=6,3 v=-1,-3{nl}p=10,3 v=-1,2{nl}p=2,0 v=2,-1{nl}p=0,0 v=1,3{nl}p=3,0 v=-2,-2{nl}p=7,6 v=-1,-3{nl}p=3,0 v=-1,-2{nl}p=9,3 v=2,3{nl}p=7,3 v=-1,2{nl}p=2,4 v=2,-3{nl}p=9,5 v=-3,-3")]
+    [Answer("6446", Regular)]
     public override string SolveB()
     {
-        throw new NotImplementedException();
+        var robots = Parse();
+
+        for (var i = 0; i < Height * Width; i++)
+        {
+            Console.WriteLine($"After {i + 1} second(s)");
+
+            foreach (var robot in robots)
+            {
+                // Console.WriteLine($"B, Start: {robot.Position.X}, {robot.Position.Y}, Velocity: {robot.Velocity.X}, {robot.Velocity.Y} ");
+                Move(robot);
+            }
+
+            var str = $"{i + 1}" + Environment.NewLine + Draw(robots, Width, Height) + Environment.NewLine;
+            // Console.WriteLine(str);
+            File.AppendAllText("./trees.txt", str);
+            Console.WriteLine();
+        }
+
+        return 0.ToString();
     }
 
     private static void Move(Robot robot)
@@ -127,22 +136,27 @@ q4  5,3   -> 9,5
         }
     }
 
-    private static void Draw(List<Robot> robots, int width, int height)
+    private static string Draw(List<Robot> robots, int width, int height)
     {
         var grid = CreateGrid(width, height);
+        var sb = new StringBuilder();
 
         foreach (var robot in robots)
             grid[robot.Position.X, robot.Position.Y] += 1;
 
-        for (int y = 0; y < grid.MaxY; y++)
+        for (var y = 0; y < grid.MaxY; y++)
         {
-            for (int x = 0; x < grid.MaxX; x++)
+            for (var x = 0; x < grid.MaxX; x++)
             {
-                Console.Write(grid[x, y]);
+                sb.Append(grid[x, y]);
+                // Console.Write(grid[x, y]);
             }
 
-            Console.WriteLine();
+            // Console.WriteLine();
+            sb.AppendLine();
         }
+
+        return sb.ToString();
     }
 
     private static Grid<int> CreateGrid(int width, int height)
