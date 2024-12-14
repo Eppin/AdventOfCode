@@ -8,7 +8,12 @@ public class Grid<T>(T[][] grid)
     public readonly long MaxX = grid[0].Length;
 
     public T this[Point point] => grid[point.Y][point.X];
-    public T this[int x, int y] => grid[y][x];
+
+    public T this[int x, int y]
+    {
+        get => grid[y][x];
+        set => grid[y][x] = value;
+    }
 
     public Point? North(int x, int y) => Validate(Direction.North, x, y, 0, -1);
     public Point? East(int x, int y) => Validate(Direction.East, x, y, 1, 0);
@@ -52,7 +57,7 @@ public class Grid<T>(T[][] grid)
     }
 
     public Dictionary<Direction, Point> Directions(Point point, bool includeDiagonal = false) => Directions(point.X, point.Y, includeDiagonal);
-    
+
     public Dictionary<Direction, Point> Directions(int x, int y, bool includeDiagonal = false)
     {
         var directions = new Dictionary<Direction, Point>();
