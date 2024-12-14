@@ -1,6 +1,6 @@
 namespace AdventOfCode._2024;
 
-using System.Drawing;
+using Coordinate = Coordinate<int>;
 using System.Text;
 
 public partial class Day14 : Day
@@ -142,16 +142,16 @@ public partial class Day14 : Day
             var vx = int.Parse(match.Groups[3].Value);
             var vy = int.Parse(match.Groups[4].Value);
 
-            list.Add(new Robot(new Point(px, py), new Point(vx, vy)));
+            list.Add(new Robot(new Coordinate(px, py), new Coordinate(vx, vy)));
         }
 
         return list;
     }
 
-    private class Robot(Point position, Point velocity)
+    private class Robot(Coordinate position, Coordinate velocity)
     {
-        public Point Position { get; set; } = position;
-        public Point Velocity { get; set; } = velocity;
+        public Coordinate Position { get; set; } = position;
+        public Coordinate Velocity { get; set; } = velocity;
     }
 
     [GeneratedRegex(@"p=(-\d+|\d+),(-\d+|\d+) v=(-\d+|\d+),(-\d+|\d+)")]
