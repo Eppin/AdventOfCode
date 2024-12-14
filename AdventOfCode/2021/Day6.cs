@@ -6,81 +6,51 @@ public class Day6 : Day
     {
     }
 
+    [Answer("5934", Example, Data = "3,4,3,1,2")]
     [Answer("388739", Regular)]
     public override string SolveA()
     {
-        return CountFish(80);
+        return Solve(80).ToString();
     }
 
     [Answer("1741362314973", Regular)]
     public override string SolveB()
     {
-        /* TODO rewrite solution.
-         * Use array of 9 position and count the amount of fishes per day
-         * Day v	0	1	2	3	4	5	6	7	8	<- Numbers
-         * 0	    0	1	1	2	1	0	0	0	0
-         * 1	    1	1	2	1	0	0	0	0	0
-         * 2	    1	2	1	0	0	0	1	0	1
-         * 3	    2	1	0	0	0	1	1	1	1
-         * 4	    1	0	0	0	1	1	3	1	2
-         */
-        throw new NotImplementedException("Current solution is way to slow...");
+        return Solve(256).ToString();
     }
 
-    private string CountFish(int dayCount)
+    private long Solve(int days)
     {
-        var numbers = GetNumbers()
-            .Select(n => new Fish(n, false))
-            .ToList();
+        var fishes = Parse()
+            .GroupBy(p => p)
+            .ToDictionary(g => g.Key, g => (long)g.Count());
 
-        var days = 0;
+        for (var i = 0; i < 9; i++)
+            fishes.TryAdd(i, 0);
 
-        do
+        for (var i = 0; i < days; i++)
         {
-            for (var i = 0; i < numbers.Count; i++)
-            {
-                if (numbers[i].IsNew)
-                    continue;
+            var tmp0 = fishes[0];
 
-                if (numbers[i].Count-- != 0)
-                    continue;
+            fishes[0] = fishes[1];
+            fishes[1] = fishes[2];
+            fishes[2] = fishes[3];
+            fishes[3] = fishes[4];
+            fishes[4] = fishes[5];
+            fishes[5] = fishes[6];
+            fishes[6] = fishes[7] + tmp0;
+            fishes[7] = fishes[8];
+            fishes[8] = tmp0;
+        }
 
-                numbers[i].Count = 6;
-                numbers.Add(new Fish(8, true));
-            }
-
-            foreach (var number in numbers)
-                number.IsNew = false;
-
-            days++;
-        } while (days < dayCount);
-
-        return $"{numbers.Count}";
+        return fishes.Values.Sum();
     }
 
-    private List<int> GetNumbers()
+    private List<int> Parse()
     {
         return Input
-            .Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-            .Select(s => int.Parse($"{s}"))
+            .Split(',')
+            .Select(int.Parse)
             .ToList();
-    }
-
-    private class Fish
-    {
-        public int Count { get; set; }
-
-        public bool IsNew { get; set; }
-
-        public Fish(int count, bool isNew)
-        {
-            Count = count;
-            IsNew = isNew;
-        }
-
-        public override string ToString()
-        {
-            return $"{Count}";
-        }
     }
 }
