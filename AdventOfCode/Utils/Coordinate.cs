@@ -30,6 +30,14 @@ public struct Coordinate<T>(T x, T y) : IEquatable<Coordinate<T>> where T : stru
     /// </summary>
     public Coordinate<T>[] Adjacents => [Left, Right, Up, Down, UpLeft, UpRight, DownLeft, DownRight];
 
+    public Dictionary<Direction, Coordinate<T>> Directions => new()
+    {
+        { Direction.North, Up },
+        { Direction.South, Down },
+        { Direction.East, Right },
+        { Direction.West, Left }
+    };
+
     public override string ToString()
     {
         return $"{X},{Y}";

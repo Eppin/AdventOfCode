@@ -154,6 +154,15 @@ public class Grid<T>(T[][] grid)
             Console.WriteLine();
         }
     }
+    
+    public void Fill(T value)
+    {
+        for (var y = 0; y < MaxY; y++)
+        {
+            for (var x = 0; x < MaxX; x++)
+                this[x, y] = value;
+        }
+    }
 
     private Coordinate? Validate(Direction direction, int x, int y, int dx, int dy)
     {
