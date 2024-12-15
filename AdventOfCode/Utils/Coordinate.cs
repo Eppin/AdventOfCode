@@ -7,6 +7,10 @@ public struct Coordinate<T>(T x, T y) : IEquatable<Coordinate<T>> where T : stru
     public T X { get; set; } = x;
     public T Y { get; set; } = y;
 
+    public Coordinate(Coordinate<T> coordinate) : this(coordinate.X, coordinate.Y)
+    {
+    }
+
     public Coordinate<T> Left => new(X - T.One, Y);
     public Coordinate<T> Right => new(X + T.One, Y);
     public Coordinate<T> Up => new(X, Y - T.One);
@@ -25,6 +29,11 @@ public struct Coordinate<T>(T x, T y) : IEquatable<Coordinate<T>> where T : stru
     /// Returns horizontal, vertical and diagonal neighbours
     /// </summary>
     public Coordinate<T>[] Adjacents => [Left, Right, Up, Down, UpLeft, UpRight, DownLeft, DownRight];
+
+    public override string ToString()
+    {
+        return $"{X},{Y}";
+    }
 
     // Operators
     public static bool operator ==(Coordinate<T> left, Coordinate<T> right) => left.X == right.X && left.Y == right.Y;
