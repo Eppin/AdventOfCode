@@ -3,7 +3,7 @@
 using Coordinate = Coordinate<int>;
 using System.Drawing;
 
-public class Grid<T>(T[][] grid)
+public struct Grid<T>(T[][] grid)
 {
     public readonly long MaxY = grid.Length;
     public readonly long MaxX = grid[0].Length;
