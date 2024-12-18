@@ -44,9 +44,10 @@ public struct Grid<T>(T[][] grid)
     public Coordinate? SouthEast(Coordinate coordinate) => Validate(Direction.SouthEast, coordinate.X, coordinate.Y, 1, 1);
     public Coordinate? SouthWest(Coordinate coordinate) => Validate(Direction.SouthWest, coordinate.X, coordinate.Y, -1, 1);
     
-
+    [Obsolete("Rewrite to not use Point class")]
     public IEnumerable<Point> Neighbours(Point point, bool includeDiagonal = false) => Neighbours(point.X, point.Y, includeDiagonal);
 
+    [Obsolete("Rewrite to not use Point class")]
     public IEnumerable<Point> Neighbours(int x, int y, bool includeDiagonal = false)
     {
         var n = North(x, y);
