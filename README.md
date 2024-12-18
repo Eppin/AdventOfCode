@@ -21,7 +21,7 @@ Advent of Code solutions, containing multiple years 🎄✨
 | 15  |  ✅  |      |      |      |      |      |      |      |      |   ✅    |
 | 16  |  ❌  |      |      |      |      |      |      |      |      |   ✅    |
 | 17  |  ✅  |      |      |      |      |      |      |      |      |   ✅    |
-| 18  |      |      |      |      |      |      |      |      |      |   ✅    |
+| 18  |  ❌  |      |      |      |      |      |      |      |      |   ✅    |
 | 19  |      |      |      |      |      |      |      |      |      |   ✅    |
 | 20  |      |      |      |      |      |      |      |      |      |   ✅    |
 | 21  |      |      |      |      |      |      |      |      |      |   ✅    |
@@ -29,3 +29,8 @@ Advent of Code solutions, containing multiple years 🎄✨
 | 23  |      |      |      |      |      |      |      |      |      |   ✅    |
 | 24  |      |      |      |      |      |      |      |      |      |   ✅    |
 | 25  |      |      |  ❌  |      |      |      |      |      |      |   🎄    |
+
+### Legend
+
+- ✅: both puzzles of the day are solved
+- ❌: only the first part is solved
