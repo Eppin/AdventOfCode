@@ -1,33 +1,49 @@
 ﻿namespace AdventOfCode.Utils;
 
-using Coordinate = Coordinate<int>;
-
 public class Dijkstra<TNode> where TNode : notnull
 {
-    private List<TNode> _unvisited;
-    private List<TNode> _visited;
-    private Dictionary<TNode, int> _distances;
+    private readonly List<TNode> _visited = [];
+    private readonly Dictionary<TNode, int> _distances = [];
 
-    public Dijkstra(List<TNode> nodes, TNode start)
+    public Func<TNode, IEnumerable<TNode>> GetNeighbours { get; set; } = _ => [];
+    public Func<TNode, TNode, int> GetDistance { get; set; } = (_, _) => 1;
+    public Func<TNode, bool> EndReached { get; set; } = _ => true;
+    public Func<TNode, bool> IsVisited { get; set; } = _ => true;
+
+    // Debugging
+    public Action<List<TNode>> Draw { get; set; } = _ => { Console.WriteLine("Did you forgot to implement?!"); };
+
+    public int ShortestPath(TNode start)
     {
-        _unvisited = nodes;
-        _visited = [start];
-        _distances = new Dictionary<TNode, int> { { start, 0 } };
-    }
+        _distances[start] = 0;
 
-    public void ShortestPath(TNode end, Func<TNode, IEnumerable<TNode>> neighbours, Func<TNode, int> distance)
-    {
-        var queue = new Queue<TNode>();
-        queue.Enqueue(_visited[0]);
+        var queue = new PriorityQueue<TNode, int>();
+        queue.Enqueue(start, 0);
 
-        while (queue.TryDequeue(out var node))
+        while (queue.TryDequeue(out var current, out _))
         {
-            foreach (var n in neighbours.Invoke(node))
+            if (EndReached(current))
+                return _distances[current];
+
+            _visited.Add(current);
+
+            // Debugging
+            // Draw(_visited);
+
+            foreach (var neighbour in GetNeighbours(current))
             {
-                distance(n);
+                if (_visited.Contains(neighbour))
+                    continue;
+
+                var tmpDistance = _distances[current] + GetDistance(current, neighbour);
+
+                if (tmpDistance >= _distances.GetValueOrDefault(neighbour, int.MaxValue)) continue;
+
+                _distances[neighbour] = tmpDistance;
+                queue.Enqueue(neighbour, tmpDistance);
             }
         }
+
+        return -1;
     }
-
-
 }
