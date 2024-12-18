@@ -6,8 +6,7 @@ public class Day17 : Day
     {
     }
 
-    [Answer("4,6,3,5,6,3,5,2,1,0", Example,
-        Data = "Register A: 729{nl}Register B: 0{nl}Register C: 0{nl}{nl}Program: 0,1,5,4,3,0")]
+    [Answer("4,6,3,5,6,3,5,2,1,0", Example, Data = "Register A: 729{nl}Register B: 0{nl}Register C: 0{nl}{nl}Program: 0,1,5,4,3,0")]
     //[Answer("", Example, Data = "Register A: 0{nl}Register B: 1{nl}Register C: 9{nl}{nl}Program: 2,6")]
     //[Answer("0,1,2", Example, Data = "Register A: 10{nl}Register B: 0{nl}Register C: 0{nl}{nl}Program: 5,0,5,1,5,4")]
     //[Answer("4,2,5,6,7,7,7,7,3,1,0", Example, Data = "Register A: 2024{nl}Register B: 0{nl}Register C: 0{nl}{nl}Program: 0,1,5,4,3,0")]
@@ -16,33 +15,54 @@ public class Day17 : Day
     [Answer("7,1,3,7,5,1,0,3,4", Regular)]
     public override string SolveA()
     {
-        return Solve();
+        var (registerA, registerB, registerC, program) = Parse();
+        return string.Join(',', Solve(registerA, registerB, registerC, program));
     }
 
-    [Answer("0,3,5,4,3,0", Example, Data = "Register A: 117440{nl}Register B: 0{nl}Register C: 0{nl}{nl}Program: 0,3,5,4,3,0")]
+    [Answer("117440", Example, Data = "Register A: 2024{nl}Register B: 0{nl}Register C: 0{nl}{nl}Program: 0,3,5,4,3,0")]
+    [Answer("190384113204239", Regular)]
     public override string SolveB()
     {
-        return Solve();
+        var (_, registerB, registerC, program) = Parse();
+
+        var start = 0L;
+        var shift = 0;
+        var programLength = 1;
+
+        while (true)
+        {
+            for (var i = 0L; i < 1024; i++)
+            {
+                var registerA = (i << (shift * 3)) + start;
+                var solve = Solve(registerA, registerB, registerC, program);
+
+                var pr = program.Take(programLength);
+
+                if (!solve.Take(programLength).SequenceEqual(pr)) continue;
+                if (solve.SequenceEqual(program)) return registerA.ToString();
+
+                start = registerA;
+                programLength++;
+            }
+
+            shift++;
+        }
     }
 
-    private string Solve()
+    private static List<long> Solve(long registerA, long registerB, long registerC, List<long> program)
     {
-        var (registerA, registerB, registerC, program) = Parse();
-        var pointer = 0;
-        var results = new List<int>();
+        var pointer = 0L;
+        var results = new List<long>();
 
         do
         {
-            var opcode = program[pointer];
-            var operand = Operand(program[pointer + 1], registerA, registerB, registerC);
-
-            Console.WriteLine($"O:{opcode} en {operand}");
+            var opcode = program[(int)pointer];
+            var operand = Operand(program[(int)pointer + 1], registerA, registerB, registerC);
 
             switch (opcode)
             {
                 case 0: // adv
-                    var adv0 = registerA / Math.Pow(2, operand); // TODO is this safe enough?
-                    registerA = (int)adv0;
+                    registerA >>= (int)operand;
                     pointer += 2;
                     break;
 
@@ -56,7 +76,7 @@ public class Day17 : Day
                     if (bst2 > 7)
                         bst2 = 7;
 
-                    registerB = bst2; // TODO keep lowest 3 bits!!
+                    registerB = bst2;
                     pointer += 2;
                     break;
 
@@ -68,7 +88,7 @@ public class Day17 : Day
                     break;
 
                 case 4: //bxc
-                    registerB = registerB ^ registerC;
+                    registerB ^= registerC;
                     pointer += 2;
                     break;
 
@@ -79,31 +99,21 @@ public class Day17 : Day
                     break;
 
                 case 6: //bdv
-                    var bdv = registerA / Math.Pow(2, operand); // TODO is this safe enough?
-                    registerB = (int)bdv;
+                    registerB = registerA >> (int)operand;
                     pointer += 2;
                     break;
 
                 case 7: // cdv
-                    var cdv = registerA / Math.Pow(2, operand); // TODO is this safe enough?
-                    registerC = (int)cdv;
+                    registerC = registerA >> (int)operand;
                     pointer += 2;
                     break;
             }
         } while (pointer < program.Count);
 
-        Console.WriteLine();
-        Console.WriteLine($"A:{registerA}");
-        Console.WriteLine($"B:{registerB}");
-        Console.WriteLine($"C:{registerC}");
-        Console.WriteLine();
-        Console.WriteLine($"P:{pointer}");
-        Console.WriteLine();
-
-        return string.Join(',', results);
+        return results;
     }
 
-    private static int Operand(int operand, int registerA, int registerB, int registerC)
+    private static long Operand(long operand, long registerA, long registerB, long registerC)
     {
         return operand switch
         {
@@ -116,38 +126,19 @@ public class Day17 : Day
         };
     }
 
-    private (int RegisterA, int RegisterB, int RegisterC, List<int> Program) Parse()
+    private (long RegisterA, long RegisterB, long RegisterC, List<long> Program) Parse()
     {
         var lines = GetSplitInput();
 
-        var registerA = int.Parse(lines[0].Replace("Register A: ", string.Empty));
-        var registerB = int.Parse(lines[1].Replace("Register B: ", string.Empty));
-        var registerC = int.Parse(lines[2].Replace("Register C: ", string.Empty));
+        var registerA = long.Parse(lines[0].Replace("Register A: ", string.Empty));
+        var registerB = long.Parse(lines[1].Replace("Register B: ", string.Empty));
+        var registerC = long.Parse(lines[2].Replace("Register C: ", string.Empty));
 
         var program = lines[3]
             .Replace("Program: ", string.Empty).Split(',')
-            .Select(int.Parse)
+            .Select(long.Parse)
             .ToList();
 
         return (registerA, registerB, registerC, program);
-    }
-
-    private enum InstructionType // Opcode
-    {
-        Adv,
-        Bxl,
-        Bst,
-        Jnz,
-        Bxc,
-        Out,
-        Bdv,
-        Cdv
-    }
-
-    private enum RegisterType
-    {
-        A,
-        B,
-        C
     }
 }
