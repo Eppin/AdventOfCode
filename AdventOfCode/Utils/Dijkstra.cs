@@ -2,16 +2,15 @@
 
 public class Dijkstra<TNode> where TNode : notnull
 {
-    private readonly List<TNode> _visited = [];
+    private readonly HashSet<TNode> _visited = [];
     private readonly Dictionary<TNode, int> _distances = [];
 
     public Func<TNode, IEnumerable<TNode>> GetNeighbours { get; set; } = _ => [];
     public Func<TNode, TNode, int> GetDistance { get; set; } = (_, _) => 1;
     public Func<TNode, bool> EndReached { get; set; } = _ => true;
-    public Func<TNode, bool> IsVisited { get; set; } = _ => true;
 
     // Debugging
-    public Action<List<TNode>> Draw { get; set; } = _ => { Console.WriteLine("Did you forgot to implement?!"); };
+    public Action<HashSet<TNode>> Draw { get; set; } = _ => { Console.WriteLine("Did you forgot to implement?!"); };
 
     public int ShortestPath(TNode start)
     {
