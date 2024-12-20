@@ -1,10 +1,9 @@
-﻿using System.Collections.Concurrent;
-using System.Xml.Linq;
-
-namespace AdventOfCode._2024;
+﻿namespace AdventOfCode._2024;
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using Utils;
 using Coordinate = Coordinate<int>;
 
 public class Day20 : Day
@@ -19,45 +18,37 @@ public class Day20 : Day
     {
         var (grid, start, end) = GetGrid();
 
-        // Null meting...
+        var initialShortestPath = GetShortestPath(grid, start, end, null);
 
-        var dijkstra = new Dijkstra<Coordinate>();
-
-        dijkstra.GetNeighbours = reindeer => GetNeighbours(reindeer, grid);
-        dijkstra.EndReached = current => current == end;
-        dijkstra.Draw = list =>
-        {
-            for (var y = 0; y < grid.MaxY; y++)
-            {
-                for (var x = 0; x < grid.MaxX; x++)
-                {
-                    var c = list.Count(l => l == new Coordinate(x, y));
-                    if (c > 0)
-                    {
-                        Console.Write(c);
-                    }
-                    else
-                        Console.Write(grid[x, y]);
-                }
-
-                Console.WriteLine();
-            }
-        };
-
-        var a = dijkstra.ShortestPath(start);
-
-        //
-
-        var possibleCheats = PossibleCheats(grid); // Draw grid with 'C' as cheat position!
+        var possibleCheats = PossibleCheats(grid);
         var speeds = new ConcurrentBag<int>();
 
         Parallel.ForEach(possibleCheats, cheat =>
         {
-            var dijkstra = new Dijkstra<Coordinate>();
+            speeds.Add(GetShortestPath(grid, start, end, cheat));
+        });
 
-            dijkstra.GetNeighbours = reindeer => GetNeighbours(reindeer, grid, cheat);
-            dijkstra.EndReached = current => current == end;
-            dijkstra.Draw = list =>
+        return (from @group in speeds.GroupBy(s => s)
+                let save = initialShortestPath - @group.Key
+                where save >= 100
+                select @group.Count()
+                )
+            .Sum()
+            .ToString();
+    }
+
+    public override string SolveB()
+    {
+        throw new NotImplementedException();
+    }
+
+    private static int GetShortestPath(Grid<char> grid, Coordinate start, Coordinate end, Coordinate? cheat)
+    {
+        var dijkstra = new Dijkstra<Coordinate>
+        {
+            GetNeighbours = reindeer => GetNeighbours(reindeer, grid, cheat),
+            EndReached = current => current == end,
+            Draw = list =>
             {
                 for (var y = 0; y < grid.MaxY; y++)
                 {
@@ -71,67 +62,12 @@ public class Day20 : Day
                         else
                             Console.Write(grid[x, y]);
                     }
-
                     Console.WriteLine();
                 }
-            };
-
-            var a = dijkstra.ShortestPath(start);
-            speeds.Add(a);
-        });
-
-        //foreach (var cheat in possibleCheats)
-        //{
-        //    var dijkstra = new Dijkstra<Coordinate>();
-
-        //    dijkstra.GetNeighbours = reindeer => GetNeighbours(reindeer, grid, cheat);
-        //    dijkstra.EndReached = current => current == end;
-        //    dijkstra.Draw = list =>
-        //    {
-        //        for (var y = 0; y < grid.MaxY; y++)
-        //        {
-        //            for (var x = 0; x < grid.MaxX; x++)
-        //            {
-        //                var c = list.Count(l => l == new Coordinate(x, y));
-        //                if (c > 0)
-        //                {
-        //                    Console.Write(c);
-        //                }
-        //                else
-        //                    Console.Write(grid[x, y]);
-        //            }
-
-        //            Console.WriteLine();
-        //        }
-        //    };
-
-        //    var a = dijkstra.ShortestPath(start);
-        //    speeds.Add(a);
-        //    //Console.WriteLine(a);
-        //}
-
-        var total = 0;
-        foreach (var group in speeds.GroupBy(s => s).OrderBy(g => g.Key))
-        {
-            var save = a - group.Key;
-            if (save >= 100)
-            {
-                Console.WriteLine($"{group.Key}, {group.Count()} cheats save {a - group.Key} picostuff");// {string.Join(',', group)}");
-                total += group.Count();
             }
-        }
+        };
 
-        //for (int i = 0; i < 10_000; i++)
-        //{
-
-        //}
-
-        return total.ToString();
-    }
-
-    public override string SolveB()
-    {
-        throw new NotImplementedException();
+        return dijkstra.ShortestPath(start);
     }
 
     private static HashSet<Coordinate> PossibleCheats(Grid<char> grid)
@@ -163,26 +99,10 @@ public class Day20 : Day
 
     private static IEnumerable<Coordinate> GetNeighbours(Coordinate reindeer, Grid<char> grid, Coordinate? cheat = null)
     {
-        if (cheat != null)
-        {
-
-            var k = grid
-                .Neighbours(reindeer.X, reindeer.Y)
-                .Where(n => grid[n.X, n.Y] is '.' || (n.X == cheat.Value.X && n.Y == cheat.Value.Y))
-                .Select(n => new Coordinate(n.X, n.Y));
-
-            return k;
-        }
-        else
-        {
-            var k2 = grid
-                .Neighbours(reindeer.X, reindeer.Y)
-                .Where(n => grid[n.X, n.Y] is '.')
-                .Select(n => new Coordinate(n.X, n.Y));
-
-            return k2;
-        }
-
+        return grid
+            .Neighbours(reindeer.X, reindeer.Y)
+            .Where(n => grid[n.X, n.Y] is '.' || (cheat != null && (n.X == cheat.Value.X && n.Y == cheat.Value.Y)))
+            .Select(n => new Coordinate(n.X, n.Y));
     }
 
     private (Grid<char> Grid, Coordinate Start, Coordinate End) GetGrid()
