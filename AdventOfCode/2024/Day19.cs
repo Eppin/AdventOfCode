@@ -9,24 +9,25 @@ public class Day19 : Day
     }
 
     [Answer("6", Example, Data = "r, wr, b, g, bwu, rb, gb, br{nl}{nl}brwrr{nl}bggr{nl}gbbr{nl}rrbgbr{nl}ubwu{nl}bwurrg{nl}brgr{nl}bbrgwb")]
-    [Answer("", Regular)]
+    [Answer("322", Regular)]
     public override string SolveA()
+    {
+        return SolveA2().ToString();
+    }
+
+    [Answer("16", Example, Data = "r, wr, b, g, bwu, rb, gb, br{nl}{nl}brwrr{nl}bggr{nl}gbbr{nl}rrbgbr{nl}ubwu{nl}bwurrg{nl}brgr{nl}bbrgwb")]
+    [Answer("715514563508258", Regular)]
+    public override string SolveB()
     {
         return Solve().ToString();
     }
 
-    public override string SolveB()
-    {
-        throw new NotImplementedException();
-    }
-
-    private int Solve()
+    private int SolveA2()
     {
         var (patterns, wanted) = Parse();
-
         var success = 0;
 
-        foreach (var want in wanted)//.Take(3))//.Skip(0).Take(1))//.Take(1))
+        foreach (var want in wanted)//.Take(1))
         {
             var sw = Stopwatch.StartNew();
 
@@ -36,16 +37,22 @@ public class Day19 : Day
                 .ToList();
 
             cache.Clear();
-            if (Loop(possiblePatterns, want))
+
+            if (LoopA(possiblePatterns, want, ""))
                 success++;
 
-            Console.WriteLine($"{want}: {success}, {sw.Elapsed}");
+            //if ()
+            //{
+            //    //success++;
+            //    _test += LoopB(possiblePatterns, want);
+            //    Console.WriteLine($"{want}: {success}, {sw.Elapsed} => {_test}");
 
-            Console.WriteLine("Cache");
-            foreach (var (key, value) in cache)
-            {
-                Console.WriteLine($"\t{key} = {value}");
-            }
+            //    //Console.WriteLine("Cache");
+            //    //foreach (var (key, value) in cache)
+            //    //{
+            //    //    Console.WriteLine($"\t{key} = {value}");
+            //    //}
+            //}
 
             //if (Test(possiblePatterns, want))
             //{
@@ -59,169 +66,264 @@ public class Day19 : Day
         return success;
     }
 
-    // private static void Loop(List<string> patterns, string want)
-    // {
-    //     var shouldStop = false;
-    //     
-    //     while (!shouldStop)
-    //     {
-    //         foreach (var pattern in patterns)
-    //         {
-    //             var index = want.IndexOf(pattern, StringComparison.Ordinal);
-    //             if (index == -1)
-    //             {
-    //                 // Console.WriteLine($"No match found: {match.Want}/{match.New} => {pattern}");
-    //                 shouldStop = true;
-    //                 break;
-    //             }
-    //
-    //             var n = match.New[(index + pattern.Length)..];
-    //
-    //             if (!string.IsNullOrWhiteSpace(n))
-    //                 queue.Enqueue(match with { New = n });
-    //             else
-    //             {
-    //                 Console.WriteLine($"Match found for {match.Want}/{match.New}");
-    //                 finishes[match.Want] = true;
-    //             }
-    //         }
-    //     }
-    // }
-
-    //private static bool Test2(List<string> patterns, string want)
-    //{
-    //    // var finished = false;
-    //    var success = false;
-
-    //    var queue = new PriorityQueue<Match, int>();
-    //    queue.Enqueue(new Match(want, want), want.Length);
-
-    //    while (queue.TryDequeue(out var match, out _))
-    //    {
-    //        // if (finished) break;
-
-    //        foreach (var pattern in patterns)
-    //        {
-    //            if (!match.New.StartsWith(pattern))
-    //                continue;
-
-    //            var index = match.New.IndexOf(pattern, StringComparison.Ordinal);
-    //            if (index == -1)
-    //                continue;
-
-    //            var n = match.New[(index + pattern.Length)..];
-
-    //            if (string.IsNullOrWhiteSpace(n))
-    //            {
-    //                Console.WriteLine($"Match found for {match.Want}/{match.New}");
-    //                // finished = true;
-    //                success = true; // double break!! Stop loop, return?!
-    //            }
-    //            else if (!patterns.Any(p => n.Contains(p)))
-    //            {
-    //                // finished = true;
-    //                success = false;
-    //            }
-    //            else
-    //            {
-    //                queue.Enqueue(match with { New = n }, n.Length);
-    //                Console.WriteLine($"Failed, continue?! {n}");
-    //            }
-    //        }
-
-    //        Console.WriteLine($"Failure?!: {match.Want}: {match.New}");
-    //    }
-
-    //    return success;
-    //}
-
-    private static bool Test(List<string> patterns, string want)
+    private IEnumerable<string> SolveB3()
     {
-        var cache = new Dictionary<string, int>();
+        var (patterns, wanted) = Parse();
 
-        // var finished = false;
-        var success = false;
-
-        var queue = new PriorityQueue<Match, int>();
-        queue.Enqueue(new Match(want, want), want.Length);
-
-        while (queue.TryDequeue(out var match, out _))
+        foreach (var want in wanted)//.Take(1))
         {
-            if (cache.TryGetValue(match.New, out var cacheValue))
-            {
-                Console.WriteLine($"Want {match.Want}/{match.New} found in cache {cacheValue}");
-            }
+            var sw = Stopwatch.StartNew();
 
-            foreach (var pattern in patterns)
-            {
-                if (!match.New.StartsWith(pattern))
-                    continue;
+            var possiblePatterns = patterns
+                .Where(p => want.Contains(p))
+                .OrderByDescending(w => w.Length)
+                .ToList();
 
-                var index = match.New.IndexOf(pattern, StringComparison.Ordinal);
-                if (index == -1)
-                    continue;
+            cache.Clear();
 
-                var n = match.New[(index + pattern.Length)..];
+            if (LoopA(possiblePatterns, want, ""))
+                yield return want;
 
-                if (string.IsNullOrWhiteSpace(n))
-                {
-                    Console.WriteLine($"Match found for {match.Want}/{match.New}");
-                    // finished = true;
-                    success = true; // double break!! Stop loop, return?!
-                    //return true;
-                }
-                else if (!patterns.Any(p => n.Contains(p)))
-                {
-                    // finished = true;
-                    success = false;
-                }
-                else
-                {
-                    queue.Enqueue(match with { New = n }, n.Length);
-                    Console.WriteLine($"Failed, continue?! {n}");
-                    //break;
-                }
-            }
+            //if ()
+            //{
+            //    //success++;
+            //    _test += LoopB(possiblePatterns, want);
+            //    Console.WriteLine($"{want}: {success}, {sw.Elapsed} => {_test}");
 
-            Console.WriteLine($"Failure?!: {match.Want}: {match.New}");
+            //    //Console.WriteLine("Cache");
+            //    //foreach (var (key, value) in cache)
+            //    //{
+            //    //    Console.WriteLine($"\t{key} = {value}");
+            //    //}
+            //}
+
+            //if (Test(possiblePatterns, want))
+            //{
+            //    success++;
+            //    Console.WriteLine($"Success, {want}: {success}, {sw.Elapsed}");
+            //}
+            //else
+            //    Console.WriteLine($"Failed: {want}: {success}, {sw.Elapsed}");
         }
 
-        return success;
+        //return success;
+    }
+
+    //private int SolveB2()
+    //{
+    //    var (patterns, wanted) = Parse();
+
+    //    foreach (var want in wanted)//.Take(1))
+    //    {
+    //        var sw = Stopwatch.StartNew();
+
+    //        var possiblePatterns = patterns
+    //            .Where(p => want.Contains(p))
+    //            .OrderByDescending(w => w.Length)
+    //            .ToList();
+
+    //        cache.Clear();
+
+    //        if (!LoopA(possiblePatterns, want, "")) continue;
+
+    //        _test += LoopB(possiblePatterns, want);
+    //        Console.WriteLine($"{want} {sw.Elapsed} => {_test}");
+
+    //        //if ()
+    //        //{
+    //        //    //success++;
+    //        //    _test += LoopB(possiblePatterns, want);
+    //        //    Console.WriteLine($"{want}: {success}, {sw.Elapsed} => {_test}");
+
+    //        //    //Console.WriteLine("Cache");
+    //        //    //foreach (var (key, value) in cache)
+    //        //    //{
+    //        //    //    Console.WriteLine($"\t{key} = {value}");
+    //        //    //}
+    //        //}
+
+    //        //if (Test(possiblePatterns, want))
+    //        //{
+    //        //    success++;
+    //        //    Console.WriteLine($"Success, {want}: {success}, {sw.Elapsed}");
+    //        //}
+    //        //else
+    //        //    Console.WriteLine($"Failed: {want}: {success}, {sw.Elapsed}");
+    //    }
+
+    //    return _test;
+    //}
+
+    private long Solve()
+    {
+        var (patterns, wanted) = Parse();
+
+        var success = 0;
+
+        _test = 0L;
+
+        //var c = SolveB3().ToList();
+        //Console.WriteLine($"C: {c.Count}");
+
+        var l = new List<long>();
+
+        foreach (var want in wanted)//.Skip(3).Take(1))
+        {
+            var sw = Stopwatch.StartNew();
+
+            var possiblePatterns = patterns
+                .Where(p => want.Contains(p))
+                .OrderByDescending(w => w.Length)
+                .ToList();
+
+            cache2.Clear();
+
+            //if ()
+            {
+                //success++;
+                var t = LoopB(possiblePatterns, want);
+                l.Add(t);
+                _test += t;
+                Console.WriteLine($"{want}: {success}, {sw.Elapsed} => {t} => {_test}");
+
+                //Console.WriteLine("Cache");
+                //foreach (var (key, value) in cache2)
+                //{
+                //    Console.WriteLine($"\t{key} = {value}");
+                //}
+
+                //Console.WriteLine("Cache");
+                //foreach (var (key, value) in cache)
+                //{
+                //    Console.WriteLine($"\t{key} = {value}");
+                //}
+            }
+
+            //if (Test(possiblePatterns, want))
+            //{
+            //    success++;
+            //    Console.WriteLine($"Success, {want}: {success}, {sw.Elapsed}");
+            //}
+            //else
+            //    Console.WriteLine($"Failed: {want}: {success}, {sw.Elapsed}");
+        }
+
+        Console.WriteLine($"{_test} => {l.Sum()}");
+
+        return _test;
     }
 
     private static Dictionary<string, bool> cache = new();
+    private static long _test = 0;
 
-    private static bool Loop(List<string> patterns, string want)
+    //private static string _used = "";
+
+    private static bool LoopA(List<string> patterns, string want, string used)
     {
+        //Console.WriteLine($"Want: {want}, {used}");
+
+        var loop = false;
+
         if (cache.TryGetValue(want, out var cacheValue))
         {
-            Console.WriteLine($"CacheValue for {want} is {cacheValue}");
-            return cacheValue;
+            //Console.WriteLine($"Cache hit!! {cacheValue}, {want}");
+            loop |= cacheValue;
         }
-
-        var pattern = patterns.Where(want.StartsWith);
-        foreach (var p in pattern)
+        else
         {
-            var index = want.IndexOf(p, StringComparison.Ordinal) + p.Length;
-            var n = want[index..];
-
-            if (!string.IsNullOrWhiteSpace(n))
+            var pattern = patterns.Where(want.StartsWith);
+            foreach (var p in pattern)
             {
-                var loop = Loop(patterns, n);
-                cache.TryAdd(n, loop);
+                var index = want.IndexOf(p, StringComparison.Ordinal) + p.Length;
+                var n = want[index..];
 
-                if (loop)
-                    return true;
-
-                //if (Loop(patterns, n))
-                //    return true;
+                if (!string.IsNullOrWhiteSpace(n))
+                {
+                    loop |= LoopA(patterns, n, $"{used},{p}");
+                    cache.TryAdd(n, loop);
+                }
+                else
+                {
+                    loop = true;
+                    //Console.WriteLine($"Path: {used}+{p}");
+                }
             }
-            else
-                return true;
         }
 
-        return false;
+        //Console.WriteLine("END LOOP");
+        return loop;
     }
+
+    private static Dictionary<string, long> cache2 = new();
+
+
+    private static long LoopB(List<string> patterns, string want)
+    {
+        //Console.WriteLine($"Want: {want}");
+
+        var loop = 0L;
+
+        if (cache2.TryGetValue(want, out var cacheValue))
+        {
+            //Console.WriteLine($"Cache hit!! {cacheValue}, {want}");
+            loop += cacheValue;
+        }
+        else
+        {
+            var pattern = patterns.Where(want.StartsWith);
+            foreach (var p in pattern)
+            {
+                var index = want.IndexOf(p, StringComparison.Ordinal) + p.Length;
+                var n = want[index..];
+
+                //Console.WriteLine($"P: {p}, {index}, {n}");
+
+                if (!string.IsNullOrWhiteSpace(n))
+                {
+                    var xy = LoopB(patterns, n);
+                    loop += xy;
+                    cache2.TryAdd(n, xy);
+                }
+                else
+                {
+                    loop = 1;
+                    //Console.WriteLine($"Loop = 1");
+                }
+            }
+        }
+
+        //Console.WriteLine("END LOOP");
+        return loop;
+    }
+
+    //private static int LoopB(List<string> patterns, string want)
+    //{
+    //    //Console.WriteLine($"Want: {want}");
+
+    //    var count = 0;
+
+    //    var pattern = patterns.Where(want.StartsWith);
+    //    foreach (var p in pattern)
+    //    {
+    //        var index = want.IndexOf(p, StringComparison.Ordinal) + p.Length;
+    //        var n = want[index..];
+
+    //        if (!string.IsNullOrWhiteSpace(n))
+    //        {
+    //            count += LoopB(patterns, n);
+    //        }
+    //        else
+    //        {
+    //            count = 1;
+    //            //Console.WriteLine($"Path: end");
+    //        }
+    //    }
+
+    //    //Console.WriteLine("END LOOP");
+    //    return count;
+    //}
+
+
 
     private (List<string> Patterns, List<string> Wanted) Parse()
     {
