@@ -35,16 +35,25 @@ public class Day19 : Day
                 .OrderByDescending(w => w.Length)
                 .ToList();
 
-            // if (Loop(possiblePatterns, want))
-            //     success++;
-
-            if (Test(possiblePatterns, want))
-            {
+            cache.Clear();
+            if (Loop(possiblePatterns, want))
                 success++;
-                Console.WriteLine($"Success, {want}: {success}, {sw.Elapsed}");
+
+            Console.WriteLine($"{want}: {success}, {sw.Elapsed}");
+
+            Console.WriteLine("Cache");
+            foreach (var (key, value) in cache)
+            {
+                Console.WriteLine($"\t{key} = {value}");
             }
-            else
-                Console.WriteLine($"Failed, {want}: {success}, {sw.Elapsed}");
+
+            //if (Test(possiblePatterns, want))
+            //{
+            //    success++;
+            //    Console.WriteLine($"Success, {want}: {success}, {sw.Elapsed}");
+            //}
+            //else
+            //    Console.WriteLine($"Failed: {want}: {success}, {sw.Elapsed}");
         }
 
         return success;
@@ -79,8 +88,57 @@ public class Day19 : Day
     //     }
     // }
 
-    private static bool Test2(List<string> patterns, string want)
+    //private static bool Test2(List<string> patterns, string want)
+    //{
+    //    // var finished = false;
+    //    var success = false;
+
+    //    var queue = new PriorityQueue<Match, int>();
+    //    queue.Enqueue(new Match(want, want), want.Length);
+
+    //    while (queue.TryDequeue(out var match, out _))
+    //    {
+    //        // if (finished) break;
+
+    //        foreach (var pattern in patterns)
+    //        {
+    //            if (!match.New.StartsWith(pattern))
+    //                continue;
+
+    //            var index = match.New.IndexOf(pattern, StringComparison.Ordinal);
+    //            if (index == -1)
+    //                continue;
+
+    //            var n = match.New[(index + pattern.Length)..];
+
+    //            if (string.IsNullOrWhiteSpace(n))
+    //            {
+    //                Console.WriteLine($"Match found for {match.Want}/{match.New}");
+    //                // finished = true;
+    //                success = true; // double break!! Stop loop, return?!
+    //            }
+    //            else if (!patterns.Any(p => n.Contains(p)))
+    //            {
+    //                // finished = true;
+    //                success = false;
+    //            }
+    //            else
+    //            {
+    //                queue.Enqueue(match with { New = n }, n.Length);
+    //                Console.WriteLine($"Failed, continue?! {n}");
+    //            }
+    //        }
+
+    //        Console.WriteLine($"Failure?!: {match.Want}: {match.New}");
+    //    }
+
+    //    return success;
+    //}
+
+    private static bool Test(List<string> patterns, string want)
     {
+        var cache = new Dictionary<string, int>();
+
         // var finished = false;
         var success = false;
 
@@ -89,7 +147,10 @@ public class Day19 : Day
 
         while (queue.TryDequeue(out var match, out _))
         {
-            // if (finished) break;
+            if (cache.TryGetValue(match.New, out var cacheValue))
+            {
+                Console.WriteLine($"Want {match.Want}/{match.New} found in cache {cacheValue}");
+            }
 
             foreach (var pattern in patterns)
             {
@@ -107,6 +168,7 @@ public class Day19 : Day
                     Console.WriteLine($"Match found for {match.Want}/{match.New}");
                     // finished = true;
                     success = true; // double break!! Stop loop, return?!
+                    //return true;
                 }
                 else if (!patterns.Any(p => n.Contains(p)))
                 {
@@ -117,6 +179,7 @@ public class Day19 : Day
                 {
                     queue.Enqueue(match with { New = n }, n.Length);
                     Console.WriteLine($"Failed, continue?! {n}");
+                    //break;
                 }
             }
 
@@ -126,77 +189,39 @@ public class Day19 : Day
         return success;
     }
 
-    private static bool Test(List<string> patterns, string want)
+    private static Dictionary<string, bool> cache = new();
+
+    private static bool Loop(List<string> patterns, string want)
     {
-        // var finished = false;
-        var success = false;
-
-        var queue = new PriorityQueue<Match, int>();
-        queue.Enqueue(new Match(want, want), want.Length);
-
-        while (queue.TryDequeue(out var match, out _))
+        if (cache.TryGetValue(want, out var cacheValue))
         {
-            // if (finished) break;
-
-            // var pi = 0;
-            foreach (var pattern in patterns)
-            {
-                // Console.WriteLine($"Pattern Index: {++pi}");
-                
-                if (!match.New.StartsWith(pattern))
-                    continue;
-
-                var index = match.New.IndexOf(pattern, StringComparison.Ordinal);
-                if (index == -1)
-                    continue;
-
-                var n = match.New[(index + pattern.Length)..];
-
-                if (string.IsNullOrWhiteSpace(n))
-                {
-                    // Console.WriteLine($"Match found for {match.Want}/{match.New}");
-                    // finished = true;
-                    success = true; // double break!! Stop loop, return?!
-                    return true;
-                }
-                else if (!patterns.Any(p => n.Contains(p)))
-                {
-                    // finished = true;
-                    success = false;
-                }
-                else
-                {
-                    queue.Enqueue(match with { New = n }, n.Length);
-                    // Console.WriteLine($"Failed, continue?! {n}");
-                    break;
-                }
-            }
-
-            Console.WriteLine($"Failure?!: {match.Want}: {match.New}");
+            Console.WriteLine($"CacheValue for {want} is {cacheValue}");
+            return cacheValue;
         }
 
-        return success;
-    }
+        var pattern = patterns.Where(want.StartsWith);
+        foreach (var p in pattern)
+        {
+            var index = want.IndexOf(p, StringComparison.Ordinal) + p.Length;
+            var n = want[index..];
 
-    // private static bool Loop(List<string> patterns, string want)
-    // {
-    //     var pattern = patterns.Where(want.StartsWith);
-    //     foreach (var p in pattern)
-    //     {
-    //         var index = want.IndexOf(p, StringComparison.Ordinal) + p.Length;
-    //         var n = want[index..];
-    //
-    //         if (!string.IsNullOrWhiteSpace(n))
-    //         {
-    //             if (Loop(patterns, n))
-    //                 return true;
-    //         }
-    //         else
-    //             return true;
-    //     }
-    //
-    //     return false;
-    // }
+            if (!string.IsNullOrWhiteSpace(n))
+            {
+                var loop = Loop(patterns, n);
+                cache.TryAdd(n, loop);
+
+                if (loop)
+                    return true;
+
+                //if (Loop(patterns, n))
+                //    return true;
+            }
+            else
+                return true;
+        }
+
+        return false;
+    }
 
     private (List<string> Patterns, List<string> Wanted) Parse()
     {
