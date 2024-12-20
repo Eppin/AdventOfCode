@@ -7,54 +7,74 @@ public class Day19 : Day
     }
 
     [Answer("6", Example, Data = "r, wr, b, g, bwu, rb, gb, br{nl}{nl}brwrr{nl}bggr{nl}gbbr{nl}rrbgbr{nl}ubwu{nl}bwurrg{nl}brgr{nl}bbrgwb")]
+    [Answer("322", Regular)]
     public override string SolveA()
     {
-        Solve();
-        return "";
+        return Solve(false).ToString();
     }
 
+    [Answer("16", Example, Data = "r, wr, b, g, bwu, rb, gb, br{nl}{nl}brwrr{nl}bggr{nl}gbbr{nl}rrbgbr{nl}ubwu{nl}bwurrg{nl}brgr{nl}bbrgwb")]
+    [Answer("715514563508258", Regular)]
     public override string SolveB()
     {
-        throw new NotImplementedException();
+        return Solve(true).ToString();
     }
 
-    private void Solve()
+    private long Solve(bool isPartB)
     {
         var (patterns, wanted) = Parse();
 
+        var total = 0L;
+
         foreach (var want in wanted)
         {
-            var success = Loop(patterns, want);
-            Console.WriteLine($"{want}: {success}");
+            var possiblePatterns = patterns
+                .Where(want.Contains)
+                .OrderByDescending(w => w.Length)
+                .ToList();
+
+            DesignCache.Clear();
+            var loop = LoopB(possiblePatterns, want);
+
+            // For part A we're only interested in valid combinations, but for part 2
+            // we want to know how many different combinations are possible
+            if (isPartB) total += loop;
+            else if (loop > 0) total++;
         }
+
+        return total;
     }
 
-    private static bool Loop(List<string> patterns, string want)
+    // Cache designs and avoid very long recursive loops
+    // instead, return cached value when a certain pattern is detected
+    private static readonly Dictionary<string, long> DesignCache = new();
+
+    private static long LoopB(List<string> patterns, string want)
     {
-        var n = want;
-        var success = false;
+        var total = 0L;
 
-        var pattern = patterns.Where(want.StartsWith);
-        foreach (var p in pattern)
+        if (DesignCache.TryGetValue(want, out var cacheValue))
+            total += cacheValue;
+        else
         {
-            //Console.WriteLine($"{p} => {want}");
-
-            var index = want.IndexOf(p, StringComparison.Ordinal) + 1;
-            n = want[index..];
-
-
-
-            if (!string.IsNullOrWhiteSpace(n))
-                success |= Loop(patterns, n);
-            else
+            var pattern = patterns.Where(want.StartsWith);
+            foreach (var p in pattern)
             {
-                //Console.WriteLine($"Finished!! {want} vs {n}");
-                return true;
+                var index = want.IndexOf(p, StringComparison.Ordinal) + p.Length;
+                var n = want[index..];
+
+                if (!string.IsNullOrWhiteSpace(n))
+                {
+                    var loop = LoopB(patterns, n);
+                    total += loop;
+                    DesignCache.TryAdd(n, loop);
+                }
+                else
+                    total = 1;
             }
         }
 
-        //Console.WriteLine($"Leftover? {want} vs {n}");
-        return success;
+        return total;
     }
 
     private (List<string> Patterns, List<string> Wanted) Parse()
