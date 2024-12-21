@@ -14,6 +14,10 @@ public class Dijkstra<TNode> where TNode : notnull
 
     public int ShortestPath(TNode start)
     {
+        // Clear list, in case we run this method multiple times
+        _visited.Clear();
+        _distances.Clear();
+        
         _distances[start] = 0;
 
         var queue = new PriorityQueue<TNode, int>();
