@@ -1,7 +1,6 @@
 ﻿namespace AdventOfCode._2024;
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Utils;
 using Coordinate = Coordinate<int>;
@@ -16,93 +15,60 @@ public class Day20 : Day
     [Answer("1524", Regular)]
     public override string SolveA()
     {
-        var (grid, start, end) = GetGrid();
-
-        var initialShortestPath = GetShortestPath(grid, start, end, null);
-
-        var possibleCheats = PossibleCheats(grid);
-        var speeds = new ConcurrentBag<int>();
-
-        Parallel.ForEach(possibleCheats, cheat =>
-        {
-            speeds.Add(GetShortestPath(grid, start, end, cheat));
-        });
-
-        return (from @group in speeds.GroupBy(s => s)
-                let save = initialShortestPath - @group.Key
-                where save >= 100
-                select @group.Count()
-                )
-            .Sum()
-            .ToString();
+        return Solve(false).ToString();
     }
 
+    [Answer("", Example, Data = "###############{nl}#...#...#.....#{nl}#.#.#.#.#.###.#{nl}#S#...#.#.#...#{nl}#######.#.#.###{nl}#######.#.#...#{nl}#######.#.###.#{nl}###..E#...#...#{nl}###.#######.###{nl}#...###...#...#{nl}#.#####.#.###.#{nl}#.#...#.#.#...#{nl}#.#.#.#.#.#.###{nl}#...#...#...###{nl}###############")]
+    [Answer("1033746", Regular)]
     public override string SolveB()
     {
-        throw new NotImplementedException();
+        return Solve(true).ToString();
     }
 
-    private static int GetShortestPath(Grid<char> grid, Coordinate start, Coordinate end, Coordinate? cheat)
+    private int Solve(bool isPartB)
     {
-        var dijkstra = new Dijkstra<Coordinate>
+        var cheatLimit = isPartB ? 20 : 2;
+
+        var (grid, start, end) = GetGrid();
+
+        var racetrack = new List<Racetrack>();
+        var visited = new HashSet<Coordinate>();
+        var distance = 0;
+
+        var current = start;
+        while (true)
         {
-            GetNeighbours = reindeer => GetNeighbours(reindeer, grid, cheat),
-            EndReached = current => current == end,
-            Draw = list =>
-            {
-                for (var y = 0; y < grid.MaxY; y++)
-                {
-                    for (var x = 0; x < grid.MaxX; x++)
-                    {
-                        var c = list.Count(l => l == new Coordinate(x, y));
-                        if (c > 0)
-                        {
-                            Console.Write(c);
-                        }
-                        else
-                            Console.Write(grid[x, y]);
-                    }
-                    Console.WriteLine();
-                }
-            }
-        };
+            racetrack.Add(new Racetrack(current, distance));
 
-        return dijkstra.ShortestPath(start);
-    }
+            if (current == end)
+                break;
 
-    private static HashSet<Coordinate> PossibleCheats(Grid<char> grid)
-    {
-        var cheats = new HashSet<Coordinate>();
+            var neighbour = current.Neighbours.Single(n => grid[n] is '.' && !visited.Contains(n));
 
-        // Skip border/walls around the grid
-        for (var y = 1; y < grid.MaxY - 1; y++)
+            visited.Add(current);
+            current = neighbour;
+            distance++;
+        }
+
+        var total = 0;
+        foreach (var rt1 in racetrack)
         {
-            for (var x = 1; x < grid.MaxX - 1; x++)
+            foreach (var rt2 in racetrack)
             {
-                if (grid[x, y] is not '.')
-                    continue; // Can only 'walk' on a '.'
+                if (rt1 == rt2) continue;
 
-                // Get directions of current coordinate
-                // Also check if next direction contains a free space, in the same direction
-                var directions = grid.Directions(x, y)
-                    .Where(d => grid[d.Value] is '#'
-                                && grid.Directions(d.Value).TryGetValue(d.Key, out var next) && grid[next] is '.'
-                                && !cheats.Any(c => c.X == d.Value.X && c.Y == d.Value.Y)).ToList();
+                distance = rt2.Distance - rt1.Distance;
+                var manhattan = Math.Abs(rt1.Position.X - rt2.Position.X) + Math.Abs(rt1.Position.Y - rt2.Position.Y); // |X1-X2| + |Y1-Y2|
+                if (manhattan > cheatLimit) continue;
 
-                foreach (var direction in directions)
-                    cheats.Add(new Coordinate(direction.Value.X, direction.Value.Y));
+                var saved = distance - manhattan;
+                if (saved < 100) continue;
+
+                total++;
             }
         }
 
-        return cheats;
-    }
-
-    private static IEnumerable<Coordinate> GetNeighbours(Coordinate reindeer, Grid<char> grid, Coordinate? cheat = null)
-    {
-        return grid
-            .Neighbours(reindeer.X, reindeer.Y)
-            .Where(n => grid[n.X, n.Y] is '.' || (cheat != null && (n.X == cheat.Value.X && n.Y == cheat.Value.Y)))
-            .Select(n => new Coordinate(n.X, n.Y));
+        return total;
     }
 
     private (Grid<char> Grid, Coordinate Start, Coordinate End) GetGrid()
@@ -141,4 +107,6 @@ public class Day20 : Day
             .Select(s => s.ToCharArray())
             .ToArray();
     }
+
+    private record struct Racetrack(Coordinate Position, int Distance);
 }
