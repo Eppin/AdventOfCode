@@ -12,84 +12,180 @@ public class Day21 : Day
     [Answer("", Regular)]
     public override string SolveA()
     {
-        //var numpad = new List<List<List<string>>>(11)
-        //{
-        //    new() { new List<string> {"a", "b"}, new List<string> {"B", "A"} }
-        //};
+        var numpad = NumpadCombinations();
 
-        //var k = numpad[0][0];
-        //var j = numpad[0][1];
+        // van 0 naar 8
+        var a1 = numpad[0][9];
+        // var b1 = dirpad['A'][Convert('<')];
 
-        int t = 0;
+        var codes = Parse();
 
-
-        var grid = Numpad();
-
-        for (var a = 0; a < 11; a++)
+        foreach (var code in codes.Skip(3).Take(1))
         {
-            for (var b = 0; b < 11; b++)
+            Console.WriteLine($"Code:{string.Join(string.Empty, code)}");
+
+            var start = 10; // A
+
+            // X.Clear();
+
+            foreach (var c in code)
             {
-                var c_a = Convert(a);
-                var c_b = Convert(b);
+                var next = numpad[start][c];
+                Console.WriteLine($"{c}: fr-{start}, to-{c}, n:{string.Join(", ", next.Select(x => string.Join('-', x)))}");
 
-                Console.WriteLine($"F:{a} ({c_a}) -> T:{b} ({c_b})");
-                Dijkstra(grid, c_a, c_b);
-            }
-        }
-
-        return Solve(2).ToString();
-    }
-
-    private void Dijkstra(Grid<char> grid, char startC, char endC)
-    {
-        //
-        var start = new Coordinate();
-        var end = new Coordinate();
-
-        for (var y = 0; y < grid.MaxY; y++)
-        {
-            for (var x = 0; x < grid.MaxX; x++)
-            {
-                if (grid[x, y] == startC)
-                    start = new Coordinate(x, y);
-
-                if (grid[x, y] == endC)
-                    end = new Coordinate(x, y);
-            }
-        }
-        //
-
-        var dijkstra = new Dijkstra<(Coordinate Coordinate, char Char)>();
-
-        //var start = new Coordinate(0, 0);
-        //var end = new Coordinate(70, 70); // Example uses 6,6
-
-        dijkstra.GetNeighbours = reindeer => grid.Neighbours(reindeer.Coordinate.X, reindeer.Coordinate.Y).Where(n => grid[n.X, n.Y] is not '.').Select(n => (new Coordinate(n.X, n.Y), grid[n.X, n.Y]));
-        dijkstra.EndReached = current => current.Coordinate == end;
-        dijkstra.Draw = list =>
-        {
-            for (var y = 0; y < grid.MaxY; y++)
-            {
-                for (var x = 0; x < grid.MaxX; x++)
+                foreach (var direction in next)
                 {
-                    var c = list.Count(l => l.Coordinate == new Coordinate(x, y));
-                    if (c > 0)
-                    {
-                        Console.Write(c);
-                    }
-                    else
-                        Console.Write(grid[x, y]);
+                    Depth3(direction, 2, 1);
                 }
 
-                Console.WriteLine();
+                // length += Depth2(next, depth, 0);
+                start = c;
             }
-        };
+        }
 
-        var paths = dijkstra.ShortestPaths((start, grid[start.X, start.Y]), true);
-        Console.WriteLine();
+        return "";
     }
 
-    private static Grid<char> Numpad()
+    private static void Depth3(List<char> next, int depth, int currentDepth)
+    {
+        var dirpad = DirpadCombinations();
+        var start = 'A';
+
+        if (depth == currentDepth)
+            return;
+
+        foreach (var direction in next)
+        {
+            var possibilities = dirpad[start][Convert(direction)];
+            Console.WriteLine($"{Tabs(currentDepth)}({currentDepth}), fr-{start}, to-{direction}, n:{string.Join(", ", possibilities.Select(x => string.Join('-', x)))}");
+
+            foreach (var possible in possibilities)
+            {
+                Depth3(possible, depth, currentDepth + 1);
+            }
+
+            start = direction;
+        }
+    }
+
+    private record Robot(List<char> Directions, char Start, int Depth, int CurrentDepth);
+
+    private static void Depth2(List<char> next, int depth)
+    {
+        var dirpad = DirpadCombinations();
+
+        var queue = new Queue<Robot>();
+        queue.Enqueue(new Robot(next, 'A', depth, 1));
+
+        while (queue.Count > 0)
+        {
+            var robot = queue.Dequeue();
+
+            foreach (var directions in robot.Directions)
+            {
+                var k = dirpad['A'][Convert(directions)];
+
+                // queue.Enqueue(new Robot(dirpad['A'][directions], robot.Start, depth + 1, depth + 1));
+
+                // Multiple possible directions
+                // foreach (var direction in directions)
+                // {
+                //     queue.Enqueue(new Robot(direction, direction, robot.Depth + 1, depth));
+                // }
+            }
+        }
+
+        // var start = 1; //_start.GetValueOrDefault(currentDepth, 1);
+        //
+        // // var start = 1;
+        // var length = 0L;
+        //
+        // foreach (var d in code)
+        // {
+        //     var dc = Convert(d);
+        //     var next2 = Direction[start][dc];
+        //     // Console.WriteLine($"{Tabs(currentDepth)}({currentDepth}), fr-{start}, to-{dc} ({d}), n:{next2}");
+        //
+        //     if (currentDepth < depth - 1)
+        //         length += Depth(next2, depth, currentDepth + 1);
+        //     else
+        //     {
+        //         // X.Add(next2.Length);
+        //         length += next2.Length;
+        //     }
+        //
+        //     // _start[currentDepth] = dc;
+        //     start = dc;
+        //     // Console.WriteLine($"End {currentDepth}, S:{start}");
+        // }
+        //
+        // return length;
+    }
+
+    private static List<List<char>> GetPath(Grid<char> grid, Coordinate start, Coordinate end)
+    {
+        var paths = new List<List<char>>();
+
+        var queue = new Queue<(Coordinate Node, List<char> Path, HashSet<Coordinate> Visited)>();
+        queue.Enqueue((start, [], []));
+
+        while (queue.Count > 0)
+        {
+            var (node, path, visited) = queue.Dequeue();
+
+            if (node == end)
+            {
+                paths.Add(path);
+                continue;
+            }
+
+            var directions = grid
+                .Directions(node)
+                .Where(d => grid[d.Value] is not '.' && !visited.Contains(d.Value));
+
+            foreach (var (direction, coordinate) in directions)
+                queue.Enqueue((coordinate, [..path, Convert(direction)], [..visited, node]));
+        }
+
+        return paths;
+    }
+
+    private static Dictionary<int, List<List<List<char>>>> NumpadCombinations()
+    {
+        // TODO
+        // Should char be int?!
+        // From int to int (with list of possibilities)
+        var result = new Dictionary<int, List<List<List<char>>>>();
+
+        var (grid, numpad) = Numpad();
+
+        foreach (var (key1, coordinate1) in numpad)
+        {
+            var key = Convert2(key1);
+            result.Add(key, []);
+
+            foreach (var (key2, coordinate2) in numpad)
+            {
+                if (key1 == key2)
+                {
+                    result[key].Add([]);
+                    continue;
+                }
+
+                var paths = GetPath(grid, coordinate1, coordinate2)
+                    .GroupBy(p => p.Count)
+                    .OrderBy(g => g.Key)
+                    .First()
+                    .ToList();
+
+                result[key].Add(paths);
+            }
+        }
+
+        return result;
+    }
+
+    private static (Grid<char>, Dictionary<char, Coordinate>) Numpad()
     {
         var array = new char[4][];
         array[0] = ['7', '8', '9'];
@@ -97,16 +193,82 @@ public class Day21 : Day
         array[2] = ['1', '2', '3'];
         array[3] = ['.', '0', 'A'];
 
-        return new Grid<char>(array);
+        var grid = new Grid<char>(array);
+        var coordinates = new Dictionary<char, Coordinate>();
+
+        for (var y = 0; y < grid.MaxY; y++)
+        {
+            for (var x = 0; x < grid.MaxX; x++)
+            {
+                if (grid[x, y] is not '.')
+                    coordinates.Add(grid[x, y], new Coordinate(x, y));
+            }
+        }
+
+        var ordered = coordinates
+            .OrderBy(c => c.Key)
+            .ToDictionary();
+
+        return (grid, ordered);
     }
 
-    private static Grid<char> Dirpad()
+    private static Dictionary<char, List<List<List<char>>>> DirpadCombinations()
+    {
+        // TODO
+        // Should char be int?!
+        // From int to int (with list of possibilities)
+        var result = new Dictionary<char, List<List<List<char>>>>();
+
+        var (grid, numpad) = Dirpad();
+
+        foreach (var (key1, coordinate1) in numpad)
+        {
+            result.Add(key1, []);
+
+            foreach (var (key2, coordinate2) in numpad)
+            {
+                if (key1 == key2)
+                {
+                    result[key1].Add([]);
+                    continue;
+                }
+
+                var paths = GetPath(grid, coordinate1, coordinate2)
+                    .GroupBy(p => p.Count)
+                    .OrderBy(g => g.Key)
+                    .First()
+                    .ToList();
+
+                result[key1].Add(paths);
+            }
+        }
+
+        return result;
+    }
+
+    private static (Grid<char>, Dictionary<char, Coordinate>) Dirpad()
     {
         var array = new char[2][];
         array[0] = ['.', '^', 'A'];
         array[1] = ['<', 'v', '>'];
 
-        return new Grid<char>(array);
+        var grid = new Grid<char>(array);
+        var coordinates = new Dictionary<char, Coordinate>();
+
+        for (var y = 0; y < grid.MaxY; y++)
+        {
+            for (var x = 0; x < grid.MaxX; x++)
+            {
+                if (grid[x, y] is not '.')
+                    coordinates.Add(grid[x, y], new Coordinate(x, y));
+            }
+        }
+
+        var ordered = coordinates
+            .OrderBy(c => c.Key)
+            .ToDictionary();
+
+        return (grid, ordered);
     }
 
     public override string SolveB()
@@ -120,7 +282,7 @@ public class Day21 : Day
 
         var sum = 0L;
 
-        foreach (var code in codes)//.TakeLast(1))
+        foreach (var code in codes) //.TakeLast(1))
         {
             Console.WriteLine($"Code:{string.Join(string.Empty, code)}");
 
@@ -142,7 +304,7 @@ public class Day21 : Day
             var test1 = string.Join("", test);
             var test3 = int.Parse(test1);
             sum += (length * test3);
-            Console.WriteLine($"L: {length} * {test3}");// vs {X.Sum()}, {X.Count}");
+            Console.WriteLine($"L: {length} * {test3}"); // vs {X.Sum()}, {X.Count}");
         }
 
         return sum;
@@ -234,13 +396,19 @@ public class Day21 : Day
     {
         return c switch
         {
-            '^' => 0,
-            'A' => 1,
-            '<' => 2,
-            'v' => 3,
-            '>' => 4,
+            '<' => 0,
+            '>' => 1,
+            'A' => 2,
+            '^' => 3,
+            'v' => 4,
             _ => throw new ArgumentOutOfRangeException(nameof(c), c, null)
         };
+    }
+
+    private static int Convert2(char c)
+    {
+        if (c is 'A') return 10;
+        return c - '0';
     }
 
     private static char Convert(int i)
@@ -250,6 +418,18 @@ public class Day21 : Day
             <= 9 => (char)(i + '0'),
             10 => 'A',
             _ => throw new ArgumentOutOfRangeException(nameof(i), i, null)
+        };
+    }
+
+    private static char Convert(Direction direction)
+    {
+        return direction switch
+        {
+            Models.Direction.North => '^',
+            Models.Direction.East => '<',
+            Models.Direction.South => 'v',
+            Models.Direction.West => '>',
+            _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null)
         };
     }
 

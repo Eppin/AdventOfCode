@@ -9,5 +9,5 @@ public enum Direction
     NorthEast,
     NorthWest,
     SouthEast,
-    SouthWest,
+    SouthWest
 }
