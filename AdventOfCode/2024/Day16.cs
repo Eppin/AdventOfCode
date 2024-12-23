@@ -1,6 +1,5 @@
 ﻿namespace AdventOfCode._2024;
 
-using System.Linq;
 using Coordinate = Coordinate<int>;
 
 public class Day16 : Day
@@ -13,6 +12,19 @@ public class Day16 : Day
     [Answer("11048", Example, Data = "#################{nl}#...#...#...#..E#{nl}#.#.#.#.#.#.#.#.#{nl}#.#.#.#...#...#.#{nl}#.#.#.#.###.#.#.#{nl}#...#.#.#.....#.#{nl}#.#.#.#.#.#####.#{nl}#.#...#.#.#.....#{nl}#.#.#####.#.###.#{nl}#.#.#.......#...#{nl}#.#.###.#####.###{nl}#.#.#...#.....#.#{nl}#.#.#.#####.###.#{nl}#.#.#.........#.#{nl}#.#.#.#########.#{nl}#S#.............#{nl}#################")]
     [Answer("143564", Regular)]
     public override string SolveA()
+    {
+        return Solve(false).ToString();
+    }
+
+    [Answer("45", Example, Data = "###############{nl}#.......#....E#{nl}#.#.###.#.###.#{nl}#.....#.#...#.#{nl}#.###.#####.#.#{nl}#.#.#.......#.#{nl}#.#.#####.###.#{nl}#...........#.#{nl}###.#.#####.#.#{nl}#...#.....#.#.#{nl}#.#.#.###.#.#.#{nl}#.....#...#.#.#{nl}#.###.#.#.#.#.#{nl}#S..#.....#...#{nl}###############")]
+    //[Answer("64", Example, Data = "#################{nl}#...#...#...#..E#{nl}#.#.#.#.#.#.#.#.#{nl}#.#.#.#...#...#.#{nl}#.#.#.#.###.#.#.#{nl}#...#.#.#.....#.#{nl}#.#.#.#.#.#####.#{nl}#.#...#.#.#.....#{nl}#.#.#####.#.###.#{nl}#.#.#.......#...#{nl}#.#.###.#####.###{nl}#.#.#...#.....#.#{nl}#.#.#.#####.###.#{nl}#.#.#.........#.#{nl}#.#.#.#########.#{nl}#S#.............#{nl}#################")]
+    [Answer("593", Regular)]
+    public override string SolveB()
+    {
+        return Solve(true).ToString();
+    }
+
+    private int Solve(bool isPartB)
     {
         var parsed = Parse();
 
@@ -39,31 +51,23 @@ public class Day16 : Day
             }
         }
 
-        var dijkstra = new Dijkstra<Reindeer>();
-
-        dijkstra.GetDistance = (current, neighbour) => current.Direction == neighbour.Direction ? 1 : 1000;
-        dijkstra.GetNeighbours = reindeer => GetNeighbours(reindeer, grid);
-        dijkstra.EndReached = current => current.Position == end;
-        dijkstra.Draw = list =>
+        var dijkstra = new Dijkstra<Reindeer>
         {
-            for (var y = 0; y < grid.MaxY; y++)
-            {
-                for (var x = 0; x < grid.MaxX; x++)
-                {
-                    var c = list.Count(l => l.Position == new Coordinate(x, y));
-                    if (c > 0)
-                    {
-                        Console.Write(c);
-                    }
-                    else
-                        Console.Write(grid[x, y]);
-                }
-
-                Console.WriteLine();
-            }
+            GetDistance = (current, neighbour) => current.Direction == neighbour.Direction ? 1 : 1000,
+            GetNeighbours = reindeer => GetNeighbours(reindeer, grid),
+            EndReached = current => current.Position == end,
+            Draw = list => Draw(grid, list)
         };
 
-        return dijkstra.ShortestPath(start).ToString();
+        if (isPartB)
+        {
+            return dijkstra.ShortestPaths(start, true).Path
+                .SelectMany(r => r)
+                .DistinctBy(r => r.Position)
+                .Count();
+        }
+
+        return dijkstra.ShortestPath(start).Distance;
     }
 
     private static List<Reindeer> GetNeighbours(Reindeer reindeer, Grid<char> grid)
@@ -83,11 +87,6 @@ public class Day16 : Day
         return directions.Distinct().ToList();
     }
 
-    public override string SolveB()
-    {
-        throw new NotImplementedException();
-    }
-
     private static bool Rotate(Direction current, Direction next)
     {
         // Only allow (counter)clockwise
@@ -101,6 +100,23 @@ public class Day16 : Day
 
             default:
                 return false;
+        }
+    }
+
+    private static void Draw(Grid<char> grid, HashSet<Reindeer> list)
+    {
+        for (var y = 0; y < grid.MaxY; y++)
+        {
+            for (var x = 0; x < grid.MaxX; x++)
+            {
+                var c = list.Count(l => l.Position == new Coordinate(x, y));
+                if (c > 0)
+                    Console.Write(c);
+                else
+                    Console.Write(grid[x, y]);
+            }
+
+            Console.WriteLine();
         }
     }
 

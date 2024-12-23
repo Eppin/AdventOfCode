@@ -57,7 +57,7 @@ public class Day18 : Day
             foreach (var coordinate in parsed)
             {
                 grid[coordinate] = '#';
-                if (dijkstra.ShortestPath(new Coordinate(0, 0)) < 0)
+                if (dijkstra.ShortestPath(new Coordinate(0, 0)).Distance < 0)
                     return coordinate.ToString();
             }
         }
@@ -67,7 +67,7 @@ public class Day18 : Day
             foreach (var coordinate in parsed.Take(1024))
                 grid[coordinate] = '#';
             
-            return dijkstra.ShortestPath(new Coordinate(0, 0)).ToString();
+            return dijkstra.ShortestPath(new Coordinate(0, 0)).Distance.ToString();
         }
 
         return "-1";
