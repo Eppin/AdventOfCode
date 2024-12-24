@@ -12,152 +12,101 @@ public class Day21 : Day
     [Answer("157908", Regular)]
     public override string SolveA()
     {
+        return Solve(false).ToString();
+    }
+
+    [Answer("196910339808654", Regular)]
+    public override string SolveB()
+    {
+        return Solve(true).ToString();
+    }
+
+    // Keep a list of current positions of the robots
+    // hovering a keypad
+    private static readonly Dictionary<int, char> Start = [];
+
+    // Cache the 'from' and 'to' char and avoid very long recursive loops
+    // instead, return cached value when a certain 'from' and 'to' is detected
+    private static readonly Dictionary<(char From, char To, int Depth), long> FromToCache = new();
+
+    private long Solve(bool isPartB)
+    {
+        // Always clear...
+        // otherwise running Part A and B one after the other will result in wrong answers
+        FromToCache.Clear();
+
         var codes = Parse();
         var numpad = NumpadCombinations();
 
-        var sum = 0L;
+        var total = 0L;
+        var depth = 2;
+        if (isPartB) depth += 23;
 
-        foreach (var code in codes)//.Skip(3).Take(1))
+        foreach (var code in codes)
         {
-            Console.WriteLine($"Code:{string.Join(string.Empty, code)}");
-
             var start = 10; // A
+            var length = 0L;
 
-            var length = 0;
-            var length2 = 0;
-
-            foreach (var c in code)
+            foreach (var to in code)
             {
-                var next = numpad[start][c];
-                //Console.WriteLine($"{c}: fr-{start}, to-{c}, n:{string.Join(", ", next.Select(x => string.Join(string.Empty, x)))}");
-
-                var p = new List<char>();
+                var next = numpad[start][to];
+                var shortest = long.MaxValue;
 
                 foreach (var direction in next)
                 {
-                    _start.Clear();
-                    var d = Depth3(direction, 2, 0);
-                    //Console.WriteLine($"Test: {string.Join(string.Empty, d)}");
-
-                    if (p.Count == 0 || d.Count < p.Count)
-                        p = d;
+                    Start.Clear();
+                    shortest = Math.Min(shortest, Depth(direction, depth, 0));
                 }
 
-                Console.WriteLine();
-                length += p.Count;
-
-                //
-                
-
-                // length += Depth2(next, depth, 0);
-                start = c;
-
-                //Console.WriteLine("End result:");
-                //Console.WriteLine(string.Join(',', p));
+                length += shortest;
+                start = to;
             }
 
-            var test = string.Join(string.Empty, code.SkipLast(1));
-            var tes2 = int.Parse(test);
+            var skipA = string.Join(string.Empty, code.SkipLast(1));
+            var codeAsInt = int.Parse(skipA);
 
-            length2 = length * tes2;
-            sum += length2;
-
-            Console.WriteLine($"Length: {length}, {length2}");
+            total += length * codeAsInt;
         }
 
-        return sum.ToString();
+        return total;
     }
 
-    private static readonly Dictionary<int, char> _start = [];
-
-    private static List<char> Depth3(List<char> next, int depth, int currentDepth)
+    private static long Depth(List<char> next, int depth, int currentDepth)
     {
+        var list = 0L;
+
         var dirpad = DirpadCombinations();
-        var start = _start.GetValueOrDefault(currentDepth, 'A');
+        var start = Start.GetValueOrDefault(currentDepth, 'A');
 
         if (depth == currentDepth)
-            return next;
-
-        var list = new List<char>();
+            return next.Count;
 
         foreach (var direction in next)
         {
-            var possibilities = dirpad[start][Convert(direction)];
-            //Console.WriteLine($"{Tabs(currentDepth)}({currentDepth}), fr-{start}, to-{direction}, n:{string.Join(", ", possibilities.Select(x => string.Join(string.Empty, x)))}");
-
-            var p = new List<char>();
-            foreach (var possible in possibilities)
+            if (FromToCache.TryGetValue((start, direction, currentDepth), out var cacheValue))
+                list += cacheValue;
+            else
             {
-                var sequence = Depth3(possible, depth, currentDepth + 1);
-                if (p.Count == 0 || sequence.Count < p.Count)
-                    p = sequence;
-            }
+                var possibilities = dirpad[start][Convert(direction)];
 
-            list.AddRange(p);
-            //Console.WriteLine($"{Tabs(currentDepth)}({currentDepth}), Totaal: {string.Join(string.Empty, list)}");
+                var shortest = long.MaxValue;
+                foreach (var possible in possibilities)
+                    shortest = Math.Min(shortest, Depth(possible, depth, currentDepth + 1));
+
+                FromToCache.TryAdd((start, direction, currentDepth), shortest);
+
+                list += shortest;
+            }
 
             start = direction;
 
-            if (!_start.TryAdd(currentDepth, direction))
-                _start[currentDepth] = direction;
+            if (!Start.TryAdd(currentDepth, direction))
+                Start[currentDepth] = direction;
         }
 
         return list;
     }
 
-    private record Robot(List<char> Directions, char Start, int Depth, int CurrentDepth);
-
-    private static void Depth2(List<char> next, int depth)
-    {
-        var dirpad = DirpadCombinations();
-
-        var queue = new Queue<Robot>();
-        queue.Enqueue(new Robot(next, 'A', depth, 1));
-
-        while (queue.Count > 0)
-        {
-            var robot = queue.Dequeue();
-
-            foreach (var directions in robot.Directions)
-            {
-                var k = dirpad['A'][Convert(directions)];
-
-                // queue.Enqueue(new Robot(dirpad['A'][directions], robot.Start, depth + 1, depth + 1));
-
-                // Multiple possible directions
-                // foreach (var direction in directions)
-                // {
-                //     queue.Enqueue(new Robot(direction, direction, robot.Depth + 1, depth));
-                // }
-            }
-        }
-
-        // var start = 1; //_start.GetValueOrDefault(currentDepth, 1);
-        //
-        // // var start = 1;
-        // var length = 0L;
-        //
-        // foreach (var d in code)
-        // {
-        //     var dc = Convert(d);
-        //     var next2 = Direction[start][dc];
-        //     // Console.WriteLine($"{Tabs(currentDepth)}({currentDepth}), fr-{start}, to-{dc} ({d}), n:{next2}");
-        //
-        //     if (currentDepth < depth - 1)
-        //         length += Depth(next2, depth, currentDepth + 1);
-        //     else
-        //     {
-        //         // X.Add(next2.Length);
-        //         length += next2.Length;
-        //     }
-        //
-        //     // _start[currentDepth] = dc;
-        //     start = dc;
-        //     // Console.WriteLine($"End {currentDepth}, S:{start}");
-        // }
-        //
-        // return length;
-    }
 
     private static List<List<char>> GetPath(Grid<char> grid, Coordinate start, Coordinate end)
     {
@@ -189,16 +138,13 @@ public class Day21 : Day
 
     private static Dictionary<int, List<List<List<char>>>> NumpadCombinations()
     {
-        // TODO
-        // Should char be int?!
-        // From int to int (with list of possibilities)
         var result = new Dictionary<int, List<List<List<char>>>>();
 
         var (grid, numpad) = Numpad();
 
         foreach (var (key1, coordinate1) in numpad)
         {
-            var key = Convert2(key1);
+            var key = ConvertNumpad(key1);
             result.Add(key, []);
 
             foreach (var (key2, coordinate2) in numpad)
@@ -252,9 +198,6 @@ public class Day21 : Day
 
     private static Dictionary<char, List<List<List<char>>>> DirpadCombinations()
     {
-        // TODO
-        // Should char be int?!
-        // From int to int (with list of possibilities)
         var result = new Dictionary<char, List<List<List<char>>>>();
 
         var (grid, numpad) = Dirpad();
@@ -310,127 +253,6 @@ public class Day21 : Day
         return (grid, ordered);
     }
 
-    public override string SolveB()
-    {
-        throw new NotImplementedException();
-    }
-
-    //private long Solve(int depth)
-    //{
-    //    var codes = Parse();
-
-    //    var sum = 0L;
-
-    //    foreach (var code in codes) //.TakeLast(1))
-    //    {
-    //        Console.WriteLine($"Code:{string.Join(string.Empty, code)}");
-
-    //        var length = 0L;
-    //        var start = 10; // A
-
-    //        // X.Clear();
-
-    //        foreach (var c in code)
-    //        {
-    //            var next = Numeric[start][c];
-    //            // Console.WriteLine($"{c}: fr-{start}, to-{c}, n:{next}");
-
-    //            length += Depth(next, depth, 0);
-    //            start = c;
-    //        }
-
-    //        var test = code.Where(c => c != 10);
-    //        var test1 = string.Join("", test);
-    //        var test3 = int.Parse(test1);
-    //        sum += (length * test3);
-    //        Console.WriteLine($"L: {length} * {test3}"); // vs {X.Sum()}, {X.Count}");
-    //    }
-
-    //    return sum;
-    //}
-
-    // private static readonly Dictionary<int, int> _start = [];
-
-    //private static long Depth(string code, int depth, int currentDepth)
-    //{
-    //    var start = 1; //_start.GetValueOrDefault(currentDepth, 1);
-
-    //    // var start = 1;
-    //    var length = 0L;
-
-    //    foreach (var d in code)
-    //    {
-    //        var dc = Convert(d);
-    //        var next2 = Direction[start][dc];
-    //        // Console.WriteLine($"{Tabs(currentDepth)}({currentDepth}), fr-{start}, to-{dc} ({d}), n:{next2}");
-
-    //        if (currentDepth < depth - 1)
-    //            length += Depth(next2, depth, currentDepth + 1);
-    //        else
-    //        {
-    //            // X.Add(next2.Length);
-    //            length += next2.Length;
-    //        }
-
-    //        // _start[currentDepth] = dc;
-    //        start = dc;
-    //        // Console.WriteLine($"End {currentDepth}, S:{start}");
-    //    }
-
-    //    return length;
-    //}
-
-    private static string Tabs(int depth)
-    {
-        var str = "\t";
-        for (var i = 0; i < depth; i++)
-        {
-            str += "\t";
-        }
-
-        return str;
-    }
-
-    //private static string[][] Numeric
-    //{
-    //    get
-    //    {
-    //        var numeric = new string[11][]; // 0-9 + A (is 10)
-    //        numeric[0] = ["", "^<A", "^A", ">^A", "^^<A", "^^A", ">^^A", "^^^<A", "^^^A", ">^^^A", ">A"]; // from 0 to ...
-    //        numeric[1] = [">vA", "", ">A", ">>A", "^A", ">^A", ">>^A", "^^A", ">^^A", ">>^^A", ">>vA"]; // from 1 to ...
-    //        numeric[2] = ["vA", "<A", "", ">A", "<^A", "^A", ">^A", "<^^A", "^^A", ">^^A", ">vA"]; // from 2 to ...
-    //        numeric[3] = ["<vA", "<<A", "<A", "", "<<^A", "<^A", "^A", "<<^^A", "<^^A", "^^A", "vA"]; // from 3 to ...
-    //        numeric[4] = [">vvA", "vA", ">vA", ">>vA", "", ">A", ">>A", "^A", ">^A", ">>^A", ">>vvA"]; // from 4 to ...
-    //        numeric[5] = ["vvA", "<vA", "vA", ">vA", "<A", "", ">A", "<^A", "^A", ">^A", ">vvA"]; // from 5 to ...
-    //        numeric[6] = ["<vvA", "<<vA", "<vA", "vA", "<<A", "<A", "", "<<^A", "<^A", "^A", "vvA"]; // from 6 to ...
-    //        numeric[7] = [">vvvA", "vvA", ">vvA", ">>vvA", "vA", ">vA", ">>vA", "", ">A", ">>A", ">>vvvA"]; // from 7 to ...
-    //        numeric[8] = ["vvvA", "<vvA", "vvA", ">vvA", "<vA", "vA", ">vA", "<A", "", ">A", ">vvvA"]; // from 8 to ...
-    //        numeric[9] = ["<vvvA", "<<vvA", "<vvA", "vvA", "<<vA", "<vA", "vA", "<<A", "<A", "", "vvvA"]; // from 9 to ...
-    //        numeric[0xA] = ["<A", "^<<A", "<^A", "^A", "^^<<A", "<^^A", "^^A", "^^^<<A", "<^^^A", "^^^A", ""]; // from A to ...
-
-    //        return numeric;
-    //    }
-    //}
-
-    //private static string[][] Direction
-    //{
-    //    get
-    //    {
-    //        // +---+---+---+  +---+---+---+
-    //        // |   | ^ | A |  |   | 0 | 1 |
-    //        // | < | v | > |  | 2 | 3 | 4 |
-    //        // +---+---+---+  +---+---+---+
-    //        var direction = new string[5][];
-    //        direction[0] = ["A", ">A", "v<A", "vA", ">vA"]; // from '^' to ...
-    //        direction[1] = ["<A", "A", "v<<A", "v<A", "vA"]; // from A to ...
-    //        direction[2] = [">^A", ">>^A", "A", ">A", ">>A"]; // from  '<' to ...
-    //        direction[3] = ["^A", ">^A", "<A", "A", ">A"]; // from  'v' to ...
-    //        direction[4] = ["<^A", "^A", "<<A", "<A", "A"]; // from  '>' to ...
-
-    //        return direction;
-    //    }
-    //}
-
     private static int Convert(char c)
     {
         return c switch
@@ -444,22 +266,6 @@ public class Day21 : Day
         };
     }
 
-    private static int Convert2(char c)
-    {
-        if (c is 'A') return 10;
-        return c - '0';
-    }
-
-    //private static char Convert(int i)
-    //{
-    //    return i switch
-    //    {
-    //        <= 9 => (char)(i + '0'),
-    //        10 => 'A',
-    //        _ => throw new ArgumentOutOfRangeException(nameof(i), i, null)
-    //    };
-    //}
-
     private static char Convert(Direction direction)
     {
         return direction switch
@@ -470,6 +276,12 @@ public class Day21 : Day
             Direction.West => '<',
             _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null)
         };
+    }
+
+    private static int ConvertNumpad(char c)
+    {
+        if (c is 'A') return 10;
+        return c - '0';
     }
 
     private int[][] Parse()

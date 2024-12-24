@@ -34,7 +34,7 @@ public class Day19 : Day
                 .ToList();
 
             DesignCache.Clear();
-            var loop = LoopB(possiblePatterns, want);
+            var loop = Loop(possiblePatterns, want);
 
             // For part A we're only interested in valid combinations, but for part 2
             // we want to know how many different combinations are possible
@@ -49,7 +49,7 @@ public class Day19 : Day
     // instead, return cached value when a certain pattern is detected
     private static readonly Dictionary<string, long> DesignCache = new();
 
-    private static long LoopB(List<string> patterns, string want)
+    private static long Loop(List<string> patterns, string want)
     {
         var total = 0L;
 
@@ -65,7 +65,7 @@ public class Day19 : Day
 
                 if (!string.IsNullOrWhiteSpace(n))
                 {
-                    var loop = LoopB(patterns, n);
+                    var loop = Loop(patterns, n);
                     total += loop;
                     DesignCache.TryAdd(n, loop);
                 }
