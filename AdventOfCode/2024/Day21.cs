@@ -9,63 +9,100 @@ public class Day21 : Day
     }
 
     [Answer("126384", Example, Data = "029A{nl}980A{nl}179A{nl}456A{nl}379A")]
-    [Answer("", Regular)]
+    [Answer("157908", Regular)]
     public override string SolveA()
     {
+        var codes = Parse();
         var numpad = NumpadCombinations();
 
-        // van 0 naar 8
-        var a1 = numpad[0][9];
-        // var b1 = dirpad['A'][Convert('<')];
+        var sum = 0L;
 
-        var codes = Parse();
-
-        foreach (var code in codes.Skip(3).Take(1))
+        foreach (var code in codes)//.Skip(3).Take(1))
         {
             Console.WriteLine($"Code:{string.Join(string.Empty, code)}");
 
             var start = 10; // A
 
-            // X.Clear();
+            var length = 0;
+            var length2 = 0;
 
             foreach (var c in code)
             {
                 var next = numpad[start][c];
-                Console.WriteLine($"{c}: fr-{start}, to-{c}, n:{string.Join(", ", next.Select(x => string.Join('-', x)))}");
+                //Console.WriteLine($"{c}: fr-{start}, to-{c}, n:{string.Join(", ", next.Select(x => string.Join(string.Empty, x)))}");
+
+                var p = new List<char>();
 
                 foreach (var direction in next)
                 {
-                    Depth3(direction, 2, 1);
+                    _start.Clear();
+                    var d = Depth3(direction, 2, 0);
+                    //Console.WriteLine($"Test: {string.Join(string.Empty, d)}");
+
+                    if (p.Count == 0 || d.Count < p.Count)
+                        p = d;
                 }
+
+                Console.WriteLine();
+                length += p.Count;
+
+                //
+                
 
                 // length += Depth2(next, depth, 0);
                 start = c;
+
+                //Console.WriteLine("End result:");
+                //Console.WriteLine(string.Join(',', p));
             }
+
+            var test = string.Join(string.Empty, code.SkipLast(1));
+            var tes2 = int.Parse(test);
+
+            length2 = length * tes2;
+            sum += length2;
+
+            Console.WriteLine($"Length: {length}, {length2}");
         }
 
-        return "";
+        return sum.ToString();
     }
 
-    private static void Depth3(List<char> next, int depth, int currentDepth)
+    private static readonly Dictionary<int, char> _start = [];
+
+    private static List<char> Depth3(List<char> next, int depth, int currentDepth)
     {
         var dirpad = DirpadCombinations();
-        var start = 'A';
+        var start = _start.GetValueOrDefault(currentDepth, 'A');
 
         if (depth == currentDepth)
-            return;
+            return next;
+
+        var list = new List<char>();
 
         foreach (var direction in next)
         {
             var possibilities = dirpad[start][Convert(direction)];
-            Console.WriteLine($"{Tabs(currentDepth)}({currentDepth}), fr-{start}, to-{direction}, n:{string.Join(", ", possibilities.Select(x => string.Join('-', x)))}");
+            //Console.WriteLine($"{Tabs(currentDepth)}({currentDepth}), fr-{start}, to-{direction}, n:{string.Join(", ", possibilities.Select(x => string.Join(string.Empty, x)))}");
 
+            var p = new List<char>();
             foreach (var possible in possibilities)
             {
-                Depth3(possible, depth, currentDepth + 1);
+                var sequence = Depth3(possible, depth, currentDepth + 1);
+                if (p.Count == 0 || sequence.Count < p.Count)
+                    p = sequence;
             }
 
+            list.AddRange(p);
+            //Console.WriteLine($"{Tabs(currentDepth)}({currentDepth}), Totaal: {string.Join(string.Empty, list)}");
+
             start = direction;
+
+            if (!_start.TryAdd(currentDepth, direction))
+                _start[currentDepth] = direction;
         }
+
+        return list;
     }
 
     private record Robot(List<char> Directions, char Start, int Depth, int CurrentDepth);
@@ -144,7 +181,7 @@ public class Day21 : Day
                 .Where(d => grid[d.Value] is not '.' && !visited.Contains(d.Value));
 
             foreach (var (direction, coordinate) in directions)
-                queue.Enqueue((coordinate, [..path, Convert(direction)], [..visited, node]));
+                queue.Enqueue((coordinate, [.. path, Convert(direction)], [.. visited, node]));
         }
 
         return paths;
@@ -176,6 +213,7 @@ public class Day21 : Day
                     .GroupBy(p => p.Count)
                     .OrderBy(g => g.Key)
                     .First()
+                    .Select(c => c.Count > 0 ? [.. c, 'A'] : c)
                     .ToList();
 
                 result[key].Add(paths);
@@ -229,7 +267,7 @@ public class Day21 : Day
             {
                 if (key1 == key2)
                 {
-                    result[key1].Add([]);
+                    result[key1].Add([['A']]);
                     continue;
                 }
 
@@ -237,6 +275,7 @@ public class Day21 : Day
                     .GroupBy(p => p.Count)
                     .OrderBy(g => g.Key)
                     .First()
+                    .Select(c => { c.Add('A'); return c; })
                     .ToList();
 
                 result[key1].Add(paths);
@@ -276,70 +315,70 @@ public class Day21 : Day
         throw new NotImplementedException();
     }
 
-    private long Solve(int depth)
-    {
-        var codes = Parse();
+    //private long Solve(int depth)
+    //{
+    //    var codes = Parse();
 
-        var sum = 0L;
+    //    var sum = 0L;
 
-        foreach (var code in codes) //.TakeLast(1))
-        {
-            Console.WriteLine($"Code:{string.Join(string.Empty, code)}");
+    //    foreach (var code in codes) //.TakeLast(1))
+    //    {
+    //        Console.WriteLine($"Code:{string.Join(string.Empty, code)}");
 
-            var length = 0L;
-            var start = 10; // A
+    //        var length = 0L;
+    //        var start = 10; // A
 
-            // X.Clear();
+    //        // X.Clear();
 
-            foreach (var c in code)
-            {
-                var next = Numeric[start][c];
-                // Console.WriteLine($"{c}: fr-{start}, to-{c}, n:{next}");
+    //        foreach (var c in code)
+    //        {
+    //            var next = Numeric[start][c];
+    //            // Console.WriteLine($"{c}: fr-{start}, to-{c}, n:{next}");
 
-                length += Depth(next, depth, 0);
-                start = c;
-            }
+    //            length += Depth(next, depth, 0);
+    //            start = c;
+    //        }
 
-            var test = code.Where(c => c != 10);
-            var test1 = string.Join("", test);
-            var test3 = int.Parse(test1);
-            sum += (length * test3);
-            Console.WriteLine($"L: {length} * {test3}"); // vs {X.Sum()}, {X.Count}");
-        }
+    //        var test = code.Where(c => c != 10);
+    //        var test1 = string.Join("", test);
+    //        var test3 = int.Parse(test1);
+    //        sum += (length * test3);
+    //        Console.WriteLine($"L: {length} * {test3}"); // vs {X.Sum()}, {X.Count}");
+    //    }
 
-        return sum;
-    }
+    //    return sum;
+    //}
 
     // private static readonly Dictionary<int, int> _start = [];
 
-    private static long Depth(string code, int depth, int currentDepth)
-    {
-        var start = 1; //_start.GetValueOrDefault(currentDepth, 1);
+    //private static long Depth(string code, int depth, int currentDepth)
+    //{
+    //    var start = 1; //_start.GetValueOrDefault(currentDepth, 1);
 
-        // var start = 1;
-        var length = 0L;
+    //    // var start = 1;
+    //    var length = 0L;
 
-        foreach (var d in code)
-        {
-            var dc = Convert(d);
-            var next2 = Direction[start][dc];
-            // Console.WriteLine($"{Tabs(currentDepth)}({currentDepth}), fr-{start}, to-{dc} ({d}), n:{next2}");
+    //    foreach (var d in code)
+    //    {
+    //        var dc = Convert(d);
+    //        var next2 = Direction[start][dc];
+    //        // Console.WriteLine($"{Tabs(currentDepth)}({currentDepth}), fr-{start}, to-{dc} ({d}), n:{next2}");
 
-            if (currentDepth < depth - 1)
-                length += Depth(next2, depth, currentDepth + 1);
-            else
-            {
-                // X.Add(next2.Length);
-                length += next2.Length;
-            }
+    //        if (currentDepth < depth - 1)
+    //            length += Depth(next2, depth, currentDepth + 1);
+    //        else
+    //        {
+    //            // X.Add(next2.Length);
+    //            length += next2.Length;
+    //        }
 
-            // _start[currentDepth] = dc;
-            start = dc;
-            // Console.WriteLine($"End {currentDepth}, S:{start}");
-        }
+    //        // _start[currentDepth] = dc;
+    //        start = dc;
+    //        // Console.WriteLine($"End {currentDepth}, S:{start}");
+    //    }
 
-        return length;
-    }
+    //    return length;
+    //}
 
     private static string Tabs(int depth)
     {
@@ -352,45 +391,45 @@ public class Day21 : Day
         return str;
     }
 
-    private static string[][] Numeric
-    {
-        get
-        {
-            var numeric = new string[11][]; // 0-9 + A (is 10)
-            numeric[0] = ["", "^<A", "^A", ">^A", "^^<A", "^^A", ">^^A", "^^^<A", "^^^A", ">^^^A", ">A"]; // from 0 to ...
-            numeric[1] = [">vA", "", ">A", ">>A", "^A", ">^A", ">>^A", "^^A", ">^^A", ">>^^A", ">>vA"]; // from 1 to ...
-            numeric[2] = ["vA", "<A", "", ">A", "<^A", "^A", ">^A", "<^^A", "^^A", ">^^A", ">vA"]; // from 2 to ...
-            numeric[3] = ["<vA", "<<A", "<A", "", "<<^A", "<^A", "^A", "<<^^A", "<^^A", "^^A", "vA"]; // from 3 to ...
-            numeric[4] = [">vvA", "vA", ">vA", ">>vA", "", ">A", ">>A", "^A", ">^A", ">>^A", ">>vvA"]; // from 4 to ...
-            numeric[5] = ["vvA", "<vA", "vA", ">vA", "<A", "", ">A", "<^A", "^A", ">^A", ">vvA"]; // from 5 to ...
-            numeric[6] = ["<vvA", "<<vA", "<vA", "vA", "<<A", "<A", "", "<<^A", "<^A", "^A", "vvA"]; // from 6 to ...
-            numeric[7] = [">vvvA", "vvA", ">vvA", ">>vvA", "vA", ">vA", ">>vA", "", ">A", ">>A", ">>vvvA"]; // from 7 to ...
-            numeric[8] = ["vvvA", "<vvA", "vvA", ">vvA", "<vA", "vA", ">vA", "<A", "", ">A", ">vvvA"]; // from 8 to ...
-            numeric[9] = ["<vvvA", "<<vvA", "<vvA", "vvA", "<<vA", "<vA", "vA", "<<A", "<A", "", "vvvA"]; // from 9 to ...
-            numeric[0xA] = ["<A", "^<<A", "<^A", "^A", "^^<<A", "<^^A", "^^A", "^^^<<A", "<^^^A", "^^^A", ""]; // from A to ...
+    //private static string[][] Numeric
+    //{
+    //    get
+    //    {
+    //        var numeric = new string[11][]; // 0-9 + A (is 10)
+    //        numeric[0] = ["", "^<A", "^A", ">^A", "^^<A", "^^A", ">^^A", "^^^<A", "^^^A", ">^^^A", ">A"]; // from 0 to ...
+    //        numeric[1] = [">vA", "", ">A", ">>A", "^A", ">^A", ">>^A", "^^A", ">^^A", ">>^^A", ">>vA"]; // from 1 to ...
+    //        numeric[2] = ["vA", "<A", "", ">A", "<^A", "^A", ">^A", "<^^A", "^^A", ">^^A", ">vA"]; // from 2 to ...
+    //        numeric[3] = ["<vA", "<<A", "<A", "", "<<^A", "<^A", "^A", "<<^^A", "<^^A", "^^A", "vA"]; // from 3 to ...
+    //        numeric[4] = [">vvA", "vA", ">vA", ">>vA", "", ">A", ">>A", "^A", ">^A", ">>^A", ">>vvA"]; // from 4 to ...
+    //        numeric[5] = ["vvA", "<vA", "vA", ">vA", "<A", "", ">A", "<^A", "^A", ">^A", ">vvA"]; // from 5 to ...
+    //        numeric[6] = ["<vvA", "<<vA", "<vA", "vA", "<<A", "<A", "", "<<^A", "<^A", "^A", "vvA"]; // from 6 to ...
+    //        numeric[7] = [">vvvA", "vvA", ">vvA", ">>vvA", "vA", ">vA", ">>vA", "", ">A", ">>A", ">>vvvA"]; // from 7 to ...
+    //        numeric[8] = ["vvvA", "<vvA", "vvA", ">vvA", "<vA", "vA", ">vA", "<A", "", ">A", ">vvvA"]; // from 8 to ...
+    //        numeric[9] = ["<vvvA", "<<vvA", "<vvA", "vvA", "<<vA", "<vA", "vA", "<<A", "<A", "", "vvvA"]; // from 9 to ...
+    //        numeric[0xA] = ["<A", "^<<A", "<^A", "^A", "^^<<A", "<^^A", "^^A", "^^^<<A", "<^^^A", "^^^A", ""]; // from A to ...
 
-            return numeric;
-        }
-    }
+    //        return numeric;
+    //    }
+    //}
 
-    private static string[][] Direction
-    {
-        get
-        {
-            // +---+---+---+  +---+---+---+
-            // |   | ^ | A |  |   | 0 | 1 |
-            // | < | v | > |  | 2 | 3 | 4 |
-            // +---+---+---+  +---+---+---+
-            var direction = new string[5][];
-            direction[0] = ["A", ">A", "v<A", "vA", ">vA"]; // from '^' to ...
-            direction[1] = ["<A", "A", "v<<A", "v<A", "vA"]; // from A to ...
-            direction[2] = [">^A", ">>^A", "A", ">A", ">>A"]; // from  '<' to ...
-            direction[3] = ["^A", ">^A", "<A", "A", ">A"]; // from  'v' to ...
-            direction[4] = ["<^A", "^A", "<<A", "<A", "A"]; // from  '>' to ...
+    //private static string[][] Direction
+    //{
+    //    get
+    //    {
+    //        // +---+---+---+  +---+---+---+
+    //        // |   | ^ | A |  |   | 0 | 1 |
+    //        // | < | v | > |  | 2 | 3 | 4 |
+    //        // +---+---+---+  +---+---+---+
+    //        var direction = new string[5][];
+    //        direction[0] = ["A", ">A", "v<A", "vA", ">vA"]; // from '^' to ...
+    //        direction[1] = ["<A", "A", "v<<A", "v<A", "vA"]; // from A to ...
+    //        direction[2] = [">^A", ">>^A", "A", ">A", ">>A"]; // from  '<' to ...
+    //        direction[3] = ["^A", ">^A", "<A", "A", ">A"]; // from  'v' to ...
+    //        direction[4] = ["<^A", "^A", "<<A", "<A", "A"]; // from  '>' to ...
 
-            return direction;
-        }
-    }
+    //        return direction;
+    //    }
+    //}
 
     private static int Convert(char c)
     {
@@ -411,24 +450,24 @@ public class Day21 : Day
         return c - '0';
     }
 
-    private static char Convert(int i)
-    {
-        return i switch
-        {
-            <= 9 => (char)(i + '0'),
-            10 => 'A',
-            _ => throw new ArgumentOutOfRangeException(nameof(i), i, null)
-        };
-    }
+    //private static char Convert(int i)
+    //{
+    //    return i switch
+    //    {
+    //        <= 9 => (char)(i + '0'),
+    //        10 => 'A',
+    //        _ => throw new ArgumentOutOfRangeException(nameof(i), i, null)
+    //    };
+    //}
 
     private static char Convert(Direction direction)
     {
         return direction switch
         {
-            Models.Direction.North => '^',
-            Models.Direction.East => '<',
-            Models.Direction.South => 'v',
-            Models.Direction.West => '>',
+            Direction.North => '^',
+            Direction.East => '>',
+            Direction.South => 'v',
+            Direction.West => '<',
             _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null)
         };
     }
