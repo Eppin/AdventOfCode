@@ -14,24 +14,7 @@ public partial class Day24 : Day
     {
         var (inputs, wires) = Parse();
 
-        var visited = new HashSet<Wire>();
-
-        while (true)
-        {
-            if (visited.Count == wires.Count)
-                break;
-
-            foreach (var wire in wires.Where(w => !visited.Contains(w)))
-            {
-                if (!inputs.TryGetValue(wire.In1, out var in1) || !inputs.TryGetValue(wire.In2, out var in2))
-                    continue;
-
-                if (!inputs.TryAdd(wire.Out, Calculate(in1, in2, wire.Gate)))
-                    throw new Exception("Key shouldn't exist?!");
-
-                visited.Add(wire);
-            }
-        }
+        VisitWires(wires, inputs);
 
         var z = inputs
             .Where(i => i.Key.StartsWith('z'))
@@ -42,7 +25,45 @@ public partial class Day24 : Day
         return Convert.ToInt64(zz, 2).ToString();
     }
 
+    private static bool VisitWires(List<Wire> wires, Dictionary<string, int> inputs)
+    {
+        var visited = new HashSet<Wire>();
+
+        while (true)
+        {
+            if (visited.Count == wires.Count)
+                break;
+
+            var found = wires
+                .Where(w => !visited.Contains(w) && (inputs.ContainsKey(w.In1) || inputs.ContainsKey(w.In2)))
+                .ToList();
+
+            if (found.Count == 0)
+                return false;
+
+            foreach (var wire in found)
+            {
+                if (!inputs.TryGetValue(wire.In1, out var in1) || !inputs.TryGetValue(wire.In2, out var in2))
+                    continue;
+
+                if (!inputs.TryAdd(wire.Out, Calculate(in1, in2, wire.Gate)))
+                {
+                    // throw new Exception("Key shouldn't exist?!");
+                    inputs[wire.Out] = Calculate(in1, in2, wire.Gate);
+                }
+
+                visited.Add(wire);
+            }
+        }
+
+        return true;
+    }
+
     [Answer("", Example, Data = "x00: 0{nl}x01: 1{nl}x02: 0{nl}x03: 1{nl}x04: 0{nl}x05: 1{nl}y00: 0{nl}y01: 0{nl}y02: 1{nl}y03: 1{nl}y04: 0{nl}y05: 1{nl}{nl}x00 AND y00 -> z05{nl}x01 AND y01 -> z02{nl}x02 AND y02 -> z01{nl}x03 AND y03 -> z03{nl}x04 AND y04 -> z04{nl}x05 AND y05 -> z00")]
+    // [Answer("", Example, Data = "x00: 0{nl}x01: 1{nl}x02: 0{nl}x03: 1{nl}x04: 0{nl}x05: 1{nl}y00: 0{nl}y01: 0{nl}y02: 1{nl}y03: 1{nl}y04: 0{nl}y05: 1{nl}{nl}x00 AND y00 -> z05{nl}x01 AND y01 -> z02{nl}x02 AND y02 -> z01{nl}x03 AND y03 -> z03{nl}x04 AND y04 -> z04{nl}x05 AND y05 -> z00")]
+    // [Answer("", Example, Data = "x00: 0{nl}x01: 1{nl}x02: 0{nl}x03: 1{nl}x04: 0{nl}x05: 1{nl}y00: 0{nl}y01: 0{nl}y02: 1{nl}y03: 1{nl}y04: 0{nl}y05: 1{nl}{nl}x00 AND y00 -> z00{nl}x01 AND y01 -> z01{nl}x02 AND y02 -> z03{nl}x03 AND y03 -> z05{nl}x04 AND y04 -> z04{nl}x05 AND y05 -> z02")]
+    // [Answer("", Example, Data = "x00: 0{nl}x01: 1{nl}x02: 0{nl}x03: 1{nl}x04: 0{nl}x05: 1{nl}y00: 0{nl}y01: 0{nl}y02: 1{nl}y03: 1{nl}y04: 0{nl}y05: 1{nl}{nl}x00 AND y00 -> z00{nl}x01 AND y01 -> z01{nl}x02 AND y02 -> z02{nl}x03 AND y03 -> z03{nl}x04 AND y04 -> z04{nl}x05 AND y05 -> z05")]
+    [Answer("", Regular)]
     public override string SolveB()
     {
         X2();
@@ -73,7 +94,7 @@ public partial class Day24 : Day
         // }
         // }
 
-        var outs = wires;//.Where(w => w.In1 == "x10" || w.In2 == "x10"); //.Take(10);
+        var outs = wires; //.Where(w => w.In1 == "x10" || w.In2 == "x10"); //.Take(10);
 
         foreach (var wire in outs)
         {
@@ -154,50 +175,63 @@ public partial class Day24 : Day
     {
         var queue = new Queue<Wire>();
         queue.Enqueue(wire);
-    
+
         // var visited = new Dictionary<Wire, List<Wire>>();
-    
+
         while (queue.Count > 0)
         {
             wire = queue.Dequeue();
-            
+
             var ins = wires.Where(w => w.In1 == wire.Out || w.In2 == wire.Out);
             foreach (var @in in ins)
             {
                 Console.WriteLine($"Wire {@in.In1}, {@in.Gate}, {@in.In2} => {@in.Out}");
                 // X(wires, @in, depth + 1);
                 queue.Enqueue(@in);
-    
+
                 if (!visited2.TryAdd(wire, [@in]) && !visited2[wire].Contains(@in))
                     visited2[wire].Add(@in);
             }
         }
-    
+
         Console.WriteLine();
     }
 
     private void X2()
     {
         var faulty = new List<string>();
-        
-        for (var j = 0; j < 45; j++)
+        var faulty2 = new List<(int, int)>();
+
+        var (inputs, wires) = Parse();
+        foreach (var input in inputs)
+            inputs[input.Key] = 0;
+
+        for (var j = 0; j < 45; j++) // 45
         {
             var round = 0;
             var visitedCombos = new HashSet<(int, int)>();
 
             while (true)
             {
-                var test = $"x{j.ToString().PadLeft(2, '0')}";
+                (_, wires) = Parse();
 
-                var (inputs, wires) = Parse();
+                var testX = $"x{j.ToString().PadLeft(2, '0')}";
+                var testY = $"y{j.ToString().PadLeft(2, '0')}";
+
+                foreach (var (from, to) in faulty2)
+                {
+                    var tmp = wires[from].Out;
+                    wires[from] = wires[from] with { Out = wires[to].Out };
+                    wires[to] = wires[to] with { Out = tmp };
+                }
 
                 foreach (var input in inputs)
                 {
-                    if (input.Key == test)
+                    if (input.Key == testX || input.Key == testY)
                         inputs[input.Key] = 1;
-                    else
-                        inputs[input.Key] = 0;
                 }
+
+                // inputs = inputs.Where(w => !w.Key.StartsWith('z')).ToDictionary(); // Skip all non-original
 
                 if (round > 0)
                 {
@@ -208,8 +242,11 @@ public partial class Day24 : Day
                     {
                         from = RandomNumberGenerator.GetInt32(wires.Count);
                         to = RandomNumberGenerator.GetInt32(wires.Count);
+
+                        // if ((from == 0 && to == 5) || (from == 5 && to == 0))
+                        //     Console.WriteLine();
                     } while (visitedCombos.Contains((from, to)));
-                    
+
                     visitedCombos.Add((from, to));
 
                     var tmp = wires[from].Out;
@@ -217,29 +254,33 @@ public partial class Day24 : Day
                     wires[to] = wires[to] with { Out = tmp };
                 }
 
-                var visited = new HashSet<Wire>();
+                VisitWires(wires, inputs);
 
-                var ij = 0;
-                while (true)
-                {
-                    ij++;
-                    if (ij > 5_000)
-                        break;
-
-                    if (visited.Count == wires.Count)
-                        break;
-
-                    foreach (var wire in wires.Where(w => !visited.Contains(w)))
-                    {
-                        if (!inputs.TryGetValue(wire.In1, out var in1) || !inputs.TryGetValue(wire.In2, out var in2))
-                            continue;
-
-                        if (!inputs.TryAdd(wire.Out, Calculate(in1, in2, wire.Gate)))
-                            throw new Exception("Key shouldn't exist?!");
-
-                        visited.Add(wire);
-                    }
-                }
+                // var visited = new HashSet<Wire>();
+                //
+                // var ij = 0;
+                // while (true)
+                // {
+                //     ij++;
+                //     if (ij > 5_000)
+                //         break;
+                //
+                //     if (visited.Count == wires.Count)
+                //         break;
+                //
+                //     // var found = 
+                //
+                //     foreach (var wire in wires.Where(w => !visited.Contains(w)))
+                //     {
+                //         if (!inputs.TryGetValue(wire.In1, out var in1) || !inputs.TryGetValue(wire.In2, out var in2))
+                //             continue;
+                //
+                //         if (!inputs.TryAdd(wire.Out, Calculate(in1, in2, wire.Gate)))
+                //             throw new Exception("Key shouldn't exist?!");
+                //
+                //         visited.Add(wire);
+                //     }
+                // }
 
                 var x = inputs
                     .Where(i => i.Key.StartsWith('x'))
@@ -267,10 +308,10 @@ public partial class Day24 : Day
 
                 if (xxx != zzz)
                 {
-                    Console.WriteLine($"T:{test}");
-                    Console.WriteLine($"X:{xx}, {xxx}");
-                    Console.WriteLine($"Y:{yy}, {yyy}");
-                    Console.WriteLine($"Z:{zz}, {zzz}");
+                    // Console.WriteLine($"T:{testX}");
+                    // Console.WriteLine($"X:{xx}, {xxx}");
+                    // Console.WriteLine($"Y:{yy}, {yyy}");
+                    // Console.WriteLine($"Z:{zz}, {zzz}");
 
                     round++;
                 }
@@ -282,8 +323,10 @@ public partial class Day24 : Day
                         Console.WriteLine($"{wires[vc.Item1].Out}, {wires[vc.Item2].Out}");
                         faulty.Add(wires[vc.Item1].Out);
                         faulty.Add(wires[vc.Item2].Out);
+
+                        faulty2.Add((vc.Item1, vc.Item2));
                     }
-                    
+
                     break;
                 }
             }
