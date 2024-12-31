@@ -14,7 +14,99 @@ public partial class Day24 : Day
 
         VisitWires(wires, inputs);
 
-        return GetInt64(inputs, i => i.Key.StartsWith('z')).ToString();
+        return GetInt64(inputs, i => i.Key.StartsWith('z')).Numeric.ToString();
+    }
+
+    /* In-Correct */
+    //[Answer("", Example, Data = "x00: 0{nl}x01: 1{nl}x02: 0{nl}x03: 1{nl}x04: 0{nl}x05: 1{nl}y00: 0{nl}y01: 0{nl}y02: 1{nl}y03: 1{nl}y04: 0{nl}y05: 1{nl}{nl}x00 AND y00 -> z05{nl}x01 AND y01 -> z02{nl}x02 AND y02 -> z01{nl}x03 AND y03 -> z03{nl}x04 AND y04 -> z04{nl}x05 AND y05 -> z00")]
+
+    /* Correct */
+    [Answer("", Example, Data = "x00: 0{nl}x01: 1{nl}x02: 0{nl}x03: 1{nl}x04: 0{nl}x05: 1{nl}y00: 0{nl}y01: 0{nl}y02: 1{nl}y03: 1{nl}y04: 0{nl}y05: 1{nl}{nl}x00 AND y00 -> z00{nl}x01 AND y01 -> z01{nl}x02 AND y02 -> z02{nl}x03 AND y03 -> z03{nl}x04 AND y04 -> z04{nl}x05 AND y05 -> z05")]
+
+    [Answer("", Regular)]
+    public override string SolveB()
+    {
+        var (inputs, wires) = Parse();
+
+        //var input = string.Join(", ", wires.Select(x => new List<string> { x.In1, x.In2 }).SelectMany(x => x).Distinct().Where(x => x.StartsWith('x') || x.StartsWith('y')));
+        //var outputs = string.Join(", ", wires.Select(x => x.Out).Where(x => x.StartsWith('z')).Distinct());
+
+        //Console.WriteLine(input);
+        //Console.WriteLine(outputs);
+
+        //foreach (var wire in wires)
+        //{
+        //    Console.WriteLine($"{wire.Gate.ToString().ToLower()}({wire.Out},{wire.In1},{wire.In2});");
+        //}
+
+        //foreach (var wire in wires)
+        //{
+        //    Console.WriteLine($"{wire.In1} -> {wire.Out}[label=\"{wire.Gate}\"]");
+        //    Console.WriteLine($"{wire.In2} -> {wire.Out}[label=\"{wire.Gate}\"]");
+        //}
+
+        //return "";
+
+        for (var j = 0; j < 45; j++)
+        {
+            (inputs, _) = Parse();
+
+            var append = j.ToString().PadLeft(2, '0');
+            foreach (var (key, _) in inputs)
+            {
+                if (key == $"x{append}" || key == $"y{append}")
+                    inputs[key] = 1;
+                else
+                    inputs[key] = 0;
+            }
+
+            VisitWires(wires, inputs);
+
+            var x = GetInt64(inputs, i => i.Key.StartsWith('x'));
+            var y = GetInt64(inputs, i => i.Key.StartsWith('y'));
+            var z = GetInt64(inputs, i => i.Key.StartsWith('z'));
+
+            if (x.Numeric + y.Numeric != z.Numeric)
+            {
+                Console.WriteLine($"Loop: {append}");
+                Console.WriteLine($"x:{x.Numeric.ToString(),14}, {x.Bytes.PadLeft(z.Bytes.Length, '0')}");
+                Console.WriteLine($"y:{y.Numeric.ToString(),14}, {y.Bytes.PadLeft(z.Bytes.Length, '0')}");
+                Console.WriteLine($"z:{z.Numeric.ToString(),14}, {z.Bytes}");
+                Console.WriteLine();
+
+                Find(append, wires);
+            }
+        }
+
+        return "";
+    }
+
+    private static void Find(string append, List<Wire> wires)
+    {
+        var inputWires = wires.Where(w => w.In1 == $"x{append}" || w.In1 == $"y{append}");
+
+        foreach (var wire in inputWires)
+        {
+            Console.WriteLine($"Start: {wire}");
+            var nextWires = wires.Where(w => w.In1 == wire.Out || w.In2 == wire.Out);
+            foreach (var nextWire in nextWires)
+            {
+                Console.WriteLine($"\tNext: {nextWire}");
+                Loop(nextWire, wires);
+            }
+        }
+
+        Console.WriteLine();
+    }
+
+    private static void Loop(Wire wire, List<Wire> all)
+    {
+        var nextWires = all.Where(w => w.In1 == wire.Out || w.In2 == wire.Out);
+        foreach (var nextWire in nextWires)
+        {
+            Console.WriteLine($"\tNext: {nextWire}");
+            Loop(nextWire, all);
+        }
     }
 
     private static bool VisitWires(List<Wire> wires, Dictionary<string, int> inputs)
@@ -48,7 +140,7 @@ public partial class Day24 : Day
         return true;
     }
 
-    private static long GetInt64(Dictionary<string, int> inputs, Func<KeyValuePair<string, int>, bool> predicate)
+    private static (long Numeric, string Bytes) GetInt64(Dictionary<string, int> inputs, Func<KeyValuePair<string, int>, bool> predicate)
     {
         var z = inputs
             .Where(predicate)
@@ -56,7 +148,7 @@ public partial class Day24 : Day
             .Select(z => z.Value);
 
         var zz = string.Join("", z);
-        return Convert.ToInt64(zz, 2);
+        return (Convert.ToInt64(zz, 2), zz);
     }
 
     private static int Calculate(int in1, int in2, Gate gate)
@@ -68,11 +160,6 @@ public partial class Day24 : Day
             Gate.And => in1 & in2,
             _ => throw new ArgumentOutOfRangeException(nameof(gate), gate, null)
         };
-    }
-
-    public override string SolveB()
-    {
-        throw new NotImplementedException();
     }
 
     private (Dictionary<string, int> Inputs, List<Wire> Wires) Parse()
