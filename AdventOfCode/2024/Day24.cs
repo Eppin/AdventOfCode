@@ -12,6 +12,13 @@ public partial class Day24 : Day
     {
         var (inputs, wires) = Parse();
 
+        VisitWires(wires, inputs);
+
+        return GetInt64(inputs, i => i.Key.StartsWith('z')).ToString();
+    }
+
+    private static bool VisitWires(List<Wire> wires, Dictionary<string, int> inputs)
+    {
         var visited = new HashSet<Wire>();
 
         while (true)
@@ -19,7 +26,14 @@ public partial class Day24 : Day
             if (visited.Count == wires.Count)
                 break;
 
-            foreach (var wire in wires.Where(w => !visited.Contains(w)))
+            var availableWires = wires
+                .Where(w => !visited.Contains(w) && inputs.ContainsKey(w.In1) && inputs.ContainsKey(w.In2))
+                .ToList();
+
+            if (availableWires.Count == 0)
+                return false;
+
+            foreach (var wire in availableWires)
             {
                 if (!inputs.TryGetValue(wire.In1, out var in1) || !inputs.TryGetValue(wire.In2, out var in2))
                     continue;
@@ -31,13 +45,18 @@ public partial class Day24 : Day
             }
         }
 
+        return true;
+    }
+
+    private static long GetInt64(Dictionary<string, int> inputs, Func<KeyValuePair<string, int>, bool> predicate)
+    {
         var z = inputs
-            .Where(i => i.Key.StartsWith('z'))
+            .Where(predicate)
             .OrderByDescending(i => i.Key)
             .Select(z => z.Value);
 
         var zz = string.Join("", z);
-        return Convert.ToInt64(zz, 2).ToString();
+        return Convert.ToInt64(zz, 2);
     }
 
     private static int Calculate(int in1, int in2, Gate gate)
