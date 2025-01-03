@@ -7,11 +7,8 @@ public class Day17 : Day
     }
 
     [Answer("4,6,3,5,6,3,5,2,1,0", Example, Data = "Register A: 729{nl}Register B: 0{nl}Register C: 0{nl}{nl}Program: 0,1,5,4,3,0")]
-    //[Answer("", Example, Data = "Register A: 0{nl}Register B: 1{nl}Register C: 9{nl}{nl}Program: 2,6")]
-    //[Answer("0,1,2", Example, Data = "Register A: 10{nl}Register B: 0{nl}Register C: 0{nl}{nl}Program: 5,0,5,1,5,4")]
-    //[Answer("4,2,5,6,7,7,7,7,3,1,0", Example, Data = "Register A: 2024{nl}Register B: 0{nl}Register C: 0{nl}{nl}Program: 0,1,5,4,3,0")]
-    //[Answer("", Example, Data = "Register A: 0{nl}Register B: 29{nl}Register C: 0{nl}{nl}Program: 1,7")]
-    //[Answer("", Example, Data = "Register A: 0{nl}Register B: 2024{nl}Register C: 43690{nl}{nl}Program: 4,0")]
+    [Answer("0,1,2", Example, Data = "Register A: 10{nl}Register B: 0{nl}Register C: 0{nl}{nl}Program: 5,0,5,1,5,4")]
+    [Answer("4,2,5,6,7,7,7,7,3,1,0", Example, Data = "Register A: 2024{nl}Register B: 0{nl}Register C: 0{nl}{nl}Program: 0,1,5,4,3,0")]
     [Answer("7,1,3,7,5,1,0,3,4", Regular)]
     public override string SolveA()
     {

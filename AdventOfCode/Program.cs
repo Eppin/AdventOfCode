@@ -1,10 +1,12 @@
-﻿using System.Collections.ObjectModel;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using System.Net;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using AdventOfCode;
 using Sharprompt;
 using static System.Int32;
 
+Console.OutputEncoding = System.Text.Encoding.UTF8;
 Console.CancelKeyPress += delegate
 {
     Console.WriteLine("Closing...");
@@ -35,16 +37,36 @@ foreach (var dayType in dayTypes)
     puzzles.Add(new Puzzle(puzzleYear, puzzleDay, dayType));
 }
 
+// Add option at bottom to add year?!
 var years = puzzles
     .Select(p => p.Year)
     .Distinct()
     .OrderDescending()
     .ToList();
 
+years.Add(0);
+
+
 while (true)
 {
-    var chosenYear = Prompt.Select("Choose year", years, defaultValue: years.First());
+    var chosenYear = Prompt.Select("Choose year", years, defaultValue: years.First(), textSelector: y => $"{(y == 0 ? "Add year" : $"{y}")}");
 
+    // Add year
+    if (chosenYear == 0)
+    {
+        var newYear = AddYear();
+
+        if (newYear != null)
+        {
+            await AddDay(newYear.Value);
+            Console.WriteLine("Recompile and start again!");
+            return;
+        }
+
+        continue;
+    }
+
+    // Add option at bottom to add day?!
     var days = puzzles
         .Where(p => p.Year == chosenYear)
         .Select(p => p.Day)
@@ -52,7 +74,17 @@ while (true)
         .OrderDescending()
         .ToList();
 
-    var chosenDay = Prompt.Select("Choose day", days, defaultValue: days.First());
+    days.Add(0);
+
+    var chosenDay = Prompt.Select("Choose day", days, defaultValue: days.First(), textSelector: d => $"{(d == 0 ? "Add day" : $"{d}")}");
+
+    // Add day
+    if (chosenDay == 0)
+    {
+        await AddDay(chosenYear);
+        Console.WriteLine("Recompile and start again!");
+        continue;
+    }
 
     var puzzle = puzzles.Single(p => p.Year == chosenYear && p.Day == chosenDay);
 
@@ -75,12 +107,12 @@ static void Solve(Type type, Solve solve)
     if (Activator.CreateInstance(type) is not Day day)
         throw new EvaluateException($"Can't create instance of [{type.Name}]");
 
-    var chosenInput = ChosenInput(day, solve);
+    var (input, expected) = ChosenInput(day, solve);
 
     Console.WriteLine($"-- {type.Name} --");
     var sw = Stopwatch.StartNew();
 
-    var (result, expected) = day.Solve(solve, chosenInput);
+    var result = day.Solve(solve, input, expected);
 
     if (result == expected)
     {
@@ -89,22 +121,113 @@ static void Solve(Type type, Solve solve)
     }
 
     Console.WriteLine(string.IsNullOrWhiteSpace(expected)
-        ? $"{type.Name} is {result}, but expected is not given (for {chosenInput} puzzle) in {sw.ElapsedMilliseconds} msec"
+        ? $"{type.Name} is {result}, but expected is not given (for {input} puzzle) in {sw.ElapsedMilliseconds} msec"
         : $"{type.Name} is {result}, but expected {expected} in {sw.ElapsedMilliseconds} msec");
 }
 
-static Input ChosenInput(Day day, Solve solve)
+static (Input Input, string Answer) ChosenInput(Day day, Solve solve)
 {
-    Collection<Input> inputs = [];
-    if (day.AvailableInputs(solve).Contains(Example))
-        inputs.Add(Example);
+    var inputs = day.AvailableInputs(solve)
+        .OrderBy(i => i.Input)
+        .ThenBy(i => i.Answer)
+        .ToList();
 
-    if (day.AvailableInputs(solve).Contains(Regular))
-        inputs.Add(Regular);
+    return inputs.Count > 0
+        ? Prompt.Select("Choose input to run", inputs, defaultValue: inputs.Last(), textSelector: (i) => $"{i.Input} ({i.Answer})")
+        : (Regular, string.Empty);
+}
 
-    var chosenInput = Regular;
-    if (inputs.Any())
-        chosenInput = Prompt.Select("Choose input to run", inputs, defaultValue: inputs.Last());
+static int? AddYear([CallerFilePath] string? filePath = null)
+{
+    var dir = Path.GetDirectoryName(filePath);
+    if (!Directory.Exists(dir))
+    {
+        Console.WriteLine("Somehow the directory doesn't exist");
+        return null;
+    }
 
-    return chosenInput;
+    int year;
+
+    do
+    {
+        year = Prompt.Input<int>("Add year", DateTime.Now.Year);
+    } while (year < 2015 || year > DateTime.Now.Year);
+
+    var yearDir = Path.Combine(dir, $"{year}");
+
+    if (Directory.Exists(yearDir))
+    {
+        Console.WriteLine($"The year {year} directory already exists");
+        return null;
+    }
+
+    Directory.CreateDirectory(yearDir);
+    Directory.CreateDirectory(Path.Combine(yearDir, "Input"));
+
+    return year;
+}
+
+static async Task AddDay(int year, [CallerFilePath] string? filePath = null)
+{
+    int day;
+
+    do
+    {
+        day = Prompt.Input<int>("Add day");
+    } while (day is < 1 or > 31);
+
+    var dir = Path.GetDirectoryName(filePath);
+
+    if (string.IsNullOrWhiteSpace(dir))
+    {
+        Console.WriteLine("Somehow the current dir is not available");
+        return;
+    }
+
+    // Download input from AoC
+    await DownloadDay(year, day, dir);
+
+    var yearDir = Path.Combine(dir, $"{year}");
+    var templateDir = Path.Combine(dir, "Templates");
+
+    var templateContent = File.ReadAllText(Path.Combine(templateDir, "Day.template.csx"));
+    var dayContent = templateContent
+        .Replace("{YEAR}", $"{year}")
+        .Replace("{DAY}", $"{day}");
+
+    File.WriteAllText(Path.Combine(yearDir, $"Day{day}.cs"), dayContent);
+}
+
+static async Task<bool> DownloadDay(int year, int day, string dir)
+{
+    try
+    {
+        var cookie = Prompt.Input<string>("Enter cookie");
+        if (string.IsNullOrWhiteSpace(cookie))
+        {
+            Console.WriteLine("Cookie can't be null and/or empty");
+            return false;
+        }
+
+        var baseAddress = new Uri("https://adventofcode.com/");
+
+        var cookieContainer = new CookieContainer();
+        cookieContainer.Add(baseAddress, new Cookie("session", cookie));
+
+        using var handler = new HttpClientHandler { CookieContainer = cookieContainer };
+        using var client = new HttpClient(handler) { BaseAddress = baseAddress };
+
+        var response = await client.GetAsync($"{year}/day/{day}/input");
+        response.EnsureSuccessStatusCode();
+
+        var input = await response.Content.ReadAsStringAsync();
+        File.WriteAllText(Path.Combine(dir, $"{year}", "Input", $"Day{day}.txt"), input);
+    }
+    catch (Exception e)
+    {
+        Console.WriteLine(e);
+        return false;
+    }
+
+    return true;
 }

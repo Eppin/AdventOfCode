@@ -51,7 +51,6 @@ public partial class Day25 : Day
     }
 
     [Answer("christmas \ud83c\udf84", Regular)]
-
     public override string SolveB()
     {
         return "christmas \ud83c\udf84";

@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-
-namespace AdventOfCode._2024;
+﻿namespace AdventOfCode._2024;
 
 public class Day25 : Day
 {
@@ -37,9 +34,10 @@ public class Day25 : Day
         return count.ToString();
     }
 
+    [Answer("christmas \ud83c\udf84", Regular)]
     public override string SolveB()
     {
-        throw new NotImplementedException();
+        return "christmas \ud83c\udf84";
     }
 
     private (List<List<int>> Locks, List<List<int>> Keys) Parse()

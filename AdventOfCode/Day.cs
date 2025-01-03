@@ -11,6 +11,9 @@ public abstract partial class Day
 
     private Input _input = Regular;
     private Solve _solve = A;
+    private string _expected = string.Empty;
+
+    protected bool IsExample => _input == Example;
 
     protected Day([CallerFilePath] string? filePath = null)
     {
@@ -33,25 +36,25 @@ public abstract partial class Day
     public abstract string SolveA();
     public abstract string SolveB();
 
-    public (string Answer, string? Expected) Solve(Solve solve, Input input)
+    public string Solve(Solve solve, Input input, string expected)
     {
         _solve = solve;
         _input = input;
+        _expected = expected;
 
         var result = solve == A
             ? SolveA()
             : SolveB();
 
-        return (result, AnswerAttribute(solve)?.Answer);
+        return result;
     }
 
-    public IEnumerable<Input> AvailableInputs(Solve solve)
+    public IEnumerable<(Input Input, string Answer)> AvailableInputs(Solve solve)
     {
         return GetType()
             .GetMethod($"Solve{solve}")
             ?.GetCustomAttributes<AnswerAttribute>()
-            .Select(a => a.Input)
-            .Distinct() ?? [];
+            .Select(a => (a.Input, a.Answer)) ?? [];
     }
 
     protected string Input => GetInput();
@@ -73,7 +76,7 @@ public abstract partial class Day
         if (string.IsNullOrWhiteSpace(folder))
             throw new InvalidOperationException();
 
-        var answer = AnswerAttribute(_solve);
+        var answer = AnswerAttribute(_solve, _expected);
         if (!string.IsNullOrWhiteSpace(answer?.Data))
             return answer.Data.Replace("{nl}", Environment.NewLine);
 
@@ -85,7 +88,7 @@ public abstract partial class Day
         return File.ReadAllText(path);
     }
 
-    private AnswerAttribute? AnswerAttribute(Solve solve)
+    private AnswerAttribute? AnswerAttribute(Solve solve, string answer)
     {
         var answers = GetType()
             .GetMethod($"Solve{solve}")
@@ -95,7 +98,7 @@ public abstract partial class Day
         if (answers == null || !answers.Any())
             return null;
 
-        return answers.SingleOrDefault(a => a.Input == _input);
+        return answers.SingleOrDefault(a => a.Input == _input && a.Answer == answer);
     }
 
     [GeneratedRegex(@"AdventOfCode.(\d{4}).Day(\d{1,2})\.")]

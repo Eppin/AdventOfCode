@@ -27,7 +27,9 @@ public class Day18 : Day
         var grid = GetGrid();
         var dijkstra = new Dijkstra<Coordinate>();
 
-        var end = new Coordinate(70, 70); // Example uses 6,6
+        var end = IsExample
+            ? new Coordinate(6, 6)
+            : new Coordinate(70, 70);
 
         dijkstra.GetNeighbours = reindeer => grid.Neighbours(reindeer.X, reindeer.Y).Where(n => grid[n.X, n.Y] is '.').Select(n => new Coordinate(n.X, n.Y));
         dijkstra.EndReached = current => current == end;
@@ -50,7 +52,8 @@ public class Day18 : Day
             }
         };
 
-        var parsed = Parse(); // Example uses 12
+        var parsed = Parse();
+
         if (isPartB)
         {
             // Apply every byte one-by-one, until there is no 'ShortestPath' anymore
@@ -63,19 +66,22 @@ public class Day18 : Day
         }
         else
         {
+            if (IsExample)
+                parsed = parsed.Take(12).ToList();
+
             // Apply first 1024 bytes
             foreach (var coordinate in parsed.Take(1024))
                 grid[coordinate] = '#';
-            
+
             return dijkstra.ShortestPath(new Coordinate(0, 0)).Distance.ToString();
         }
 
         return "-1";
     }
 
-    private static Grid<char> GetGrid()
+    private Grid<char> GetGrid()
     {
-        const int length = 71; // Example uses 7
+        var length = IsExample ? 7 : 71;
 
         var array = new char[length][];
         for (var y = 0; y < length; y++)
