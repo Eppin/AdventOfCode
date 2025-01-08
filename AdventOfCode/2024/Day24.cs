@@ -17,99 +17,47 @@ public partial class Day24 : Day
         return GetInt64(inputs, i => i.Key.StartsWith('z')).Numeric.ToString();
     }
 
-    /* In-Correct */
-    //[Answer("", Example, Data = "x00: 0{nl}x01: 1{nl}x02: 0{nl}x03: 1{nl}x04: 0{nl}x05: 1{nl}y00: 0{nl}y01: 0{nl}y02: 1{nl}y03: 1{nl}y04: 0{nl}y05: 1{nl}{nl}x00 AND y00 -> z05{nl}x01 AND y01 -> z02{nl}x02 AND y02 -> z01{nl}x03 AND y03 -> z03{nl}x04 AND y04 -> z04{nl}x05 AND y05 -> z00")]
-
-    /* Correct */
-    [Answer("", Example, Data = "x00: 0{nl}x01: 1{nl}x02: 0{nl}x03: 1{nl}x04: 0{nl}x05: 1{nl}y00: 0{nl}y01: 0{nl}y02: 1{nl}y03: 1{nl}y04: 0{nl}y05: 1{nl}{nl}x00 AND y00 -> z00{nl}x01 AND y01 -> z01{nl}x02 AND y02 -> z02{nl}x03 AND y03 -> z03{nl}x04 AND y04 -> z04{nl}x05 AND y05 -> z05")]
-
+    [Answer("z00,z01,z02,z05", Example, Data = "x00: 0{nl}x01: 1{nl}x02: 0{nl}x03: 1{nl}x04: 0{nl}x05: 1{nl}y00: 0{nl}y01: 0{nl}y02: 1{nl}y03: 1{nl}y04: 0{nl}y05: 1{nl}{nl}x00 AND y00 -> z05{nl}x01 AND y01 -> z02{nl}x02 AND y02 -> z01{nl}x03 AND y03 -> z03{nl}x04 AND y04 -> z04{nl}x05 AND y05 -> z00")]
     [Answer("", Regular)]
     public override string SolveB()
     {
-        var (inputs, wires) = Parse();
-
-        //var input = string.Join(", ", wires.Select(x => new List<string> { x.In1, x.In2 }).SelectMany(x => x).Distinct().Where(x => x.StartsWith('x') || x.StartsWith('y')));
-        //var outputs = string.Join(", ", wires.Select(x => x.Out).Where(x => x.StartsWith('z')).Distinct());
-
-        //Console.WriteLine(input);
-        //Console.WriteLine(outputs);
-
-        //foreach (var wire in wires)
-        //{
-        //    Console.WriteLine($"{wire.Gate.ToString().ToLower()}({wire.Out},{wire.In1},{wire.In2});");
-        //}
-
-        //foreach (var wire in wires)
-        //{
-        //    Console.WriteLine($"{wire.In1} -> {wire.Out}[label=\"{wire.Gate}\"]");
-        //    Console.WriteLine($"{wire.In2} -> {wire.Out}[label=\"{wire.Gate}\"]");
-        //}
-
-        //return "";
-
-        for (var j = 0; j < 45; j++)
+        var (_, wires) = Parse();
+        
+        var falseWires = new List<string>();
+        
+        var outputWires = wires
+            .Select(w => w.Out)
+            .Where(w => w.StartsWith('z'))
+            .ToList();
+        
+        // Proper order of gates are:
+        // AND -> OR
+        // XOR -> AND
+        // But different ruling for inputs and outputs 
+        foreach (var wire in wires)
         {
-            (inputs, _) = Parse();
+            // starting wires should be followed by OR if AND, and by AND if XOR, except for the first one
+            if ((wire.In1.StartsWith('x') || wire.In2.StartsWith('x')) && !wire.In1.Contains("00") && !wire.In2.Contains("00"))
+                foreach (var secondWire in wires)
+                {
+                    if (wire.Out != secondWire.In1 && wire.Out != secondWire.In2) continue;
+                    if ((wire.Gate == Gate.And && secondWire.Gate == Gate.And) || (wire.Gate == Gate.Xor && secondWire.Gate == Gate.Or))
+                        falseWires.Add(wire.Out);
+                }
 
-            var append = j.ToString().PadLeft(2, '0');
-            foreach (var (key, _) in inputs)
-            {
-                if (key == $"x{append}" || key == $"y{append}")
-                    inputs[key] = 1;
-                else
-                    inputs[key] = 0;
-            }
+            // wires in the middle should not have XOR operators
+            if (!wire.In1.StartsWith('x') && !wire.In2.StartsWith('x') && !wire.Out.StartsWith('z') && wire.Gate == Gate.Xor)
+                falseWires.Add(wire.Out);
 
-            VisitWires(wires, inputs);
-
-            var x = GetInt64(inputs, i => i.Key.StartsWith('x'));
-            var y = GetInt64(inputs, i => i.Key.StartsWith('y'));
-            var z = GetInt64(inputs, i => i.Key.StartsWith('z'));
-
-            if (x.Numeric + y.Numeric != z.Numeric)
-            {
-                Console.WriteLine($"Loop: {append}");
-                Console.WriteLine($"x:{x.Numeric.ToString(),14}, {x.Bytes.PadLeft(z.Bytes.Length, '0')}");
-                Console.WriteLine($"y:{y.Numeric.ToString(),14}, {y.Bytes.PadLeft(z.Bytes.Length, '0')}");
-                Console.WriteLine($"z:{z.Numeric.ToString(),14}, {z.Bytes}");
-                Console.WriteLine();
-
-                Find(append, wires);
-            }
+            // wires at the end should always have XOR operators, except for the last one
+            if (outputWires.Contains(wire.Out) && !wire.Out.Equals($"z{outputWires.Count - 1}") && wire.Gate != Gate.Xor)
+                falseWires.Add(wire.Out);
         }
-
-        return "";
+        
+        return string.Join(",", falseWires.Order());
     }
 
-    private static void Find(string append, List<Wire> wires)
-    {
-        var inputWires = wires.Where(w => w.In1 == $"x{append}" || w.In1 == $"y{append}");
-
-        foreach (var wire in inputWires)
-        {
-            Console.WriteLine($"Start: {wire}");
-            var nextWires = wires.Where(w => w.In1 == wire.Out || w.In2 == wire.Out);
-            foreach (var nextWire in nextWires)
-            {
-                Console.WriteLine($"\tNext: {nextWire}");
-                Loop(nextWire, wires);
-            }
-        }
-
-        Console.WriteLine();
-    }
-
-    private static void Loop(Wire wire, List<Wire> all)
-    {
-        var nextWires = all.Where(w => w.In1 == wire.Out || w.In2 == wire.Out);
-        foreach (var nextWire in nextWires)
-        {
-            Console.WriteLine($"\tNext: {nextWire}");
-            Loop(nextWire, all);
-        }
-    }
-
-    private static bool VisitWires(List<Wire> wires, Dictionary<string, int> inputs)
+    private static void VisitWires(List<Wire> wires, Dictionary<string, int> inputs)
     {
         var visited = new HashSet<Wire>();
 
@@ -122,8 +70,7 @@ public partial class Day24 : Day
                 .Where(w => !visited.Contains(w) && inputs.ContainsKey(w.In1) && inputs.ContainsKey(w.In2))
                 .ToList();
 
-            if (availableWires.Count == 0)
-                return false;
+            if (availableWires.Count == 0) return;
 
             foreach (var wire in availableWires)
             {
@@ -136,8 +83,6 @@ public partial class Day24 : Day
                 visited.Add(wire);
             }
         }
-
-        return true;
     }
 
     private static (long Numeric, string Bytes) GetInt64(Dictionary<string, int> inputs, Func<KeyValuePair<string, int>, bool> predicate)
