@@ -10,7 +10,7 @@ public class Day17 : Day
     [Answer("0,1,2", Example, Data = "Register A: 10{nl}Register B: 0{nl}Register C: 0{nl}{nl}Program: 5,0,5,1,5,4")]
     [Answer("4,2,5,6,7,7,7,7,3,1,0", Example, Data = "Register A: 2024{nl}Register B: 0{nl}Register C: 0{nl}{nl}Program: 0,1,5,4,3,0")]
     [Answer("7,1,3,7,5,1,0,3,4", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         var (registerA, registerB, registerC, program) = Parse();
         return string.Join(',', Solve(registerA, registerB, registerC, program));
@@ -18,7 +18,7 @@ public class Day17 : Day
 
     [Answer("117440", Example, Data = "Register A: 2024{nl}Register B: 0{nl}Register C: 0{nl}{nl}Program: 0,3,5,4,3,0")]
     [Answer("190384113204239", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         var (_, registerB, registerC, program) = Parse();
 
@@ -36,7 +36,7 @@ public class Day17 : Day
                 var pr = program.Take(programLength);
 
                 if (!solve.Take(programLength).SequenceEqual(pr)) continue;
-                if (solve.SequenceEqual(program)) return registerA.ToString();
+                if (solve.SequenceEqual(program)) return registerA;
 
                 start = registerA;
                 programLength++;

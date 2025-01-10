@@ -10,16 +10,16 @@ public class Day12 : Day
 
     [Answer("1930", Example, Data = "RRRRIICCFF{nl}RRRRIICCCF{nl}VVRRRCCFFF{nl}VVRCCCJFFF{nl}VVVVCJJCFE{nl}VVIVCCJJEE{nl}VVIIICJJEE{nl}MIIIIIJJEE{nl}MIIISIJEEE{nl}MMMISSJEEE")]
     [Answer("1461806", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
-        return Solve(false).ToString();
+        return Solve(false);
     }
 
     [Answer("1206", Example, Data = "RRRRIICCFF{nl}RRRRIICCCF{nl}VVRRRCCFFF{nl}VVRCCCJFFF{nl}VVVVCJJCFE{nl}VVIVCCJJEE{nl}VVIIICJJEE{nl}MIIIIIJJEE{nl}MIIISIJEEE{nl}MMMISSJEEE")]
     [Answer("887932", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
-        return Solve(true).ToString();
+        return Solve(true);
     }
 
     private int Solve(bool isPartB)

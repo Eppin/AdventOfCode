@@ -10,15 +10,15 @@ public class Day21 : Day
 
     [Answer("126384", Example, Data = "029A{nl}980A{nl}179A{nl}456A{nl}379A")]
     [Answer("157908", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
-        return Solve(false).ToString();
+        return Solve(false);
     }
 
     [Answer("196910339808654", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
-        return Solve(true).ToString();
+        return Solve(true);
     }
 
     // Keep a list of current positions of the robots

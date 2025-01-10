@@ -7,7 +7,7 @@ public partial class Day5 : Day
     }
 
     [Answer("8111", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         var coordinates = GetCoordinates().ToArray();
 
@@ -26,7 +26,7 @@ public partial class Day5 : Day
     }
 
     [Answer("22088", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         var coordinates = GetCoordinates().ToArray();
 

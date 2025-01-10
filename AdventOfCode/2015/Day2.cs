@@ -8,7 +8,7 @@ public class Day2 : Day
 
     [Answer("43", Example, Data = "1x1x10")]
     [Answer("1598415", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         var result = 0;
         foreach (var str in SplitInput)
@@ -34,7 +34,7 @@ public class Day2 : Day
 
     [Answer("14", Example, Data = "1x1x10")]
     [Answer("3812909", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         var result = 0;
         foreach (var str in SplitInput)

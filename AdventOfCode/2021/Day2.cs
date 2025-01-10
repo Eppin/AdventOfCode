@@ -7,7 +7,7 @@ public class Day2 : Day
     }
 
     [Answer("1604850", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         var commands = GetCommands();
 
@@ -36,7 +36,7 @@ public class Day2 : Day
     }
 
     [Answer("1685186100", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         var commands = GetCommands();
 

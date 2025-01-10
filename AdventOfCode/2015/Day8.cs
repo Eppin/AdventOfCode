@@ -7,7 +7,7 @@ public class Day8 : Day
     }
 
     [Answer("1333", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         int codeL = 0, charactersL = 0;
         foreach (var line in SplitInput)
@@ -31,7 +31,7 @@ public class Day8 : Day
     }
 
     [Answer("2046", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         int codeL = 0, charactersL = 0;
         foreach (var line in SplitInput)

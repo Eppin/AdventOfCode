@@ -8,7 +8,7 @@ public partial class Day24 : Day
 
     [Answer("2024", Example, Data = "x00: 1{nl}x01: 0{nl}x02: 1{nl}x03: 1{nl}x04: 0{nl}y00: 1{nl}y01: 1{nl}y02: 1{nl}y03: 1{nl}y04: 1{nl}{nl}ntg XOR fgs -> mjb{nl}y02 OR x01 -> tnw{nl}kwq OR kpj -> z05{nl}x00 OR x03 -> fst{nl}tgd XOR rvg -> z01{nl}vdt OR tnw -> bfw{nl}bfw AND frj -> z10{nl}ffh OR nrd -> bqk{nl}y00 AND y03 -> djm{nl}y03 OR y00 -> psh{nl}bqk OR frj -> z08{nl}tnw OR fst -> frj{nl}gnj AND tgd -> z11{nl}bfw XOR mjb -> z00{nl}x03 OR x00 -> vdt{nl}gnj AND wpb -> z02{nl}x04 AND y00 -> kjc{nl}djm OR pbm -> qhw{nl}nrd AND vdt -> hwm{nl}kjc AND fst -> rvg{nl}y04 OR y02 -> fgs{nl}y01 AND x02 -> pbm{nl}ntg OR kjc -> kwq{nl}psh XOR fgs -> tgd{nl}qhw XOR tgd -> z09{nl}pbm OR djm -> kpj{nl}x03 XOR y03 -> ffh{nl}x00 XOR y04 -> ntg{nl}bfw OR bqk -> z06{nl}nrd XOR fgs -> wpb{nl}frj XOR qhw -> z04{nl}bqk OR frj -> z07{nl}y03 OR x01 -> nrd{nl}hwm AND bqk -> z03{nl}tgd XOR rvg -> z12{nl}tnw OR pbm -> gnj")]
     [Answer("43942008931358", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         var (inputs, wires) = Parse();
 
@@ -37,7 +37,7 @@ public partial class Day24 : Day
             .Select(z => z.Value);
 
         var zz = string.Join("", z);
-        return Convert.ToInt64(zz, 2).ToString();
+        return Convert.ToInt64(zz, 2);
     }
 
     private static int Calculate(int in1, int in2, Gate gate)
@@ -51,7 +51,7 @@ public partial class Day24 : Day
         };
     }
 
-    public override string SolveB()
+    public override object SolveB()
     {
         throw new NotImplementedException();
     }

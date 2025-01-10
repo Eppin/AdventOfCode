@@ -10,18 +10,18 @@ public class Day10 : Day
 
     [Answer("36", Example, Data = "89010123{nl}78121874{nl}87430965{nl}96549874{nl}45678903{nl}32019012{nl}01329801{nl}10456732")]
     [Answer("644", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         Solve(false);
-        return _total.ToString();
+        return _total;
     }
 
     [Answer("81", Example, Data = "89010123{nl}78121874{nl}87430965{nl}96549874{nl}45678903{nl}32019012{nl}01329801{nl}10456732")]
     [Answer("1366", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         Solve(true);
-        return _total.ToString();
+        return _total;
     }
 
     private void Solve(bool isPartB)

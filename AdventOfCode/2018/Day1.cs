@@ -7,13 +7,13 @@ public class Day1 : Day
     }
 
     [Answer("479", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
-        return SplitInput.Sum(Calculate).ToString();
+        return SplitInput.Sum(Calculate);
     }
 
     [Answer("66105", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         var total = 0;
         var foundFrequencies = new HashSet<int>();

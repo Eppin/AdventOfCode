@@ -8,7 +8,7 @@ public class Day22 : Day
 
     [Answer("37327623", Example, Data = "1{nl}10{nl}100{nl}2024")]
     [Answer("13429191512", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         var secrets = Parse();
         var total = 0L;
@@ -22,12 +22,12 @@ public class Day22 : Day
             total += tmp;
         }
 
-        return total.ToString();
+        return total;
     }
 
     [Answer("23", Example, Data = "1{nl}2{nl}3{nl}2024")]
     [Answer("1582", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         var secrets = Parse();
         

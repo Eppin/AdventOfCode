@@ -10,14 +10,14 @@ public class Day18 : Day
 
     [Answer("22", Example, Data = "5,4{nl}4,2{nl}4,5{nl}3,0{nl}2,1{nl}6,3{nl}2,4{nl}1,5{nl}0,6{nl}3,3{nl}2,6{nl}5,1{nl}1,2{nl}5,5{nl}2,5{nl}6,5{nl}1,4{nl}0,4{nl}6,4{nl}1,1{nl}6,1{nl}1,0{nl}0,5{nl}1,6{nl}2,0")]
     [Answer("296", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         return Solve(false);
     }
 
     [Answer("6,1", Example, Data = "5,4{nl}4,2{nl}4,5{nl}3,0{nl}2,1{nl}6,3{nl}2,4{nl}1,5{nl}0,6{nl}3,3{nl}2,6{nl}5,1{nl}1,2{nl}5,5{nl}2,5{nl}6,5{nl}1,4{nl}0,4{nl}6,4{nl}1,1{nl}6,1{nl}1,0{nl}0,5{nl}1,6{nl}2,0")]
     [Answer("28,44", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         return Solve(true);
     }

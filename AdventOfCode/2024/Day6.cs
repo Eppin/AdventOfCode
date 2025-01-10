@@ -12,7 +12,7 @@ public class Day6 : Day
 
     [Answer("41", Example, Data = "....#.....{nl}.........#{nl}..........{nl}..#.......{nl}.......#..{nl}..........{nl}.#..^.....{nl}........#.{nl}#.........{nl}......#...")]
     [Answer("4656", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         return Solve()
             .SelectMany(g => g)
@@ -22,7 +22,7 @@ public class Day6 : Day
 
     [Answer("6", Example, Data = "....#.....{nl}.........#{nl}..........{nl}..#.......{nl}.......#..{nl}..........{nl}.#..^.....{nl}........#.{nl}#.........{nl}......#...")]
     [Answer("1575", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         var nGrid = Solve();
 
@@ -40,7 +40,7 @@ public class Day6 : Day
             }
         }
 
-        return _blocking.ToString();
+        return _blocking;
     }
 
     private char[][] Solve(char[][]? grid = null)

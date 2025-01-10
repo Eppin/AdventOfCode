@@ -10,18 +10,18 @@ public partial class Day23 : Day
     }
 
     [Answer("307", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         return Solve(false);
     }
 
     [Answer("160", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         return Solve(true);
     }
 
-    private static string Solve(bool isPartB)
+    private static int Solve(bool isPartB)
     {
         var registerA = isPartB ? 1 : 0;
         var registerB = 0;
@@ -74,7 +74,7 @@ public partial class Day23 : Day
             }
         }
 
-        return registerB.ToString();
+        return registerB;
     }
 
     private IEnumerable<Computer> Parse()

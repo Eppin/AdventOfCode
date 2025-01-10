@@ -7,7 +7,7 @@ public class Day19 : Day
     }
 
     [Answer("576", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         var (replacements, starting) = Parse();
 
@@ -26,11 +26,11 @@ public class Day19 : Day
             }
         }
 
-        return results.Distinct().Count().ToString();
+        return results.Distinct().Count();
     }
 
     [Answer("207", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         var (replacements, result) = Parse();
 
@@ -54,7 +54,7 @@ public class Day19 : Day
                 steps++;
         } while (result != "e");
 
-        return steps.ToString();
+        return steps;
     }
 
     private static string Solve(List<Replacement> replacements, string value)

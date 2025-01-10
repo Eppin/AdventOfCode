@@ -13,7 +13,7 @@ public partial class Day14 : Day
     }
 
     [Answer("218619324", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         var robots = Parse();
 
@@ -57,11 +57,11 @@ public partial class Day14 : Day
             }
         }
 
-        return (quadrant1 * quadrant2 * quadrant3 * quadrant4).ToString();
+        return (quadrant1 * quadrant2 * quadrant3 * quadrant4);
     }
 
     [Answer("6446", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         var robots = Parse();
 
@@ -73,10 +73,10 @@ public partial class Day14 : Day
             // Found these string by forcing all grids to a file and search for the christmas tree
             var draw = Draw(robots, Width, Height);
             if (draw.Contains("1111111111111111111111111111111"))
-                return (i + 1).ToString();
+                return (i + 1);
         }
 
-        return 0.ToString();
+        return 0;
     }
 
     private static void Move(Robot robot)

@@ -7,15 +7,15 @@ public partial class Day14 : Day
     }
 
     [Answer("2696", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
-        return Solve().ToString();
+        return Solve();
     }
 
     [Answer("1084", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
-        return Solve(true).ToString();
+        return Solve(true);
     }
 
     private int Solve(bool partB = false)

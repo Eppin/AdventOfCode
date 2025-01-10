@@ -10,19 +10,19 @@ public class Day4 : Day
 
     [Answer("609043", Example, Data = "abcdef")]
     [Answer("254575", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         return FindMatch(5, Input);
     }
 
     [Answer("", Example, Data = "")]
     [Answer("1038736", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         return FindMatch(6, Input);
     }
 
-    private static string FindMatch(int zeroes, string input)
+    private static int FindMatch(int zeroes, string input)
     {
         var zeroesStr = "".PadLeft(zeroes, '0');
         
@@ -32,7 +32,7 @@ public class Day4 : Day
             var md5 = CreateMD5($"{input}{i}");
 
             if (md5.StartsWith(zeroesStr))
-                return i.ToString();
+                return i;
 
             i++;
         }

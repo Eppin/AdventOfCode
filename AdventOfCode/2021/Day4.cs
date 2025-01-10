@@ -7,7 +7,7 @@ public class Day4 : Day
     }
 
     [Answer("41503", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         var numbers = GetSplitInput()[0]
             .Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
@@ -44,7 +44,7 @@ public class Day4 : Day
     }
 
     [Answer("3178", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         var numbers = GetSplitInput()[0]
             .Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)

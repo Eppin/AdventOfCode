@@ -7,7 +7,7 @@ public partial class Day16 : Day
     }
 
     [Answer("213", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         var tickerTapeA = new Dictionary<string, int>
         {
@@ -28,11 +28,11 @@ public partial class Day16 : Day
             tickerTapeA[p.Kind2] == p.Value2 &&
             tickerTapeA[p.Kind3] == p.Value3);
 
-        return parsed.Single().Sue.ToString();
+        return parsed.Single().Sue;
     }
 
     [Answer("323", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         var tickerTapeB = new Dictionary<string, Func<int, bool>>
         {
@@ -53,7 +53,7 @@ public partial class Day16 : Day
             tickerTapeB[p.Kind2].Invoke(p.Value2) &&
             tickerTapeB[p.Kind3].Invoke(p.Value3));
 
-        return parsed.Single().Sue.ToString();
+        return parsed.Single().Sue;
     }
 
     private IEnumerable<Ingredient> Parse()

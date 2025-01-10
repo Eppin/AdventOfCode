@@ -8,16 +8,16 @@ public class Day7 : Day
 
     [Answer("3749", Example, Data = "190: 10 19{nl}3267: 81 40 27{nl}83: 17 5{nl}156: 15 6{nl}7290: 6 8 6 15{nl}161011: 16 10 13{nl}192: 17 8 14{nl}21037: 9 7 18 13{nl}292: 11 6 16 20")]
     [Answer("850435817339", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
-        return Solve([Action.Plus, Action.Multiply]).ToString();
+        return Solve([Action.Plus, Action.Multiply]);
     }
 
     [Answer("11387", Example, Data = "190: 10 19{nl}3267: 81 40 27{nl}83: 17 5{nl}156: 15 6{nl}7290: 6 8 6 15{nl}161011: 16 10 13{nl}192: 17 8 14{nl}21037: 9 7 18 13{nl}292: 11 6 16 20")]
     [Answer("104824810233437", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
-        return Solve([Action.Plus, Action.Multiply, Action.Concatenate]).ToString();
+        return Solve([Action.Plus, Action.Multiply, Action.Concatenate]);
     }
 
     private long Solve(List<Action> actions)

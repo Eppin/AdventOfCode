@@ -10,13 +10,13 @@ public partial class Day7 : Day
     }
 
     [Answer("16076", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
-        return Solve("a").ToString();
+        return Solve("a");
     }
 
     [Answer("2797", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         // Find A
         var a = Solve("a");
@@ -31,7 +31,7 @@ public partial class Day7 : Day
 
         find.InputA = a;
 
-        return Solve("a").ToString();
+        return Solve("a");
     }
 
     private static int Solve(object output)

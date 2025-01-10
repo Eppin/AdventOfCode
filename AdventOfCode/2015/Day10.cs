@@ -9,15 +9,15 @@ public class Day10 : Day
     }
 
     [Answer("492982", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
-        return $"{Solve(Input, 40)}";
+        return Solve(Input, 40);
     }
 
     [Answer("6989950", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
-        return $"{Solve(Input, 50)}";
+        return Solve(Input, 50);
     }
 
     private static int Solve(string input, int processTimes)

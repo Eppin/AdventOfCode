@@ -9,13 +9,13 @@ public class Day1 : Day
     }
 
     [Answer("230", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         return Solve(false);
     }
 
     [Answer("154", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         return Solve(true);
     }

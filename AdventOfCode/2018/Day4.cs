@@ -9,7 +9,7 @@ public class Day4 : Day
     }
 
     [Answer("101262", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         var guards = GenerateLogbook();
 
@@ -20,7 +20,7 @@ public class Day4 : Day
     }
 
     [Answer("71976", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
             var guards = GenerateLogbook();
 
