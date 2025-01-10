@@ -10,16 +10,16 @@ public partial class Day13 : Day
 
     [Answer("480", Example, Data = "Button A: X+94, Y+34{nl}Button B: X+22, Y+67{nl}Prize: X=8400, Y=5400{nl}{nl}Button A: X+26, Y+66{nl}Button B: X+67, Y+21{nl}Prize: X=12748, Y=12176{nl}{nl}Button A: X+17, Y+86{nl}Button B: X+84, Y+37{nl}Prize: X=7870, Y=6450{nl}{nl}Button A: X+69, Y+23{nl}Button B: X+27, Y+71{nl}Prize: X=18641, Y=10279")]
     [Answer("29187", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
-        return Solve().ToString();
+        return Solve();
     }
 
     [Answer("875318608908", Example, Data = "Button A: X+94, Y+34{nl}Button B: X+22, Y+67{nl}Prize: X=8400, Y=5400{nl}{nl}Button A: X+26, Y+66{nl}Button B: X+67, Y+21{nl}Prize: X=12748, Y=12176{nl}{nl}Button A: X+17, Y+86{nl}Button B: X+84, Y+37{nl}Prize: X=7870, Y=6450{nl}{nl}Button A: X+69, Y+23{nl}Button B: X+27, Y+71{nl}Prize: X=18641, Y=10279")]
     [Answer("99968222587852", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
-        return Solve(10_000_000_000_000).ToString();
+        return Solve(10_000_000_000_000);
     }
 
     // Solve by 'simple elimination'

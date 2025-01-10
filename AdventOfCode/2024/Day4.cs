@@ -10,7 +10,7 @@ public class Day4 : Day
 
     [Answer("18", Example, Data = "MMMSXXMASM{nl}MSAMXMSMSA{nl}AMXSXMAAMM{nl}MSAMASMSMX{nl}XMASAMXAMM{nl}XXAMMXXAMA{nl}SMSMSASXSS{nl}SAXAMASAAA{nl}MAMMMXMMMM{nl}MXMXAXMASX{nl}")]
     [Answer("2493", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         var grid = GetSplitInput()
             .Select(l => l.ToCharArray())
@@ -33,12 +33,12 @@ public class Day4 : Day
             }
         }
 
-        return total.ToString();
+        return total;
     }
 
     [Answer("9", Example, Data = "MMMSXXMASM{nl}MSAMXMSMSA{nl}AMXSXMAAMM{nl}MSAMASMSMX{nl}XMASAMXAMM{nl}XXAMMXXAMA{nl}SMSMSASXSS{nl}SAXAMASAAA{nl}MAMMMXMMMM{nl}MXMXAXMASX{nl}")]
     [Answer("1890", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         var grid = GetSplitInput()
             .Select(l => l.ToCharArray())

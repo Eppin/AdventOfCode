@@ -7,7 +7,7 @@ public partial class Day6 : Day
     }
 
     [Answer("569999", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         var lights = new Dictionary<(int, int), int>();
 
@@ -27,11 +27,11 @@ public partial class Day6 : Day
             }
         }
 
-        return lights.Count(l => l.Value == 1).ToString();
+        return lights.Count(l => l.Value == 1);
     }
 
     [Answer("17836115", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         var lights = new Dictionary<(int, int), int>();
 
@@ -51,7 +51,7 @@ public partial class Day6 : Day
             }
         }
 
-        return lights.Sum(l => l.Value).ToString();
+        return lights.Sum(l => l.Value);
     }
 
     private static Action ParseLine(string input, out int x1, out int x2, out int y1, out int y2)

@@ -7,7 +7,7 @@ public partial class Day25 : Day
     }
 
     [Answer("2650453", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         long start = 20151125;
 
@@ -51,7 +51,7 @@ public partial class Day25 : Day
     }
 
     [Answer("christmas \ud83c\udf84", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         return "christmas \ud83c\udf84";
     }

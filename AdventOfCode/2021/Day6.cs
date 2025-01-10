@@ -8,15 +8,15 @@ public class Day6 : Day
 
     [Answer("5934", Example, Data = "3,4,3,1,2")]
     [Answer("388739", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
-        return Solve(80).ToString();
+        return Solve(80);
     }
 
     [Answer("1741362314973", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
-        return Solve(256).ToString();
+        return Solve(256);
     }
 
     private long Solve(int days)

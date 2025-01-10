@@ -7,7 +7,7 @@ public class Day1 : Day
     }
 
     [Answer("280", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         var result = 0;
         foreach (var character in Input)
@@ -18,11 +18,11 @@ public class Day1 : Day
                 result--;
         }
 
-        return $"{result}";
+        return result;
     }
 
     [Answer("1797", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         var result = 0;
         var count = 0;
@@ -36,9 +36,9 @@ public class Day1 : Day
             count++;
 
             if (result == -1)
-                return $"{count}";
+                return count;
         }
 
-        return "-1";
+        return -1;
     }
 }

@@ -13,16 +13,16 @@ public class Day20 : Day
 
     [Answer("", Example, Data = "###############{nl}#...#...#.....#{nl}#.#.#.#.#.###.#{nl}#S#...#.#.#...#{nl}#######.#.#.###{nl}#######.#.#...#{nl}#######.#.###.#{nl}###..E#...#...#{nl}###.#######.###{nl}#...###...#...#{nl}#.#####.#.###.#{nl}#.#...#.#.#...#{nl}#.#.#.#.#.#.###{nl}#...#...#...###{nl}###############")]
     [Answer("1524", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
-        return Solve(false).ToString();
+        return Solve(false);
     }
 
     [Answer("", Example, Data = "###############{nl}#...#...#.....#{nl}#.#.#.#.#.###.#{nl}#S#...#.#.#...#{nl}#######.#.#.###{nl}#######.#.#...#{nl}#######.#.###.#{nl}###..E#...#...#{nl}###.#######.###{nl}#...###...#...#{nl}#.#####.#.###.#{nl}#.#...#.#.#...#{nl}#.#.#.#.#.#.###{nl}#...#...#...###{nl}###############")]
     [Answer("1033746", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
-        return Solve(true).ToString();
+        return Solve(true);
     }
 
     private int Solve(bool isPartB)

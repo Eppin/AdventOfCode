@@ -7,7 +7,7 @@ public class Day3 : Day
     }
 
     [Answer("3009600", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         var flippedInput = FlipArray();
 
@@ -49,7 +49,7 @@ public class Day3 : Day
     }
 
     [Answer("6940518", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         var input = GetSplitInput();
 

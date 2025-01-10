@@ -7,7 +7,7 @@ public class Day2 : Day
     }
 
     [Answer("6370", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         int found2Times = 0, found3Times = 0;
 
@@ -29,7 +29,7 @@ public class Day2 : Day
     }
 
     [Answer("rmyxgdlihczskunpfijqcebtv", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         foreach (var s in SplitInput)
         {

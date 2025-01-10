@@ -7,7 +7,7 @@ public class Day5 : Day
     }
 
     [Answer("255", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         var disallowed = new[] { "ab", "cd", "pq", "xy" };
         var vowels = new[] { 'a', 'e', 'i', 'o', 'u' };
@@ -34,11 +34,11 @@ public class Day5 : Day
                 nice++;
         }
 
-        return nice.ToString();
+        return nice;
     }
 
     [Answer("55", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         var nice = 0;
 
@@ -65,6 +65,6 @@ public class Day5 : Day
                 nice++;
         }
 
-        return nice.ToString();
+        return nice;
     }
 }

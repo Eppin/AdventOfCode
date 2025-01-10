@@ -8,7 +8,7 @@ public class Day5 : Day
 
     [Answer("143", Example, Data = "47|53{nl}97|13{nl}97|61{nl}97|47{nl}75|29{nl}61|13{nl}75|53{nl}29|13{nl}97|29{nl}53|29{nl}61|53{nl}97|53{nl}61|29{nl}47|13{nl}75|47{nl}97|75{nl}47|61{nl}75|61{nl}47|29{nl}75|13{nl}53|13{nl}{nl}75,47,61,53,29{nl}97,61,53,29,13{nl}75,29,13{nl}75,97,47,61,53{nl}61,13,29{nl}97,13,75,29,47")]
     [Answer("5948", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         var (rules, updates) = Parse();
 
@@ -21,7 +21,7 @@ public class Day5 : Day
 
     [Answer("123", Example, Data = "47|53{nl}97|13{nl}97|61{nl}97|47{nl}75|29{nl}61|13{nl}75|53{nl}29|13{nl}97|29{nl}53|29{nl}61|53{nl}97|53{nl}61|29{nl}47|13{nl}75|47{nl}97|75{nl}47|61{nl}75|61{nl}47|29{nl}75|13{nl}53|13{nl}{nl}75,47,61,53,29{nl}97,61,53,29,13{nl}75,29,13{nl}75,97,47,61,53{nl}61,13,29{nl}97,13,75,29,47")]
     [Answer("3062", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         var total = 0;
 
@@ -47,7 +47,7 @@ public class Day5 : Day
             } while (true);
         }
 
-        return total.ToString();
+        return total;
     }
 
     private static IEnumerable<Result> Solve(List<List<int>> rules, List<List<int>> updates)

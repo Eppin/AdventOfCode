@@ -9,15 +9,15 @@ public class Day12 : Day
     }
 
     [Answer("111754", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
-        return Solve(JsonSerializer.Deserialize<JsonElement>(Input), false).ToString();
+        return Solve(JsonSerializer.Deserialize<JsonElement>(Input), false);
     }
 
     [Answer("65402", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
-        return Solve(JsonSerializer.Deserialize<JsonElement>(Input), true).ToString();
+        return Solve(JsonSerializer.Deserialize<JsonElement>(Input), true);
     }
 
     private static int Solve(JsonElement json, bool isPartB)

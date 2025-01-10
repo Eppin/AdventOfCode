@@ -8,7 +8,7 @@ public partial class Day3 : Day
 
     [Answer("161", Example, Data = "xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))")]
     [Answer("167650499", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         return PartARegex()
             .Matches(Input)
@@ -19,7 +19,7 @@ public partial class Day3 : Day
 
     [Answer("48", Example, Data = "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))")]
     [Answer("95846796", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         bool? enabled = true;
 

@@ -7,7 +7,7 @@ public class Day25 : Day
     }
 
     [Answer("2=-0=01----22-0-1-10", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         var sum = SplitInput
             .Select(FromSnafu)
@@ -17,7 +17,7 @@ public class Day25 : Day
     }
 
     [Answer("christmas \ud83c\udf84", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         throw new NotImplementedException();
     }

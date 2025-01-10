@@ -9,7 +9,7 @@ public partial class Day3 : Day
     }
 
     [Answer("116140", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         var splittedInput = SplitInput
             .Select(x => new Claim(x))
@@ -46,7 +46,7 @@ public partial class Day3 : Day
     }
 
     [Answer("574", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         // This generates a list with overlapping Ids and the grid
         SolveA();

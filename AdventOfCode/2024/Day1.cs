@@ -8,7 +8,7 @@ public class Day1 : Day
 
     [Answer("11", Example, Data = "3   4{nl}4   3{nl}2   5{nl}1   3{nl}3   9{nl}3   3")]
     [Answer("2769675", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         var (first, second) = Parse();
 
@@ -20,7 +20,7 @@ public class Day1 : Day
 
     [Answer("31", Example, Data = "3   4{nl}4   3{nl}2   5{nl}1   3{nl}3   9{nl}3   3")]
     [Answer("24643097", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         var (first, second) = Parse();
 
@@ -38,7 +38,7 @@ public class Day1 : Day
             similarity += f * count;
         }
 
-        return similarity.ToString();
+        return similarity;
     }
 
     private (long[] First, long[] Second) Parse()

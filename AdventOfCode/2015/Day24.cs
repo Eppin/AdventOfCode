@@ -14,15 +14,15 @@ public class Day24 : Day
     }
 
     [Answer("11846773891", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
-        return Solve(false).ToString();
+        return Solve(false);
     }
 
     [Answer("80393059", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
-        return Solve(true).ToString();
+        return Solve(true);
     }
 
     private long Solve(bool isPartB)

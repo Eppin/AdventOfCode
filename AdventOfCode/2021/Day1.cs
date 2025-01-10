@@ -7,7 +7,7 @@ public class Day1 : Day
     }
 
     [Answer("1195", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         var increases = 0;
         var previous = 0;
@@ -24,7 +24,7 @@ public class Day1 : Day
     }
 
     [Answer("1235", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         var sums = 0;
         var previous = 0;

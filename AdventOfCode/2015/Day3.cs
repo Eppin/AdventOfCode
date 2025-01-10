@@ -8,7 +8,7 @@ public class Day3 : Day
 
     [Answer("2", Example, Data = "^v^v^v^v^v")]
     [Answer("2081", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         int x = 0, y = 0;
         var results = CreateResults(x, y);
@@ -24,12 +24,12 @@ public class Day3 : Day
                 result.Count += 1;
         }
 
-        return results.Count.ToString();
+        return results.Count;
     }
 
     [Answer("11", Example, Data = "^v^v^v^v^v")]
     [Answer("2341", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         int xSanta = 0, ySanta = 0;
         int xRobot = 0, yRobot = 0;
@@ -54,7 +54,7 @@ public class Day3 : Day
             isRobot = !isRobot;
         }
 
-        return results.Count.ToString();
+        return results.Count;
     }
 
     private static List<Grid> CreateResults(int x, int y)

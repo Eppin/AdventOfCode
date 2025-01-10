@@ -10,16 +10,16 @@ public class Day8 : Day
 
     [Answer("14", Example, Data = "............{nl}........0...{nl}.....0......{nl}.......0....{nl}....0.......{nl}......A.....{nl}............{nl}............{nl}........A...{nl}.........A..{nl}............{nl}............{nl}")]
     [Answer("379", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
-        return Solve(false).ToString();
+        return Solve(false);
     }
 
     [Answer("9", Example, Data = "T.........{nl}...T......{nl}.T........{nl}..........{nl}..........{nl}..........{nl}..........{nl}..........{nl}..........{nl}..........")]
     [Answer("1339", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
-        return Solve(true).ToString();
+        return Solve(true);
     }
 
     private int Solve(bool isPartB)

@@ -8,7 +8,7 @@ public class Day23 : Day
 
     [Answer("7", Example, Data = "kh-tc{nl}qp-kh{nl}de-cg{nl}ka-co{nl}yn-aq{nl}qp-ub{nl}cg-tb{nl}vc-aq{nl}tb-ka{nl}wh-tc{nl}yn-cg{nl}kh-ub{nl}ta-co{nl}de-co{nl}tc-td{nl}tb-wq{nl}wh-td{nl}ta-ka{nl}td-qp{nl}aq-cg{nl}wq-ub{nl}ub-vc{nl}de-ta{nl}wq-aq{nl}wq-vc{nl}wh-yn{nl}ka-de{nl}kh-ta{nl}co-tc{nl}wh-qp{nl}tb-vc{nl}td-yn")]
     [Answer("1419", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         var items = Parse();
         var queue = new Queue<(Node Node, string End, int Depth, HashSet<Node> Visited)>();
@@ -53,7 +53,7 @@ public class Day23 : Day
 
     [Answer("co,de,ka,ta", Example, Data = "kh-tc{nl}qp-kh{nl}de-cg{nl}ka-co{nl}yn-aq{nl}qp-ub{nl}cg-tb{nl}vc-aq{nl}tb-ka{nl}wh-tc{nl}yn-cg{nl}kh-ub{nl}ta-co{nl}de-co{nl}tc-td{nl}tb-wq{nl}wh-td{nl}ta-ka{nl}td-qp{nl}aq-cg{nl}wq-ub{nl}ub-vc{nl}de-ta{nl}wq-aq{nl}wq-vc{nl}wh-yn{nl}ka-de{nl}kh-ta{nl}co-tc{nl}wh-qp{nl}tb-vc{nl}td-yn")]
     [Answer("af,aq,ck,ee,fb,it,kg,of,ol,rt,sc,vk,zh", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         var items = Parse();
         var combinations = new Dictionary<string, List<string>>();

@@ -8,16 +8,16 @@ public class Day2 : Day
 
     [Answer("2", Example, Data = "7 6 4 2 1{nl}1 2 7 8 9{nl}9 7 6 2 1{nl}1 3 2 4 5{nl}8 6 4 4 1{nl}1 3 6 7 9{nl}")]
     [Answer("680", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
-        return Solve(false).ToString();
+        return Solve(false);
     }
 
     [Answer("4", Example, Data = "7 6 4 2 1{nl}1 2 7 8 9{nl}9 7 6 2 1{nl}1 3 2 4 5{nl}8 6 4 4 1{nl}1 3 6 7 9{nl}")]
     [Answer("710", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
-        return Solve(true).ToString();
+        return Solve(true);
     }
 
     private int Solve(bool isPartB)

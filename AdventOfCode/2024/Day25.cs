@@ -8,7 +8,7 @@ public class Day25 : Day
 
     [Answer("3", Example, Data = "#####{nl}.####{nl}.####{nl}.####{nl}.#.#.{nl}.#...{nl}.....{nl}{nl}#####{nl}##.##{nl}.#.##{nl}...##{nl}...#.{nl}...#.{nl}.....{nl}{nl}.....{nl}#....{nl}#....{nl}#...#{nl}#.#.#{nl}#.###{nl}#####{nl}{nl}.....{nl}.....{nl}#.#..{nl}###..{nl}###.#{nl}###.#{nl}#####{nl}{nl}.....{nl}.....{nl}.....{nl}#....{nl}#.#..{nl}#.#.#{nl}#####")]
     [Answer("3116", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         var (locks, keys) = Parse();
         var count = 0;
@@ -31,11 +31,11 @@ public class Day25 : Day
             }
         }
 
-        return count.ToString();
+        return count;
     }
 
     [Answer("christmas \ud83c\udf84", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         return "christmas \ud83c\udf84";
     }

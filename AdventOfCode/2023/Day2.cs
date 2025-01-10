@@ -7,7 +7,7 @@ public class Day2 : Day
     }
 
     [Answer("2545", Regular)]
-    public override string SolveA()
+    public override object SolveA()
     {
         const int redPossible = 12;
         const int greenPossible = 13;
@@ -60,11 +60,11 @@ public class Day2 : Day
                 total += game.GameId;
         }
 
-        return total.ToString();
+        return total;
     }
 
     [Answer("78111", Regular)]
-    public override string SolveB()
+    public override object SolveB()
     {
         return Parse()
             .Sum(game => game.Colors

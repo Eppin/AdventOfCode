@@ -46,7 +46,6 @@ var years = puzzles
 
 years.Add(0);
 
-
 while (true)
 {
     var chosenYear = Prompt.Select("Choose year", years, defaultValue: years.First(), textSelector: y => $"{(y == 0 ? "Add year" : $"{y}")}");
@@ -75,22 +74,38 @@ while (true)
         .ToList();
 
     days.Add(0);
+    days.Add(-1);
 
-    var chosenDay = Prompt.Select("Choose day", days, defaultValue: days.First(), textSelector: d => $"{(d == 0 ? "Add day" : $"{d}")}");
+    var chosenDay = Prompt.Select("Choose day", days, defaultValue: days.First(), textSelector: d => $"{(d == 0 ? "Add day" : d == -1 ? "Run all" : $"{d}")}");
 
     // Add day
     if (chosenDay == 0)
     {
         await AddDay(chosenYear);
         Console.WriteLine("Recompile and start again!");
-        continue;
+        return;
     }
 
-    var puzzle = puzzles.Single(p => p.Year == chosenYear && p.Day == chosenDay);
+    // Run all puzzles
+    if (chosenDay == -1)
+    {
+        var sw = Stopwatch.StartNew();
+        foreach (var solve in puzzles.Where(p => p.Year == chosenYear).OrderBy(p => p.Day))
+        {
+            Solve(solve.Type, AdventOfCode.Models.Solve.A, true);
+            Solve(solve.Type, AdventOfCode.Models.Solve.B, true);
+            Console.WriteLine();
+        }
 
-    var chosenSolve = Prompt.Select<Solve>("Choose which to run", defaultValue: AdventOfCode.Models.Solve.A);
-
-    Solve(puzzle.Type, chosenSolve);
+        Console.WriteLine($"Total time elapsed: {sw.Elapsed:g}");
+    }
+    // Run a single puzzle
+    else
+    {
+        var puzzle = puzzles.Single(p => p.Year == chosenYear && p.Day == chosenDay);
+        var chosenSolve = Prompt.Select<Solve>("Choose which to run", defaultValue: AdventOfCode.Models.Solve.A);
+        Solve(puzzle.Type, chosenSolve);
+    }
     Console.ReadLine();
 }
 
@@ -102,14 +117,14 @@ static int ParseString(string value)
     throw new DataException($"Can't parse [{value}]");
 }
 
-static void Solve(Type type, Solve solve)
+static void Solve(Type type, Solve solve, bool automatic = false)
 {
     if (Activator.CreateInstance(type) is not Day day)
         throw new EvaluateException($"Can't create instance of [{type.Name}]");
 
-    var (input, expected) = ChosenInput(day, solve);
+    var (input, expected) = ChosenInput(day, solve, automatic);
 
-    Console.WriteLine($"-- {type.Name} --");
+    Console.WriteLine($"-- {type.Name}, {solve} --");
     var sw = Stopwatch.StartNew();
 
     var result = day
@@ -127,15 +142,18 @@ static void Solve(Type type, Solve solve)
         : $"{type.Name} is {result}, but expected {expected} in {sw.ElapsedMilliseconds} msec");
 }
 
-static (Input Input, string Answer) ChosenInput(Day day, Solve solve)
+static (Input Input, string Answer) ChosenInput(Day day, Solve solve, bool automatic)
 {
     var inputs = day.AvailableInputs(solve)
         .OrderBy(i => i.Input)
         .ThenBy(i => i.Answer)
         .ToList();
 
+    if (automatic)
+        return inputs.Single(i => i.Input == Regular);
+
     return inputs.Count > 0
-        ? Prompt.Select("Choose input to run", inputs, defaultValue: inputs.Last(), textSelector: (i) => $"{i.Input} ({i.Answer})")
+        ? Prompt.Select("Choose input to run", inputs, defaultValue: inputs.Last(), textSelector: i => $"{i.Input} ({i.Answer})")
         : (Regular, string.Empty);
 }
 
