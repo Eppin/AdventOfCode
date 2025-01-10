@@ -112,7 +112,9 @@ static void Solve(Type type, Solve solve)
     Console.WriteLine($"-- {type.Name} --");
     var sw = Stopwatch.StartNew();
 
-    var result = day.Solve(solve, input, expected);
+    var result = day
+        .Solve(solve, input, expected)
+        .ToString();
 
     if (result == expected)
     {
@@ -185,7 +187,7 @@ static async Task AddDay(int year, [CallerFilePath] string? filePath = null)
     }
 
     // Download input from AoC
-    await DownloadDay(year, day, dir);
+    if (!await DownloadDay(year, day, dir)) return;
 
     var yearDir = Path.Combine(dir, $"{year}");
     var templateDir = Path.Combine(dir, "Templates");

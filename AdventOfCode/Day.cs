@@ -33,10 +33,10 @@ public abstract partial class Day
             throw new InvalidDataException($"Missing date [{year}/{day}]");
     }
 
-    public abstract string SolveA();
-    public abstract string SolveB();
+    public abstract object SolveA();
+    public abstract object SolveB();
 
-    public string Solve(Solve solve, Input input, string expected)
+    public object Solve(Solve solve, Input input, string expected)
     {
         _solve = solve;
         _input = input;
