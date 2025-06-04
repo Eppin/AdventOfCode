@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-
-namespace AdventOfCode._2024;
+﻿namespace AdventOfCode._2024;
 
 public class Day6 : Day
 {
@@ -50,7 +48,7 @@ public class Day6 : Day
         var maxX = grid.Length;
         var maxY = grid[0].Length;
 
-        var position = new Point();
+        var position = new Coordinate();
         var direction = '-';
 
         for (var y = 0; y < maxY; y++)
@@ -59,7 +57,7 @@ public class Day6 : Day
             {
                 if (grid[y][x] is '^' or 'v' or '<' or '>')
                 {
-                    position = new Point(x, y);
+                    position = new Coordinate(x, y);
                     direction = grid[y][x];
                     break;
                 }
@@ -88,7 +86,7 @@ public class Day6 : Day
             .ToArray();
     }
 
-    private static bool Direction(char[][] grid, ref char direction, ref Point position, ref int steps)
+    private static bool Direction(char[][] grid, ref char direction, ref Coordinate position, ref int steps)
     {
         if (steps > 4 * grid.Length * grid[0].Length)
         {

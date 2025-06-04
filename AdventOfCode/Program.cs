@@ -1,7 +1,5 @@
 ﻿using System.Diagnostics;
-using System.Net;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using AdventOfCode;
 using Sharprompt;
 using static System.Int32;
@@ -37,35 +35,16 @@ foreach (var dayType in dayTypes)
     puzzles.Add(new Puzzle(puzzleYear, puzzleDay, dayType));
 }
 
-// Add option at bottom to add year?!
 var years = puzzles
     .Select(p => p.Year)
     .Distinct()
     .OrderDescending()
     .ToList();
 
-years.Add(0);
-
 while (true)
 {
-    var chosenYear = Prompt.Select("Choose year", years, defaultValue: years.First(), textSelector: y => $"{(y == 0 ? "Add year" : $"{y}")}");
+    var chosenYear = Prompt.Select("Choose year", years, defaultValue: years.First());
 
-    // Add year
-    if (chosenYear == 0)
-    {
-        var newYear = AddYear();
-
-        if (newYear != null)
-        {
-            await AddDay(newYear.Value);
-            Console.WriteLine("Recompile and start again!");
-            return;
-        }
-
-        continue;
-    }
-
-    // Add option at bottom to add day?!
     var days = puzzles
         .Where(p => p.Year == chosenYear)
         .Select(p => p.Day)
@@ -73,18 +52,9 @@ while (true)
         .OrderDescending()
         .ToList();
 
-    days.Add(0);
-    days.Add(-1);
+    days.Insert(0, -1);
 
-    var chosenDay = Prompt.Select("Choose day", days, defaultValue: days.First(), textSelector: d => $"{(d == 0 ? "Add day" : d == -1 ? "Run all" : $"{d}")}");
-
-    // Add day
-    if (chosenDay == 0)
-    {
-        await AddDay(chosenYear);
-        Console.WriteLine("Recompile and start again!");
-        return;
-    }
+    var chosenDay = Prompt.Select("Choose day", days, defaultValue: days.First(), textSelector: d => $"{(d == -1 ? "Run all" : $"{d}")}");
 
     // Run all puzzles
     if (chosenDay == -1)
@@ -106,6 +76,7 @@ while (true)
         var chosenSolve = Prompt.Select<Solve>("Choose which to run", defaultValue: AdventOfCode.Models.Solve.A);
         Solve(puzzle.Type, chosenSolve);
     }
+
     Console.ReadLine();
 }
 
@@ -155,99 +126,4 @@ static (Input Input, string Answer) ChosenInput(Day day, Solve solve, bool autom
     return inputs.Count > 0
         ? Prompt.Select("Choose input to run", inputs, defaultValue: inputs.Last(), textSelector: i => $"{i.Input} ({i.Answer})")
         : (Regular, string.Empty);
-}
-
-static int? AddYear([CallerFilePath] string? filePath = null)
-{
-    var dir = Path.GetDirectoryName(filePath);
-    if (!Directory.Exists(dir))
-    {
-        Console.WriteLine("Somehow the directory doesn't exist");
-        return null;
-    }
-
-    int year;
-
-    do
-    {
-        year = Prompt.Input<int>("Add year", DateTime.Now.Year);
-    } while (year < 2015 || year > DateTime.Now.Year);
-
-    var yearDir = Path.Combine(dir, $"{year}");
-
-    if (Directory.Exists(yearDir))
-    {
-        Console.WriteLine($"The year {year} directory already exists");
-        return null;
-    }
-
-    Directory.CreateDirectory(yearDir);
-    Directory.CreateDirectory(Path.Combine(yearDir, "Input"));
-
-    return year;
-}
-
-static async Task AddDay(int year, [CallerFilePath] string? filePath = null)
-{
-    int day;
-
-    do
-    {
-        day = Prompt.Input<int>("Add day");
-    } while (day is < 1 or > 31);
-
-    var dir = Path.GetDirectoryName(filePath);
-
-    if (string.IsNullOrWhiteSpace(dir))
-    {
-        Console.WriteLine("Somehow the current dir is not available");
-        return;
-    }
-
-    // Download input from AoC
-    if (!await DownloadDay(year, day, dir)) return;
-
-    var yearDir = Path.Combine(dir, $"{year}");
-    var templateDir = Path.Combine(dir, "Templates");
-
-    var templateContent = File.ReadAllText(Path.Combine(templateDir, "Day.template.csx"));
-    var dayContent = templateContent
-        .Replace("{YEAR}", $"{year}")
-        .Replace("{DAY}", $"{day}");
-
-    File.WriteAllText(Path.Combine(yearDir, $"Day{day}.cs"), dayContent);
-}
-
-static async Task<bool> DownloadDay(int year, int day, string dir)
-{
-    try
-    {
-        var cookie = Prompt.Input<string>("Enter cookie");
-        if (string.IsNullOrWhiteSpace(cookie))
-        {
-            Console.WriteLine("Cookie can't be null and/or empty");
-            return false;
-        }
-
-        var baseAddress = new Uri("https://adventofcode.com/");
-
-        var cookieContainer = new CookieContainer();
-        cookieContainer.Add(baseAddress, new Cookie("session", cookie));
-
-        using var handler = new HttpClientHandler { CookieContainer = cookieContainer };
-        using var client = new HttpClient(handler) { BaseAddress = baseAddress };
-
-        var response = await client.GetAsync($"{year}/day/{day}/input");
-        response.EnsureSuccessStatusCode();
-
-        var input = await response.Content.ReadAsStringAsync();
-        File.WriteAllText(Path.Combine(dir, $"{year}", "Input", $"Day{day}.txt"), input);
-    }
-    catch (Exception e)
-    {
-        Console.WriteLine(e);
-        return false;
-    }
-
-    return true;
 }

@@ -1,7 +1,5 @@
 ﻿namespace AdventOfCode._2024;
 
-using System.Drawing;
-
 public class Day12 : Day
 {
     public Day12() : base()
@@ -24,7 +22,7 @@ public class Day12 : Day
 
     private int Solve(bool isPartB)
     {
-        var visited = new List<Point>();
+        var visited = new List<Coordinate>();
         var grid = Parse();
 
         var total = 0;
@@ -33,12 +31,12 @@ public class Day12 : Day
         {
             for (var x = 0; x < grid.MaxX; x++)
             {
-                var point = new Point(x, y);
+                var coordinate = new Coordinate(x, y);
                 var key = grid[x, y];
 
-                if (visited.Contains(point)) continue;
+                if (visited.Contains(coordinate)) continue;
 
-                var walked = Walk(grid, point, key);
+                var walked = Walk(grid, coordinate, key);
                 visited.AddRange(walked);
 
                 var fences = isPartB
@@ -52,39 +50,39 @@ public class Day12 : Day
         return total;
     }
 
-    private static HashSet<Point> Walk(Grid<string> grid, Point point, string key)
+    private static HashSet<Coordinate> Walk(Grid<string> grid, Coordinate coordinate, string key)
     {
-        var points = new HashSet<Point>();
-        var queue = new Queue<Point>();
+        var coordinates = new HashSet<Coordinate>();
+        var queue = new Queue<Coordinate>();
 
-        queue.Enqueue(point);
-        points.Add(point);
+        queue.Enqueue(coordinate);
+        coordinates.Add(coordinate);
 
         while (queue.Count > 0)
         {
-            point = queue.Dequeue();
+            coordinate = queue.Dequeue();
 
-            var neighbours = grid.Neighbours(point).Where(p => grid[p] == key);
+            var neighbours = grid.Neighbours(coordinate).Where(p => grid[p] == key);
             foreach (var neighbour in neighbours)
             {
-                if (!points.Contains(neighbour))
+                if (!coordinates.Contains(neighbour))
                 {
                     queue.Enqueue(neighbour);
-                    points.Add(neighbour);
+                    coordinates.Add(neighbour);
                 }
             }
         }
 
-        return points;
+        return coordinates;
     }
 
-    private static int FencesA(Grid<string> grid, HashSet<Point> points)
+    private static int FencesA(Grid<string> grid, HashSet<Coordinate> coordinates)
     {
         var total = 0;
 
-        foreach (var point in points)
+        foreach (var coordinate in coordinates)
         {
-            var neighbours = grid.Neighbours(point.X, point.Y).Count(n => points.Any(r => r == n));
+            var neighbours = grid.Neighbours(coordinate).Count(n => coordinates.Any(r => r == n));
             var edges = 4 - neighbours;
             total += edges;
         }
@@ -92,11 +90,11 @@ public class Day12 : Day
         return total;
     }
 
-    private static int FencesB(Grid<string> grid, HashSet<Point> points)
+    private static int FencesB(Grid<string> grid, HashSet<Coordinate> coordinates)
     {
         var total = 0;
 
-        var fences = points
+        var fences = coordinates
             .OrderBy(p => p.Y)
             .ThenBy(p => p.X)
             .Select(p => new Fence(p, 0))
@@ -104,21 +102,21 @@ public class Day12 : Day
 
         foreach (var fence in fences)
         {
-            var neighbours = grid.Directions(fence.Point, true)
-                .Where(n => points.Any(r => r == n.Value))
+            var neighbours = grid.Directions(fence.Coordinate, true)
+                .Where(n => coordinates.Any(r => r == n.Value))
                 .ToDictionary(d => d.Key, d => d.Value);
 
             if (!neighbours.ContainsKey(Direction.North))
             {
                 if (neighbours.TryGetValue(Direction.East, out var east) && !neighbours.ContainsKey(Direction.NorthEast))
                 {
-                    var eastFence = fences.First(p => p.Point == east);
+                    var eastFence = fences.First(p => p.Coordinate == east);
                     eastFence.Mark += 1;
                 }
 
                 if (neighbours.TryGetValue(Direction.West, out var west) && !neighbours.ContainsKey(Direction.NorthWest))
                 {
-                    var westFence = fences.First(p => p.Point == west);
+                    var westFence = fences.First(p => p.Coordinate == west);
                     westFence.Mark += 1;
                 }
             }
@@ -127,13 +125,13 @@ public class Day12 : Day
             {
                 if (neighbours.TryGetValue(Direction.North, out var north) && !neighbours.ContainsKey(Direction.NorthEast))
                 {
-                    var northFence = fences.First(p => p.Point == north);
+                    var northFence = fences.First(p => p.Coordinate == north);
                     northFence.Mark += 1;
                 }
 
                 if (neighbours.TryGetValue(Direction.South, out var south) && !neighbours.ContainsKey(Direction.SouthEast))
                 {
-                    var southFence = fences.First(p => p.Point == south);
+                    var southFence = fences.First(p => p.Coordinate == south);
                     southFence.Mark += 1;
                 }
             }
@@ -142,13 +140,13 @@ public class Day12 : Day
             {
                 if (neighbours.TryGetValue(Direction.East, out var south) && !neighbours.ContainsKey(Direction.SouthEast))
                 {
-                    var southFence = fences.First(p => p.Point == south);
+                    var southFence = fences.First(p => p.Coordinate == south);
                     southFence.Mark += 1;
                 }
 
                 if (neighbours.TryGetValue(Direction.West, out var west) && !neighbours.ContainsKey(Direction.SouthWest))
                 {
-                    var westFence = fences.First(p => p.Point == west);
+                    var westFence = fences.First(p => p.Coordinate == west);
                     westFence.Mark += 1;
                 }
             }
@@ -157,13 +155,13 @@ public class Day12 : Day
             {
                 if (neighbours.TryGetValue(Direction.North, out var north) && !neighbours.ContainsKey(Direction.NorthWest))
                 {
-                    var northFence = fences.First(p => p.Point == north);
+                    var northFence = fences.First(p => p.Coordinate == north);
                     northFence.Mark += 1;
                 }
 
                 if (neighbours.TryGetValue(Direction.South, out var south) && !neighbours.ContainsKey(Direction.SouthWest))
                 {
-                    var southFence = fences.First(p => p.Point == south);
+                    var southFence = fences.First(p => p.Coordinate == south);
                     southFence.Mark += 1;
                 }
             }
@@ -189,9 +187,9 @@ public class Day12 : Day
         return new Grid<string>(split);
     }
 
-    private class Fence(Point point, int mark)
+    private class Fence(Coordinate coordinate, int mark)
     {
-        public Point Point { get; set; } = point;
+        public Coordinate Coordinate { get; set; } = coordinate;
         public int Mark { get; set; } = mark;
     }
 }

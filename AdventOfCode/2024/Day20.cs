@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using Utils;
-using Coordinate = Coordinate<int>;
 
 public class Day20 : Day
 {

@@ -18,18 +18,18 @@ public partial class Day24 : Day
     }
 
     [Answer("z00,z01,z02,z05", Example, Data = "x00: 0{nl}x01: 1{nl}x02: 0{nl}x03: 1{nl}x04: 0{nl}x05: 1{nl}y00: 0{nl}y01: 0{nl}y02: 1{nl}y03: 1{nl}y04: 0{nl}y05: 1{nl}{nl}x00 AND y00 -> z05{nl}x01 AND y01 -> z02{nl}x02 AND y02 -> z01{nl}x03 AND y03 -> z03{nl}x04 AND y04 -> z04{nl}x05 AND y05 -> z00")]
-    [Answer("", Regular)]
+    [Answer("dvb,fhg,fsq,tnc,vcf,z10,z17,z39", Regular)]
     public override object SolveB()
     {
         var (_, wires) = Parse();
-        
+
         var falseWires = new List<string>();
-        
+
         var outputWires = wires
             .Select(w => w.Out)
             .Where(w => w.StartsWith('z'))
             .ToList();
-        
+
         // Proper order of gates are:
         // AND -> OR
         // XOR -> AND
@@ -38,12 +38,14 @@ public partial class Day24 : Day
         {
             // starting wires should be followed by OR if AND, and by AND if XOR, except for the first one
             if ((wire.In1.StartsWith('x') || wire.In2.StartsWith('x')) && !wire.In1.Contains("00") && !wire.In2.Contains("00"))
+            {
                 foreach (var secondWire in wires)
                 {
                     if (wire.Out != secondWire.In1 && wire.Out != secondWire.In2) continue;
                     if ((wire.Gate == Gate.And && secondWire.Gate == Gate.And) || (wire.Gate == Gate.Xor && secondWire.Gate == Gate.Or))
                         falseWires.Add(wire.Out);
                 }
+            }
 
             // wires in the middle should not have XOR operators
             if (!wire.In1.StartsWith('x') && !wire.In2.StartsWith('x') && !wire.Out.StartsWith('z') && wire.Gate == Gate.Xor)
@@ -53,7 +55,7 @@ public partial class Day24 : Day
             if (outputWires.Contains(wire.Out) && !wire.Out.Equals($"z{outputWires.Count - 1}") && wire.Gate != Gate.Xor)
                 falseWires.Add(wire.Out);
         }
-        
+
         return string.Join(",", falseWires.Order());
     }
 

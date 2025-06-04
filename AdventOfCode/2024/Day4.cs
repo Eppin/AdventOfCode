@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-
-namespace AdventOfCode._2024;
+﻿namespace AdventOfCode._2024;
 
 public class Day4 : Day
 {
@@ -47,7 +45,7 @@ public class Day4 : Day
         var yAxis = grid.Length;
         var xAxis = grid[0].Length;
 
-        var coords = new List<List<(char Char, Point Point)>>();
+        var coords = new List<List<(char Char, Coordinate Coordinate)>>();
 
         for (var y = 0; y < yAxis; y++)
         {
@@ -64,12 +62,12 @@ public class Day4 : Day
         return coords
                     .SelectMany(x => x)
                     .Where(x => x.Char == 'A')
-                    .GroupBy(x => x.Point)
+                    .GroupBy(x => x.Coordinate)
                     .Count(c => c.Count() == 2)
                     .ToString();
     }
 
-    private static List<List<(char Char, Point Point)>> Find(char[][] grid, int x, int y, bool isBackwards, bool isPartB)
+    private static List<List<(char Char, Coordinate Coordinate)>> Find(char[][] grid, int x, int y, bool isBackwards, bool isPartB)
     {
         var xmas = "XMAS";
         var samx = "SAMX";
@@ -86,12 +84,12 @@ public class Day4 : Day
         var maxY = grid[0].Length;
 
         var found = false;
-        var results = new List<List<(char Char, Point Point)>>();
+        var results = new List<List<(char Char, Coordinate Coordinate)>>();
 
         if (!isPartB)
         {
             // Horizontal
-            var horizontal = new List<(char Char, Point Point)>();
+            var horizontal = new List<(char Char, Coordinate Coordinate)>();
             for (var i = 0; i < length; i++)
             {
                 var nextChar = isBackwards ? samx[i] : xmas[i];
@@ -102,14 +100,14 @@ public class Day4 : Day
                     break;
                 }
 
-                horizontal.Add((grid[y + i][x], new Point(y + i, x)));
+                horizontal.Add((grid[y + i][x], new Coordinate(y + i, x)));
                 found = true;
             }
 
             if (found) results.Add(horizontal);
 
             // Vertical
-            var vertical = new List<(char Char, Point Point)>();
+            var vertical = new List<(char Char, Coordinate Coordinate)>();
             for (var i = 0; i < length; i++)
             {
                 var nextChar = isBackwards ? samx[i] : xmas[i];
@@ -120,7 +118,7 @@ public class Day4 : Day
                     break;
                 }
 
-                vertical.Add((grid[y][x + i], new Point(y, x + 1)));
+                vertical.Add((grid[y][x + i], new Coordinate(y, x + 1)));
                 found = true;
             }
 
@@ -128,7 +126,7 @@ public class Day4 : Day
         }
 
         // Diagonal (down-right)
-        var diagonal1 = new List<(char Char, Point Point)>();
+        var diagonal1 = new List<(char Char, Coordinate Coordinate)>();
         for (var i = 0; i < length; i++)
         {
             var nextChar = isBackwards ? samx[i] : xmas[i];
@@ -139,14 +137,14 @@ public class Day4 : Day
                 break;
             }
 
-            diagonal1.Add((grid[y + i][x + i], new Point(y + i, x + 1)));
+            diagonal1.Add((grid[y + i][x + i], new Coordinate(y + i, x + 1)));
             found = true;
         }
 
         if (found) results.Add(diagonal1);
 
         // Diagonal (down-left)
-        var diagonal2 = new List<(char Char, Point Point)>();
+        var diagonal2 = new List<(char Char, Coordinate Coordinate)>();
         for (var i = 0; i < length; i++)
         {
             var nextChar = isBackwards ? samx[i] : xmas[i];
@@ -157,7 +155,7 @@ public class Day4 : Day
                 break;
             }
 
-            diagonal2.Add((grid[y + i][x - i], new Point(y + i, x - 1)));
+            diagonal2.Add((grid[y + i][x - i], new Coordinate(y + i, x - 1)));
             found = true;
         }
 

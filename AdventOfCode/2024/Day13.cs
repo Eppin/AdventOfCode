@@ -1,7 +1,5 @@
 ﻿namespace AdventOfCode._2024;
 
-using System.Drawing;
-
 public partial class Day13 : Day
 {
     public Day13() : base()
@@ -105,27 +103,26 @@ public partial class Day13 : Day
         return games;
     }
 
-    private static Point Value(string value)
+    private static Coordinate Value(string value)
     {
         var regex = CoordinateRegex();
         var result = regex.Match(value);
 
-        if (result.Success)
-        {
-            var x = result.Groups[1].Value;
-            var y = result.Groups[2].Value;
+        if (!result.Success)
+            throw new Exception($"Unable to match X and/or Y for [{value}]");
 
-            return new Point(int.Parse(x), int.Parse(y));
-        }
+        var x = result.Groups[1].Value;
+        var y = result.Groups[2].Value;
 
-        throw new Exception($"Unable to match X and/or Y for [{value}]");
+        return new Coordinate(int.Parse(x), int.Parse(y));
+
     }
 
-    private class Game(Point buttonA, Point buttonB, Point prize)
+    private class Game(Coordinate buttonA, Coordinate buttonB, Coordinate prize)
     {
-        public Point ButtonA { get; } = buttonA;
-        public Point ButtonB { get; } = buttonB;
-        public Point Prize { get; } = prize;
+        public Coordinate ButtonA { get; } = buttonA;
+        public Coordinate ButtonB { get; } = buttonB;
+        public Coordinate Prize { get; } = prize;
     }
 
     [GeneratedRegex(@"X.(\d+), Y.(\d+)")]

@@ -6,3 +6,4 @@ global using AdventOfCode.Attributes;
 global using AdventOfCode.Models;
 global using AdventOfCode.Utils;
 global using static AdventOfCode.Models.Input;
+global using Coordinate = AdventOfCode.Utils.Coordinate<int>;
