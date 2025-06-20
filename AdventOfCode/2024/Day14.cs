@@ -1,6 +1,5 @@
 namespace AdventOfCode._2024;
 
-using Coordinate = Coordinate<int>;
 using System.Text;
 
 public partial class Day14 : Day

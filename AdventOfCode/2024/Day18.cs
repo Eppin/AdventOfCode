@@ -1,7 +1,5 @@
 namespace AdventOfCode._2024;
 
-using Coordinate = Coordinate<int>;
-
 public class Day18 : Day
 {
     public Day18() : base()
@@ -31,7 +29,7 @@ public class Day18 : Day
             ? new Coordinate(6, 6)
             : new Coordinate(70, 70);
 
-        dijkstra.GetNeighbours = reindeer => grid.Neighbours(reindeer.X, reindeer.Y).Where(n => grid[n.X, n.Y] is '.').Select(n => new Coordinate(n.X, n.Y));
+        dijkstra.GetNeighbours = reindeer => grid.Neighbours(reindeer).Where(n => grid[n.X, n.Y] is '.').Select(n => new Coordinate(n.X, n.Y));
         dijkstra.EndReached = current => current == end;
         dijkstra.Draw = list =>
         {

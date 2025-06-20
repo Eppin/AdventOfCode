@@ -1,7 +1,5 @@
 namespace AdventOfCode._2024;
 
-using Coordinate = Coordinate<int>;
-
 public class Day15 : Day
 {
     public Day15() : base()

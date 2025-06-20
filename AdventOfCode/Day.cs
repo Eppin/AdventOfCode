@@ -95,7 +95,7 @@ public abstract partial class Day
             ?.GetCustomAttributes<AnswerAttribute>()
             .ToList();
 
-        if (answers == null || !answers.Any())
+        if (answers == null || answers.Count == 0)
             return null;
 
         return answers.SingleOrDefault(a => a.Input == _input && a.Answer == answer);

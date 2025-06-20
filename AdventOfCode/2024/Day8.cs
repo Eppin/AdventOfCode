@@ -1,7 +1,5 @@
 namespace AdventOfCode._2024;
 
-using System.Drawing;
-
 public class Day8 : Day
 {
     public Day8() : base()
@@ -26,7 +24,7 @@ public class Day8 : Day
     {
         var input = Parse();
 
-        var coordinates = new List<Coordinate>();
+        var coordinates = new List<CoordinateChar>();
 
         // Determine coordinates of antennas
         for (var y = 0; y < input.Length; y++)
@@ -35,16 +33,16 @@ public class Day8 : Day
             {
                 var c = input[y][x];
                 if (c != '.')
-                    coordinates.Add(new(new Point(x, y), c));
+                    coordinates.Add(new(new Coordinate(x, y), c));
             }
         }
 
         // Determine anti-nodes
-        var result = new List<Coordinate>();
+        var result = new List<CoordinateChar>();
 
         var groups = coordinates
             .GroupBy(c => c.Char)
-            .Select(g => new { g.Key, Coordinates = g.Select(c => c.Point) });
+            .Select(g => new { g.Key, Coordinates = g.Select(c => c.Coordinate) });
 
         foreach (var group in groups)
         {
@@ -58,38 +56,38 @@ public class Day8 : Day
         }
 
         return result
-            .DistinctBy(c => c.Point)
-            .Count(r => r.Point.Y < input.Length && r.Point.X < input[0].Length && r.Point is { Y: >= 0, X: >= 0 });
+            .DistinctBy(c => c.Coordinate)
+            .Count(r => r.Coordinate.Y < input.Length && r.Coordinate.X < input[0].Length && r.Coordinate is { Y: >= 0, X: >= 0 });
     }
 
-    private static IEnumerable<Coordinate> AntiNodes(char key, Point coordinate1, Point coordinate2, int maxX, int maxY, bool isPartB)
+    private static IEnumerable<CoordinateChar> AntiNodes(char key, Coordinate coordinate1, Coordinate coordinate2, int maxX, int maxY, bool isPartB)
     {
         var diffX = coordinate2.X - coordinate1.X;
         var diffY = coordinate2.Y - coordinate1.Y;
 
         var isPlus = true;
-        var point = new Point(coordinate1.X + diffX, coordinate1.Y + diffY);
+        var coordinate = new Coordinate(coordinate1.X + diffX, coordinate1.Y + diffY);
 
-        if (point == coordinate2)
+        if (coordinate == coordinate2)
         {
-            point = new Point(coordinate1.X - diffX, coordinate1.Y - diffY);
+            coordinate = new Coordinate(coordinate1.X - diffX, coordinate1.Y - diffY);
             isPlus = false;
         }
 
-        yield return new Coordinate(point, key);
+        yield return new CoordinateChar(coordinate, key);
 
         if (!isPartB)
             yield break;
 
-        yield return new Coordinate(coordinate1, key);
+        yield return new CoordinateChar(coordinate1, key);
 
-        while (point.Y < maxY && point.X < maxX && point.Y >= 0 && point.X >= 0)
+        while (coordinate.Y < maxY && coordinate.X < maxX && coordinate.Y >= 0 && coordinate.X >= 0)
         {
-            point = isPlus
-                ? new Point(point.X + diffX, point.Y + diffY)
-                : new Point(point.X - diffX, point.Y - diffY);
+            coordinate = isPlus
+                ? new Coordinate(coordinate.X + diffX, coordinate.Y + diffY)
+                : new Coordinate(coordinate.X - diffX, coordinate.Y - diffY);
 
-            yield return new Coordinate(point, key);
+            yield return new CoordinateChar(coordinate, key);
         }
     }
 
@@ -100,5 +98,5 @@ public class Day8 : Day
             .ToArray();
     }
 
-    private record struct Coordinate(Point Point, char Char);
+    private record struct CoordinateChar(Coordinate Coordinate, char Char);
 }

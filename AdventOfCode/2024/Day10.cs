@@ -1,7 +1,5 @@
 ﻿namespace AdventOfCode._2024;
 
-using System.Drawing;
-
 public class Day10 : Day
 {
     public Day10() : base()
@@ -37,32 +35,32 @@ public class Day10 : Day
                 if (c is not 0) continue;
 
                 _reached.Clear();
-                Find(grid, x, y, isPartB);
+                Find(grid, new Coordinate(x, y), isPartB);
             }
         }
     }
 
     private int _total;
-    private readonly List<Point> _reached = [];
+    private readonly List<Coordinate> _reached = [];
 
-    private void Find(Grid<int> grid, int x, int y, bool isPartB)
+    private void Find(Grid<int> grid, Coordinate coordinate, bool isPartB)
     {
-        var current = grid[x, y];
+        var current = grid[coordinate];
 
-        if (current == 9 && (isPartB || !_reached.Any(p => p.X == x && p.Y == y)))
+        if (current == 9 && (isPartB || _reached.All(c => c != coordinate)))
         {
             _total++;
 
-            if (!isPartB) _reached.Add(new Point(x, y));
+            if (!isPartB) _reached.Add(coordinate);
 
             return;
         }
 
-        foreach (var neighbour in grid.Neighbours(x, y))
+        foreach (var neighbour in grid.Neighbours(coordinate))
         {
             var next = grid[neighbour];
             if (next == current + 1)
-                Find(grid, neighbour.X, neighbour.Y, isPartB);
+                Find(grid, neighbour, isPartB);
         }
     }
 
