@@ -47,7 +47,7 @@ public class Day19 : Day
 
     // Cache designs and avoid very long recursive loops
     // instead, return cached value when a certain pattern is detected
-    private static readonly Dictionary<string, long> DesignCache = new();
+    private static readonly Dictionary<string, long> DesignCache = [];
 
     private static long Loop(List<string> patterns, string want)
     {

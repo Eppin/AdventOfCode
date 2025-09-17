@@ -34,19 +34,12 @@ public class Day1 : Day
             if (!TryParse(direction[1..], out var distance))
                 throw new DataException($"Invalid direction [{direction[0]}/{direction[1..]}]");
 
-            switch (direction[0])
+            face = direction[0] switch
             {
-                case 'R':
-                    face = (Face)(((int)face + 1 + 4) % 4);
-                    break;
-
-                case 'L':
-                    face = (Face)(((int)face - 1 + 4) % 4);
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+                'R' => (Face)(((int)face + 1 + 4) % 4),
+                'L' => (Face)(((int)face - 1 + 4) % 4),
+                _ => throw new ArgumentOutOfRangeException()
+            };
 
             for (var i = 0; i < distance; i++)
             {
