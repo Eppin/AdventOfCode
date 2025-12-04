@@ -93,37 +93,59 @@ static void Solve(Type type, Solve solve, bool automatic = false)
     if (Activator.CreateInstance(type) is not Day day)
         throw new EvaluateException($"Can't create instance of [{type.Name}]");
 
-    var (input, expected) = ChosenInput(day, solve, automatic);
+    var answer = ChosenInput(day, solve, automatic);
 
     Console.WriteLine($"-- {type.Name}, {solve} --");
-    var sw = Stopwatch.StartNew();
-
-    var result = day
-        .Solve(solve, input, expected)
-        .ToString();
-
-    if (result == expected)
+    if (answer == null)
     {
-        Console.WriteLine($"{type.Name} is {result} in {sw.ElapsedMilliseconds} msec");
+        Console.WriteLine("No input available.");
         return;
     }
 
-    Console.WriteLine(string.IsNullOrWhiteSpace(expected)
-        ? $"{type.Name} is {result}, but expected is not given (for {input} puzzle) in {sw.ElapsedMilliseconds} msec"
-        : $"{type.Name} is {result}, but expected {expected} in {sw.ElapsedMilliseconds} msec");
+    var sw = Stopwatch.StartNew();
+
+    try
+    {
+        var result = day
+            .Solve(solve, answer)
+            .ToString();
+
+        if (result == answer.Value)
+        {
+            Console.WriteLine($"{type.Name} is {result} in {sw.ElapsedMilliseconds} msec");
+            return;
+        }
+
+        Console.WriteLine(string.IsNullOrWhiteSpace(answer.Value)
+            ? $"{type.Name} is {result}, but expected is not given (for {answer.Input} puzzle) in {sw.ElapsedMilliseconds} msec"
+            : $"{type.Name} is {result}, but expected {answer.Value} in {sw.ElapsedMilliseconds} msec");
+    }
+    catch (NotImplementedException )
+    {
+        Console.WriteLine("No implementation available.");
+    }
 }
 
-static (Input Input, string Answer) ChosenInput(Day day, Solve solve, bool automatic)
+static Answer? ChosenInput(Day day, Solve solve, bool automatic)
 {
     var inputs = day.AvailableInputs(solve)
         .OrderBy(i => i.Input)
-        .ThenBy(i => i.Answer)
+        .ThenBy(i => i.Value)
         .ToList();
 
     if (automatic)
-        return inputs.Single(i => i.Input == Regular);
+        return inputs.SingleOrDefault(i => i.Input == Regular);
 
     return inputs.Count > 0
-        ? Prompt.Select("Choose input to run", inputs, defaultValue: inputs.Last(), textSelector: i => $"{i.Input} ({i.Answer})")
-        : (Regular, string.Empty);
+        ? Prompt.Select("Choose input to run", inputs, defaultValue: inputs.Last(), textSelector: TextSelector)
+        : new Answer(string.Empty, Regular, null);
+}
+
+static string TextSelector(Answer answer)
+{
+    var extraData = !string.IsNullOrWhiteSpace(answer.Data)
+        ? $", {answer.Data?[..4]}..."
+        : string.Empty;
+
+    return $"{answer.Input} ({answer.Value}{extraData})";
 }

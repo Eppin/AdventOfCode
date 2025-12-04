@@ -9,11 +9,10 @@ public abstract partial class Day
     private readonly int _year;
     private readonly int _day;
 
-    private Input _input = Regular;
+    private Answer _answer = new(string.Empty, Regular, null);
     private Solve _solve = A;
-    private string _expected = string.Empty;
 
-    protected bool IsExample => _input == Example;
+    protected bool IsExample => _answer.Input == Example;
 
     protected Day([CallerFilePath] string? filePath = null)
     {
@@ -36,11 +35,10 @@ public abstract partial class Day
     public abstract object SolveA();
     public abstract object SolveB();
 
-    public object Solve(Solve solve, Input input, string expected)
+    public object Solve(Solve solve, Answer answer)
     {
         _solve = solve;
-        _input = input;
-        _expected = expected;
+        _answer = answer;
 
         var result = solve == A
             ? SolveA()
@@ -49,12 +47,12 @@ public abstract partial class Day
         return result;
     }
 
-    public IEnumerable<(Input Input, string Answer)> AvailableInputs(Solve solve)
+    public IEnumerable<Answer> AvailableInputs(Solve solve)
     {
         return GetType()
             .GetMethod($"Solve{solve}")
             ?.GetCustomAttributes<AnswerAttribute>()
-            .Select(a => (a.Input, a.Answer)) ?? [];
+            .Select(a => new Answer(a.Answer, a.Input, a.Data)) ?? [];
     }
 
     protected string Input => GetInput();
@@ -76,7 +74,7 @@ public abstract partial class Day
         if (string.IsNullOrWhiteSpace(folder))
             throw new InvalidOperationException();
 
-        var answer = AnswerAttribute(_solve, _expected);
+        var answer = AnswerAttribute();
         if (!string.IsNullOrWhiteSpace(answer?.Data))
             return answer.Data.Replace("{nl}", Environment.NewLine);
 
@@ -88,17 +86,17 @@ public abstract partial class Day
         return File.ReadAllText(path);
     }
 
-    private AnswerAttribute? AnswerAttribute(Solve solve, string answer)
+    private AnswerAttribute? AnswerAttribute()
     {
         var answers = GetType()
-            .GetMethod($"Solve{solve}")
+            .GetMethod($"Solve{_solve}")
             ?.GetCustomAttributes<AnswerAttribute>()
             .ToList();
 
         if (answers == null || answers.Count == 0)
             return null;
 
-        return answers.SingleOrDefault(a => a.Input == _input && a.Answer == answer);
+        return answers.SingleOrDefault(a => a.GetHashCode() == _answer.GetHashCode());
     }
 
     [GeneratedRegex(@"AdventOfCode.(\d{4}).Day(\d{1,2})\.")]
