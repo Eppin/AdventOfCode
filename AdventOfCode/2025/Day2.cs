@@ -16,24 +16,24 @@ public class Day2 : Day
         var input = Parse();
         long answer = 0;
 
-        foreach (var (startStr, endStr) in input)
+        Parallel.ForEach(input, (body) =>
         {
-            var start = long.Parse(startStr);
-            var end = long.Parse(endStr);
+            var start = long.Parse(body.Start);
+            var end = long.Parse(body.End);
 
-            for (var i = start; i <= end; i++)
+            Parallel.For(start, end, (i, _) =>
             {
                 var numbers = Numbers(i);
 
-                if (numbers.Count % 2 != 0) continue;
+                if (numbers.Count % 2 != 0) return;
 
                 var a = numbers.Take(numbers.Count / 2);
                 var b = numbers.Skip(numbers.Count / 2);
 
                 if (a.SequenceEqual(b))
-                    answer += i;
-            }
-        }
+                    Interlocked.Add(ref answer, i);
+            });
+        });
 
         return answer;
     }
@@ -45,17 +45,17 @@ public class Day2 : Day
         var input = Parse();
         long answer = 0;
 
-        foreach (var (startStr, endStr) in input)
+        Parallel.ForEach(input, (body) =>
         {
-            var start = long.Parse(startStr);
-            var end = long.Parse(endStr);
+            var start = long.Parse(body.Start);
+            var end = long.Parse(body.End);
 
-            for (var i = start; i <= end; i++)
+            Parallel.For(start, end, (i, _) =>
             {
                 if (IsInvalid(i))
-                    answer += i;
-            }
-        }
+                    Interlocked.Add(ref answer, i);
+            });
+        });
 
         return answer;
     }
