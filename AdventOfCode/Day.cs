@@ -58,9 +58,11 @@ public abstract partial class Day
     protected string Input => GetInput();
     protected IEnumerable<string> SplitInput => GetSplitInput();
 
-    protected string[] GetSplitInput(bool removeEmptyEntries = true)
+    protected string[] GetSplitInput(bool removeEmptyEntries = true, bool trimEntries = true)
     {
-        var splitOptions = StringSplitOptions.TrimEntries;
+        var splitOptions = StringSplitOptions.None;
+
+        if (trimEntries) splitOptions |= StringSplitOptions.TrimEntries;
         if (removeEmptyEntries) splitOptions |= StringSplitOptions.RemoveEmptyEntries;
 
         return GetInput().Split(Environment.NewLine, splitOptions);
