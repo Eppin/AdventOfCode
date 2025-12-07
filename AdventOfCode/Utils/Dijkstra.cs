@@ -82,7 +82,7 @@ public class Dijkstra<TNode> where TNode : notnull
             _visited.Add(current);
 
             // Debugging
-            // Draw(_visited);
+            Draw(_visited);
 
             foreach (var neighbour in GetNeighbours(current))
             {
