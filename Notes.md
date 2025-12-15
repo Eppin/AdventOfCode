@@ -17,3 +17,7 @@ Key bits that mattered:
 - Part A: actually walking the stream, marking `|` on the grid and splitting until both sides stop.
 - Part B: drop the walk; keep an array `b[x]` of counts. When a `^` is found with incoming flow at `x` (the column index holding the current flow amount), add the flow to `x-1` and `x+1`, set `b[x]=0`, and increment the split counter if `b[x]>0` before clearing.
 - Initialize `b[startX]=1` where the `S` is; every other column starts at 0. Sum of `b` after processing is total water reaching the bottom.
+
+## 2025 Day 9 - Grid visualization
+
+The grid that part 2 produces is way too large to simply just print it in the Console output. Decided to divide all coordinates by a factor of 500 and used `Math.Floor` to make it whole ints. That way I could print it and debug visually (and found the error pretty quickly). The scaling down approach made it possible to see the overall pattern and structure without getting lost in massive coordinate values.
