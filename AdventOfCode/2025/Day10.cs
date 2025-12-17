@@ -7,101 +7,66 @@ public partial class Day10 : Day
     }
 
     [Answer("7", Example, Data = "[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}{nl}[...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}{nl}[.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}")]
-    [Answer("", Regular)]
+    [Answer("459", Regular)]
     public override object SolveA()
     {
-        var result = 0L;
-        foreach (var line in Parse())
-        {
-            result += Solve(line);
-            // break;
-        }
-
-
-        return result;
+        return Parse().Sum(Solve);
     }
 
+    [Answer("33", Example, Data = "[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}{nl}[...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}{nl}[.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}")]
     public override object SolveB()
     {
         throw new NotImplementedException();
     }
 
-    private long Solve(Line line)
+    private static long Solve(Line line)
     {
-        // Console.WriteLine($"Solve: {string.Join("", line.Lights)}");
-
         var maxLength = long.MaxValue;
-        var queue = new Queue<X>();
+
+        var queue = new Queue<LightState>();
 
         var start = new char[line.Lights.Length];
         for (var i = 0; i < start.Length; i++)
             start[i] = '.';
 
+        var seen = new HashSet<string>();
+
         foreach (var buttons in line.Buttons)
         {
-            queue.Enqueue(new X(buttons, [], (char[])start.Clone(), [buttons]));
+            var initial = new LightState(buttons, (char[])start.Clone(), 1);
+            queue.Enqueue(initial);
         }
 
-        while (queue.TryDequeue(out var x))
+        while (queue.TryDequeue(out var lightState))
         {
-            // Console.WriteLine($"S: {string.Join(" - ", x.Path.Select(y => string.Join(',', y)))}");
-
-            if (x.Path.Count >= maxLength)
+            if (lightState.Length >= maxLength)
                 continue;
 
-            foreach (var buttons in x.Buttons)
+            foreach (var idx in lightState.Buttons)
             {
-                if (buttons >= x.Current.Length)
-                    Console.WriteLine();
-
-                // Console.WriteLine($"B: {string.Join("", x.Current)} => {string.Join(',', buttons)}");
-                x.Current[buttons] = x.Current[buttons] == '#' ? '.' : '#';
-                // Console.WriteLine($"A: {string.Join("", x.Current)}");
-                // Console.WriteLine();
+                lightState.Current[idx] = lightState.Current[idx] == '#' ? '.' : '#';
             }
 
-            if (x.Current.SequenceEqual(line.Lights))
+            var stateKey = new string(lightState.Current);
+            if (!seen.Add(stateKey))
             {
-                // Console.WriteLine("FOUND!! ->");
+                continue;
+            }
 
-                if (maxLength > x.Path.Count)
-                {
-                    maxLength = x.Path.Count;
-                    Console.WriteLine("(new) Max length: " + maxLength);
-                }
-
-                // foreach (var path in x.Path)
-                // {
-                //     Console.WriteLine($"\t{string.Join(',', path)}");
-                // }
-
+            if (lightState.Current.SequenceEqual(line.Lights))
+            {
+                maxLength = Math.Min(maxLength, lightState.Length);
                 continue;
             }
 
             foreach (var buttons in line.Buttons)
             {
-                if (x.LastPress.Length == 1 && x.LastPress.SequenceEqual(buttons))
-                    continue; // Skip pressing the same single button, to avoid looping
-
-                // TODO Last press not needed? Just use a priority queue? New at the end
-
-                var newX = new X(buttons, x.Buttons, (char[])x.Current.Clone(), [..x.Path, buttons]);
-                // Console.WriteLine($"Next: {string.Join(',', newX.Buttons)}, {string.Join("", newX.Current)}, {string.Join(" - ", newX.Path.Select(y => string.Join(',', y)))}");
-
+                var newX = new LightState(buttons, (char[])lightState.Current.Clone(), lightState.Length + 1);
                 queue.Enqueue(newX);
             }
         }
 
         return maxLength;
-    }
-
-    public class X(int[] buttons, int[] lastPress, char[] current, List<int[]> path)
-    {
-        public int[] Buttons { get; set; } = buttons;
-        public int[] LastPress { get; set; } = lastPress;
-        public char[] Current { get; set; } = current;
-
-        public List<int[]> Path { get; set; } = path;
     }
 
     private List<Line> Parse()
@@ -137,6 +102,14 @@ public partial class Day10 : Day
     }
 
     private record Line(char[] Lights, int[][] Buttons, int[] Joltages);
+
+    private class LightState(int[] buttons, char[] current, int length)
+    {
+        public int[] Buttons { get; } = buttons;
+        public char[] Current { get; } = current;
+
+        public int Length { get; } = length;
+    }
 
     [GeneratedRegex(@"\[(.*)\]")]
     private static partial Regex LightRegex();
