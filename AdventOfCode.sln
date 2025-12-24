@@ -1,6 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36518.9 d17.14
+MinimumVisualStudioVersion = 16.0.0.0
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdventOfCode", "AdventOfCode\AdventOfCode.csproj", "{1C8524BC-D69C-414C-9CB3-3DC517899011}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+	ProjectSection(SolutionItems) = preProject
+		Notes.md = Notes.md
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -12,5 +21,11 @@ Global
 		{1C8524BC-D69C-414C-9CB3-3DC517899011}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1C8524BC-D69C-414C-9CB3-3DC517899011}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1C8524BC-D69C-414C-9CB3-3DC517899011}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6A73680A-A73E-44B6-B915-6177A88BE9FD}
 	EndGlobalSection
 EndGlobal
